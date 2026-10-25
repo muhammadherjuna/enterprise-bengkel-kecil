@@ -1,0 +1,15 @@
+{
+  "name": "bengkelos-monorepo",
+  "version": "1.1.0",
+  "private": true,
+  "scripts": {
+    "dev:backend": "pnpm --filter backend run start:dev",
+    "dev:frontend": "pnpm --filter frontend run dev",
+    "build:backend": "pnpm --filter backend run build",
+    "build:frontend": "pnpm --filter frontend run build",
+    "test:backend": "pnpm --filter backend run test",
+    "prisma:generate": "pnpm --filter backend run prisma:generate",
+    "prisma:migrate": "pnpm --filter backend run prisma:migrate",
+    "prisma:seed": "pnpm --filter backend run prisma:seed"
+  }
+}

@@ -1,0 +1,366 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  OWNER
+  KASIR
+  MEKANIK
+}
+
+enum StockMovementType {
+  INITIAL
+  SALE
+  SERVICE_USE
+  ADJUSTMENT
+  CANCELLATION_RETURN
+}
+
+enum ServiceOrderStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  CANCELLED
+}
+
+enum OrderItemType {
+  SERVICE
+  PRODUCT
+}
+
+enum PaymentMethod {
+  CASH
+  TRANSFER
+  QRIS_MANUAL
+}
+
+enum PaymentRecordStatus {
+  COMPLETED
+  CANCELLED
+}
+
+enum CashType {
+  CASH_IN
+  CASH_OUT
+}
+
+model User {
+  id           String    @id @default(uuid())
+  username     String    @unique
+  name         String
+  passwordHash String
+  roles        Role[]    @default([KASIR])
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  payments         Payment[]
+  cashTransactions CashTransaction[]
+  expenses         Expense[]
+  auditLogs        AuditLog[]
+  stockMovements   StockMovement[]
+
+  @@map("users")
+}
+
+model WorkshopSetting {
+  id            String   @id @default(uuid())
+  name          String   @default("Bengkel Motor Berkah")
+  address       String?  @default("Jl. Raya Bengkel No. 123")
+  phone         String?  @default("081234567890")
+  receiptFooter String?  @default("Terima kasih atas kunjungan Anda. Garansi servis 7 hari.")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("workshop_settings")
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  name      String
+  phone     String?
+  address   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vehicles      Vehicle[]
+  serviceOrders ServiceOrder[]
+  sales         Sale[]
+
+  @@map("customers")
+}
+
+model Vehicle {
+  id          String   @id @default(uuid())
+  customerId  String?
+  plateNumber String
+  brand       String
+  model       String
+  year        Int?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  customer      Customer?      @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  serviceOrders ServiceOrder[]
+
+  @@index([plateNumber])
+  @@map("vehicles")
+}
+
+model Mechanic {
+  id        String   @id @default(uuid())
+  name      String
+  phone     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  serviceOrders ServiceOrder[]
+
+  @@map("mechanics")
+}
+
+model Service {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  category  String   @default("Umum")
+  price     Decimal  @db.Decimal(18, 2)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orderItems ServiceOrderItem[]
+
+  @@map("services")
+}
+
+model Product {
+  id        String   @id @default(uuid())
+  sku       String   @unique
+  barcode   String?
+  name      String
+  category  String   @default("Sparepart")
+  unit      String   @default("Pcs")
+  costPrice Decimal  @db.Decimal(18, 2)
+  sellPrice Decimal  @db.Decimal(18, 2)
+  stock     Int      @default(0)
+  minStock  Int      @default(5)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  stockMovements StockMovement[]
+  orderItems     ServiceOrderItem[]
+  saleItems      SaleItem[]
+
+  @@map("products")
+}
+
+model StockMovement {
+  id            String            @id @default(uuid())
+  productId     String
+  type          StockMovementType
+  quantity      Int
+  balanceBefore Int
+  balanceAfter  Int
+  reason        String?
+  referenceType String?
+  referenceId   String?
+  userId        String?
+  createdAt     DateTime          @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+  @@index([createdAt])
+  @@map("stock_movements")
+}
+
+model ServiceOrder {
+  id                String             @id @default(uuid())
+  orderNumber       String             @unique
+  date              DateTime           @default(now())
+  customerId        String?
+  vehicleId         String?
+  mechanicId        String?
+  complaints        String?
+  status            ServiceOrderStatus @default(PENDING)
+  paymentStatus     PaymentStatus      @default(UNPAID)
+  mileage           Int?
+  subtotalServices  Decimal            @default(0) @db.Decimal(18, 2)
+  subtotalProducts  Decimal            @default(0) @db.Decimal(18, 2)
+  discount          Decimal            @default(0) @db.Decimal(18, 2)
+  totalAmount       Decimal            @default(0) @db.Decimal(18, 2)
+  notes             String?
+  partsDeducted     Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  customer   Customer?          @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  vehicle    Vehicle?           @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  mechanic   Mechanic?          @relation(fields: [mechanicId], references: [id], onDelete: SetNull)
+  items      ServiceOrderItem[]
+  payments   Payment[]
+
+  @@index([date])
+  @@index([status])
+  @@index([paymentStatus])
+  @@map("service_orders")
+}
+
+model ServiceOrderItem {
+  id             String        @id @default(uuid())
+  serviceOrderId String
+  itemType       OrderItemType
+  serviceId      String?
+  productId      String?
+  name           String
+  quantity       Int           @default(1)
+  price          Decimal       @db.Decimal(18, 2)
+  costPrice      Decimal       @default(0) @db.Decimal(18, 2)
+  subtotal       Decimal       @db.Decimal(18, 2)
+
+  serviceOrder ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+  service      Service?      @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  product      Product?      @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@map("service_order_items")
+}
+
+model Sale {
+  id            String        @id @default(uuid())
+  saleNumber    String        @unique
+  date          DateTime      @default(now())
+  customerId    String?
+  customerName  String?
+  paymentStatus PaymentStatus @default(UNPAID)
+  subtotal      Decimal       @default(0) @db.Decimal(18, 2)
+  discount      Decimal       @default(0) @db.Decimal(18, 2)
+  totalAmount   Decimal       @default(0) @db.Decimal(18, 2)
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  customer Customer?  @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  items    SaleItem[]
+  payments Payment[]
+
+  @@index([date])
+  @@index([paymentStatus])
+  @@map("sales")
+}
+
+model SaleItem {
+  id          String   @id @default(uuid())
+  saleId      String
+  productId   String
+  productName String
+  quantity    Int
+  price       Decimal  @db.Decimal(18, 2)
+  costPrice   Decimal  @default(0) @db.Decimal(18, 2)
+  subtotal    Decimal  @db.Decimal(18, 2)
+
+  sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@map("sale_items")
+}
+
+model Payment {
+  id             String              @id @default(uuid())
+  paymentNumber  String              @unique
+  date           DateTime            @default(now())
+  idempotencyKey String?             @unique
+  serviceOrderId String?
+  saleId         String?
+  method         PaymentMethod       @default(CASH)
+  amountTotal    Decimal             @db.Decimal(18, 2)
+  amountPaid     Decimal             @db.Decimal(18, 2)
+  changeAmount   Decimal             @default(0) @db.Decimal(18, 2)
+  status         PaymentRecordStatus @default(COMPLETED)
+  notes          String?
+  receivedById   String
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  serviceOrder    ServiceOrder?    @relation(fields: [serviceOrderId], references: [id], onDelete: SetNull)
+  sale            Sale?            @relation(fields: [saleId], references: [id], onDelete: SetNull)
+  receivedBy      User             @relation(fields: [receivedById], references: [id], onDelete: Restrict)
+  cashTransaction CashTransaction?
+
+  @@index([date])
+  @@map("payments")
+}
+
+model CashTransaction {
+  id            String   @id @default(uuid())
+  date          DateTime @default(now())
+  type          CashType
+  category      String
+  amount        Decimal  @db.Decimal(18, 2)
+  balanceBefore Decimal  @db.Decimal(18, 2)
+  balanceAfter  Decimal  @db.Decimal(18, 2)
+  description   String
+  referenceType String?
+  referenceId   String?
+  paymentId     String?  @unique
+  userId        String
+  createdAt     DateTime @default(now())
+
+  payment Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([date])
+  @@map("cash_transactions")
+}
+
+model Expense {
+  id            String        @id @default(uuid())
+  expenseNumber String        @unique
+  date          DateTime      @default(now())
+  category      String
+  amount        Decimal       @db.Decimal(18, 2)
+  description   String
+  recipient     String?
+  paymentMethod PaymentMethod @default(CASH)
+  userId        String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([date])
+  @@map("expenses")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  timestamp  DateTime @default(now())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String?
+  details    Json?
+  ipAddress  String?
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([timestamp])
+  @@index([action])
+  @@map("audit_logs")
+}

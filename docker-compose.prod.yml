@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bengkelos-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: bengkel
+      POSTGRES_PASSWORD: bengkel_secret_password
+      POSTGRES_DB: bengkelos
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bengkel -d bengkelos"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: bengkelos-backend
+    restart: always
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      DATABASE_URL: "postgresql://bengkel:bengkel_secret_password@postgres:5432/bengkelos?schema=public"
+      SESSION_SECRET: "super_secret_session_key_bengkelos_2026_dev_prod"
+      COOKIE_SECURE: "false"
+      CORS_ORIGIN: "http://localhost"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+    container_name: bengkelos-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  pgdata:
