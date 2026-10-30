@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { apiFetch } from '../../api/client';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Filter, Wrench, CheckCircle, Clock, XCircle, ArrowRight } from 'lucide-react';
+import { PlateBadge } from '../../components/PlateBadge';
+import { StatusBadge } from '../../components/StatusBadge';
+import { Plus, Search, Filter, Wrench, ChevronRight } from 'lucide-react';
 
 export const ServiceList: React.FC = () => {
   const [orders, setOrders] = useState<any[]>([]);
@@ -44,76 +46,51 @@ export const ServiceList: React.FC = () => {
     }).format(val || 0);
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'PENDING':
-        return <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Menunggu</span>;
-      case 'IN_PROGRESS':
-        return <span className="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Dikerjakan</span>;
-      case 'COMPLETED':
-        return <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Selesai</span>;
-      case 'CANCELLED':
-        return <span className="bg-rose-100 text-rose-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Dibatalkan</span>;
-      default:
-        return <span>{status}</span>;
-    }
-  };
-
-  const getPaymentBadge = (status: string) => {
-    if (status === 'PAID') {
-      return <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-md">LUNAS</span>;
-    }
-    if (status === 'CANCELLED') {
-      return <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-md">BATAL</span>;
-    }
-    return <span className="bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold px-2 py-0.5 rounded-md">BELUM LUNAS</span>;
-  };
-
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+    <div className="space-y-4 pb-12">
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-zinc-200">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Daftar Order Servis</h1>
-          <p className="text-xs text-slate-500">Pencatatan dan riwayat perbaikan motor bengkel</p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
+              Daftar Order Servis
+            </h1>
+            <span className="font-mono text-xs text-zinc-400">/ WORK ORDERS</span>
+          </div>
+          <p className="text-xs text-zinc-500 mt-0.5">
+            Manajemen antrean motor, penugasan mekanik, dan pelacakan pekerjaan bengkel.
+          </p>
         </div>
+
         <Link
           to="/services/new"
-          className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs sm:text-sm shadow-sm transition"
+          className="inline-flex items-center gap-2 px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold rounded-lg shadow-subtle transition"
         >
-          <Plus className="w-4 h-4" />
-          <span>Buat Servis Baru</span>
+          <Plus className="w-3.5 h-3.5" />
+          <span>Buat Order Servis</span>
         </Link>
       </div>
 
-      {/* Search & Filters */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-        <form onSubmit={handleSearchSubmit} className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Cari plat motor, nomor order, atau nama pelanggan..."
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs sm:text-sm font-semibold transition"
-          >
-            Cari
-          </button>
+      {/* Filter and Search Bar */}
+      <div className="bg-white p-3.5 rounded-xl border border-zinc-200/90 shadow-card flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
+        <form onSubmit={handleSearchSubmit} className="relative flex-1">
+          <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-2.5" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Cari plat nomor motor, kode order, atau nama pelanggan..."
+            className="w-full pl-9 pr-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:bg-white transition"
+          />
         </form>
 
-        <div className="flex flex-wrap gap-2 pt-1 border-t border-slate-100 text-xs">
+        <div className="flex items-center gap-2">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 outline-none"
+            className="px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs text-zinc-700 outline-none font-medium"
           >
-            <option value="">Semua Status Pekerjaan</option>
+            <option value="">Semua Status Servis</option>
             <option value="PENDING">Menunggu</option>
             <option value="IN_PROGRESS">Dikerjakan</option>
             <option value="COMPLETED">Selesai</option>
@@ -123,7 +100,7 @@ export const ServiceList: React.FC = () => {
           <select
             value={paymentFilter}
             onChange={(e) => setPaymentFilter(e.target.value)}
-            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 outline-none"
+            className="px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs text-zinc-700 outline-none font-medium"
           >
             <option value="">Semua Status Bayar</option>
             <option value="UNPAID">Belum Lunas</option>
@@ -132,61 +109,94 @@ export const ServiceList: React.FC = () => {
         </div>
       </div>
 
-      {/* Orders List */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      {/* High-Density Work Orders Table */}
+      <div className="bg-white rounded-xl border border-zinc-200/90 shadow-card overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center text-slate-400 text-xs sm:text-sm">
-            Memuat daftar servis...
+          <div className="p-12 text-center text-zinc-400 text-xs font-mono">
+            Memuat data servis...
           </div>
         ) : orders.length === 0 ? (
-          <div className="p-12 text-center text-slate-400 text-xs sm:text-sm">
-            Tidak ada order servis yang sesuai filter.
+          <div className="p-12 text-center text-zinc-400 text-xs">
+            Tidak ada order servis yang sesuai filter pencarian.
           </div>
         ) : (
-          <div className="divide-y divide-slate-100">
-            {orders.map((order) => (
-              <Link
-                key={order.id}
-                to={`/services/${order.id}`}
-                className="p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:bg-slate-50 transition"
-              >
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-sm text-slate-900">{order.orderNumber}</span>
-                    {getStatusBadge(order.status)}
-                    {getPaymentBadge(order.paymentStatus)}
-                  </div>
-                  <div className="text-xs text-slate-600 flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-slate-800">
-                      {order.vehicle?.plateNumber || 'Plat Tanpa Data'}
-                    </span>
-                    <span>•</span>
-                    <span>
-                      {order.vehicle?.brand} {order.vehicle?.model}
-                    </span>
-                    <span>•</span>
-                    <span>Pelanggan: {order.customer?.name || 'Umum'}</span>
-                  </div>
-                  {order.complaints && (
-                    <p className="text-xs text-slate-500 italic line-clamp-1">
-                      Keluhan: "{order.complaints}"
-                    </p>
-                  )}
-                  <div className="text-[11px] text-slate-400">
-                    Tgl: {new Date(order.date).toLocaleDateString('id-ID')} • Mekanik: {order.mechanic?.name || 'Belum dipilih'}
-                  </div>
-                </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left">
+              <thead>
+                <tr className="bg-zinc-50/70 border-b border-zinc-200/80 text-[11px] font-mono text-zinc-500 uppercase tracking-wider">
+                  <th className="py-2.5 px-4 font-medium">No. Order & Tgl</th>
+                  <th className="py-2.5 px-4 font-medium">Kendaraan / Plat</th>
+                  <th className="py-2.5 px-4 font-medium">Pelanggan & Keluhan</th>
+                  <th className="py-2.5 px-4 font-medium">Mekanik</th>
+                  <th className="py-2.5 px-4 font-medium text-center">Pekerjaan</th>
+                  <th className="py-2.5 px-4 font-medium text-center">Faktur</th>
+                  <th className="py-2.5 px-4 font-medium text-right">Total Biaya</th>
+                  <th className="py-2.5 px-4 font-medium text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100">
+                {orders.map((order) => (
+                  <tr key={order.id} className="hover:bg-zinc-50/70 transition-colors">
+                    <td className="py-3 px-4">
+                      <span className="font-mono font-bold text-zinc-900 block leading-tight">
+                        {order.orderNumber}
+                      </span>
+                      <span className="text-[10px] font-mono text-zinc-400">
+                        {new Date(order.date).toLocaleDateString('id-ID')}
+                      </span>
+                    </td>
 
-                <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                  <span className="text-sm sm:text-base font-black text-slate-900">
-                    {formatCurrency(Number(order.totalAmount))}
-                  </span>
-                  <span className="text-xs text-blue-600 font-semibold flex items-center gap-1 mt-1">
-                    Detail <ArrowRight className="w-3.5 h-3.5" />
-                  </span>
-                </div>
-              </Link>
-            ))}
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        <PlateBadge plate={order.vehicle?.plateNumber} size="sm" />
+                        <span className="text-zinc-700 font-medium truncate max-w-[120px]">
+                          {order.vehicle?.brand} {order.vehicle?.model}
+                        </span>
+                      </div>
+                    </td>
+
+                    <td className="py-3 px-4 max-w-xs">
+                      <span className="font-medium text-zinc-900 block truncate">
+                        {order.customer?.name || 'Pelanggan Umum'}
+                      </span>
+                      {order.complaints ? (
+                        <span className="text-[11px] text-zinc-500 italic block truncate">
+                          "{order.complaints}"
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-zinc-400 italic block">-</span>
+                      )}
+                    </td>
+
+                    <td className="py-3 px-4 font-medium text-zinc-700">
+                      {order.mechanic?.name || <span className="text-zinc-400 italic">Belum assign</span>}
+                    </td>
+
+                    <td className="py-3 px-4 text-center">
+                      <StatusBadge status={order.status} type="service" />
+                    </td>
+
+                    <td className="py-3 px-4 text-center">
+                      <StatusBadge status={order.paymentStatus} type="payment" />
+                    </td>
+
+                    <td className="py-3 px-4 text-right font-mono font-bold text-zinc-900 tabular-nums">
+                      {formatCurrency(Number(order.totalAmount))}
+                    </td>
+
+                    <td className="py-3 px-4 text-center">
+                      <Link
+                        to={`/services/${order.id}`}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-[11px] font-semibold transition"
+                      >
+                        <span>Detail</span>
+                        <ChevronRight className="w-3 h-3 text-zinc-500" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

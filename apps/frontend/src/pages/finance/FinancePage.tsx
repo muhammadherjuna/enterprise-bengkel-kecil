@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import {
   DollarSign,
   TrendingUp,
@@ -13,10 +14,12 @@ import {
   ArrowDownLeft,
   X,
   CreditCard,
+  Info,
 } from 'lucide-react';
 
 export const FinancePage: React.FC = () => {
   const { hasRole } = useAuth();
+  const { showToast } = useToast();
 
   // Tab: Cash Ledger, Operational Expenses, Estimated Profit
   const [tab, setTab] = useState<'LEDGER' | 'EXPENSES' | 'PROFIT'>('LEDGER');
@@ -41,7 +44,6 @@ export const FinancePage: React.FC = () => {
 
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -58,7 +60,7 @@ export const FinancePage: React.FC = () => {
         setProfitReport(res);
       }
     } catch (err: any) {
-      setError(err.message || 'Gagal memuat data keuangan');
+      showToast('error', err.message || 'Gagal memuat data keuangan');
     } finally {
       setLoading(false);
     }
@@ -71,11 +73,10 @@ export const FinancePage: React.FC = () => {
   const handleCreateExpense = async (e: React.FormEvent) => {
     e.preventDefault();
     if (expAmount <= 0) {
-      setError('Nominal pengeluaran harus lebih dari 0');
+      showToast('error', 'Nominal pengeluaran harus lebih dari 0');
       return;
     }
     setActionLoading(true);
-    setError(null);
 
     try {
       await apiFetch('/finance/expenses', {
@@ -89,13 +90,14 @@ export const FinancePage: React.FC = () => {
         }),
       });
 
+      showToast('success', 'Pengeluaran kas operasional berhasil dicatat');
       setShowExpenseModal(false);
       setExpAmount(0);
       setExpDesc('');
       setExpRecipient('');
       await loadData();
     } catch (err: any) {
-      setError(err.message || 'Gagal mencatat pengeluaran');
+      showToast('error', err.message || 'Gagal mencatat pengeluaran');
     } finally {
       setActionLoading(false);
     }
@@ -110,62 +112,58 @@ export const FinancePage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4 pb-20">
+    <div className="space-y-4 pb-12">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-zinc-200">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Keuangan Sederhana
-          </h1>
-          <p className="text-xs text-slate-500">
-            Arus kas laci kasir, pencatatan pengeluaran, dan estimasi laba kotor
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
+              Keuangan & Buku Kas Bengkel
+            </h1>
+            <span className="font-mono text-xs text-zinc-400">/ CASH LEDGER</span>
+          </div>
+          <p className="text-xs text-zinc-500 mt-0.5">
+            Arus kas masuk dari pembayaran, pengeluaran operasional bengkel, dan analisis estimasi laba kotor.
           </p>
         </div>
 
         {hasRole('OWNER') && (
           <button
             onClick={() => setShowExpenseModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs shadow-sm transition"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle transition"
           >
-            <Plus className="w-4 h-4" />
-            <span>Catat Pengeluaran (Kas Keluar)</span>
+            <Plus className="w-3.5 h-3.5" />
+            <span>Catat Pengeluaran Kas</span>
           </button>
         )}
       </div>
 
-      {error && (
-        <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {/* Tabs */}
-      <div className="flex bg-slate-200 p-1 rounded-xl w-full sm:w-auto overflow-x-auto text-xs font-bold">
+      {/* Segmented Control */}
+      <div className="inline-flex bg-zinc-100 p-1 rounded-lg border border-zinc-200/80 text-xs font-semibold">
         <button
           onClick={() => setTab('LEDGER')}
-          className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg transition ${
-            tab === 'LEDGER' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-600'
+          className={`px-3.5 py-1.5 rounded-md transition ${
+            tab === 'LEDGER' ? 'bg-white text-zinc-900 shadow-subtle' : 'text-zinc-600'
           }`}
         >
-          Buku Kas (Ledger)
+          Buku Kas (Register)
         </button>
         <button
           onClick={() => setTab('EXPENSES')}
-          className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg transition ${
-            tab === 'EXPENSES' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-600'
+          className={`px-3.5 py-1.5 rounded-md transition ${
+            tab === 'EXPENSES' ? 'bg-white text-zinc-900 shadow-subtle' : 'text-zinc-600'
           }`}
         >
-          Daftar Pengeluaran
+          Pengeluaran Operasional
         </button>
         {hasRole('OWNER') && (
           <button
             onClick={() => setTab('PROFIT')}
-            className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg transition ${
-              tab === 'PROFIT' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-600'
+            className={`px-3.5 py-1.5 rounded-md transition ${
+              tab === 'PROFIT' ? 'bg-white text-zinc-900 shadow-subtle' : 'text-zinc-600'
             }`}
           >
-            Laba Kotor Estimasi
+            Laba Kotor Estimasi (FR-05)
           </button>
         )}
       </div>
@@ -173,68 +171,72 @@ export const FinancePage: React.FC = () => {
       {/* Tab 1: Cash Ledger */}
       {tab === 'LEDGER' && (
         <div className="space-y-4">
-          {/* Current Balance Card */}
-          <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-5 rounded-2xl shadow-sm flex justify-between items-center">
+          {/* Current Balance Bar */}
+          <div className="bg-white p-5 rounded-xl border border-zinc-200/90 shadow-card flex items-center justify-between">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-100 block">
-                Saldo Kas Saat Ini (Cash on Hand)
+              <span className="text-[11px] font-mono uppercase text-zinc-400 tracking-wider block">
+                Total Saldo Kas Fisik (Cash in Drawer)
               </span>
-              <div className="text-2xl sm:text-3xl font-black mt-1">
+              <div className="text-2xl sm:text-3xl font-mono font-bold text-zinc-950 mt-1 tabular-nums">
                 {formatCurrency(currentCashBalance)}
               </div>
-              <span className="text-xs text-emerald-100">Uang tunai fisik yang ada di register kasir</span>
+              <span className="text-xs text-zinc-500 mt-0.5 block">
+                Uang tunai fisik yang wajib ada di laci kasir saat pergantian shift
+              </span>
             </div>
-            <div className="p-3 bg-white/10 rounded-2xl">
-              <DollarSign className="w-8 h-8 text-white" />
+            <div className="w-12 h-12 rounded-xl bg-zinc-100 border flex items-center justify-center text-zinc-700">
+              <DollarSign className="w-6 h-6" />
             </div>
           </div>
 
           {/* Transactions Table */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-slate-100">
-              <h3 className="font-bold text-slate-900 text-sm">Riwayat Transaksi Kas</h3>
+          <div className="bg-white rounded-xl border border-zinc-200/90 shadow-card overflow-hidden">
+            <div className="px-4 py-3 border-b border-zinc-100 bg-zinc-50/50 flex justify-between items-center">
+              <h3 className="font-bold text-xs uppercase font-mono tracking-wider text-zinc-900">
+                Mutasi Buku Kas Masuk & Keluar
+              </h3>
+              <span className="text-xs font-mono text-zinc-400">{transactions.length} mutasi</span>
             </div>
 
             {loading ? (
-              <div className="p-8 text-center text-slate-400 text-xs">Memuat mutasi kas...</div>
+              <div className="p-12 text-center text-zinc-400 text-xs font-mono">Memuat mutasi kas...</div>
             ) : transactions.length === 0 ? (
-              <div className="p-8 text-center text-slate-400 text-xs">Belum ada transaksi kas tercatat.</div>
+              <div className="p-12 text-center text-zinc-400 text-xs">Belum ada transaksi kas tercatat.</div>
             ) : (
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-zinc-100">
                 {transactions.map((tx) => {
                   const isCashIn = tx.type === 'CASH_IN';
                   return (
-                    <div key={tx.id} className="p-4 flex justify-between items-center hover:bg-slate-50 text-xs">
+                    <div key={tx.id} className="p-3.5 flex justify-between items-center hover:bg-zinc-50/60 text-xs transition">
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-2">
                           <span
-                            className={`p-1 rounded-md ${
-                              isCashIn ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
+                            className={`p-1 rounded text-[10px] font-bold ${
+                              isCashIn
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : 'bg-rose-50 text-rose-700 border border-rose-200'
                             }`}
                           >
-                            {isCashIn ? <ArrowDownLeft className="w-3.5 h-3.5" /> : <ArrowUpRight className="w-3.5 h-3.5" />}
+                            {isCashIn ? 'KAS MASUK' : 'KAS KELUAR'}
                           </span>
-                          <span className="font-bold text-slate-800">{tx.description}</span>
-                          <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold uppercase">
-                            {tx.category}
-                          </span>
+                          <span className="font-semibold text-zinc-900">{tx.description}</span>
                         </div>
-                        <span className="text-[11px] text-slate-400">
-                          {new Date(tx.createdAt).toLocaleString('id-ID')} • Petugas: {tx.user?.name || '-'}
+                        <span className="text-[11px] font-mono text-zinc-400 block">
+                          {new Date(tx.createdAt).toLocaleString('id-ID')} • Operator: {tx.user?.name || '-'}
                         </span>
                       </div>
 
                       <div className="text-right">
                         <span
-                          className={`font-black text-sm block ${
-                            isCashIn ? 'text-emerald-600' : 'text-rose-600'
+                          className={`font-mono font-bold text-sm block tabular-nums ${
+                            isCashIn ? 'text-emerald-700' : 'text-rose-600'
                           }`}
                         >
                           {isCashIn ? '+' : '-'}
                           {formatCurrency(Number(tx.amount))}
                         </span>
-                        <span className="text-[10px] text-slate-400">
-                          Saldo: {formatCurrency(Number(tx.balanceAfter))}
+                        <span className="text-[10px] font-mono text-zinc-400 tabular-nums">
+                          Saldo Sisa: {formatCurrency(Number(tx.balanceAfter))}
                         </span>
                       </div>
                     </div>
@@ -246,40 +248,42 @@ export const FinancePage: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 2: Expenses */}
+      {/* Tab 2: Operational Expenses */}
       {tab === 'EXPENSES' && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-slate-100 flex justify-between items-center">
-            <h3 className="font-bold text-slate-900 text-sm">Daftar Pengeluaran Bengkel</h3>
-            <span className="text-xs text-slate-500">{expenses.length} catatan</span>
+        <div className="bg-white rounded-xl border border-zinc-200/90 shadow-card overflow-hidden">
+          <div className="px-4 py-3 border-b border-zinc-100 bg-zinc-50/50 flex justify-between items-center">
+            <h3 className="font-bold text-xs uppercase font-mono tracking-wider text-zinc-900">
+              Daftar Beban Pengeluaran Kasir
+            </h3>
+            <span className="font-mono text-xs text-zinc-400">{expenses.length} pengeluaran</span>
           </div>
 
           {loading ? (
-            <div className="p-8 text-center text-slate-400 text-xs">Memuat pengeluaran...</div>
+            <div className="p-12 text-center text-zinc-400 text-xs font-mono">Memuat data pengeluaran...</div>
           ) : expenses.length === 0 ? (
-            <div className="p-8 text-center text-slate-400 text-xs">Belum ada catatan pengeluaran.</div>
+            <div className="p-12 text-center text-zinc-400 text-xs">Belum ada catatan pengeluaran operasional.</div>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-zinc-100">
               {expenses.map((exp) => (
-                <div key={exp.id} className="p-4 flex justify-between items-center hover:bg-slate-50 text-xs">
+                <div key={exp.id} className="p-3.5 flex justify-between items-center hover:bg-zinc-50/60 text-xs transition">
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-900">{exp.expenseNumber}</span>
-                      <span className="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase">
+                      <span className="font-mono font-bold text-zinc-900">{exp.expenseNumber}</span>
+                      <span className="bg-zinc-100 text-zinc-700 px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold uppercase">
                         {exp.category}
                       </span>
                     </div>
-                    <p className="text-slate-600">{exp.description}</p>
-                    <div className="text-[11px] text-slate-400">
-                      Tgl: {new Date(exp.date).toLocaleDateString('id-ID')} • Penerima: {exp.recipient || '-'} • Oleh: {exp.user?.name}
-                    </div>
+                    <p className="text-zinc-700">{exp.description}</p>
+                    <span className="text-[11px] font-mono text-zinc-400 block">
+                      Tgl: {new Date(exp.date).toLocaleDateString('id-ID')} • Penerima: {exp.recipient || '-'} • Petugas: {exp.user?.name}
+                    </span>
                   </div>
 
                   <div className="text-right">
-                    <span className="font-black text-rose-600 text-sm block">
+                    <span className="font-mono font-bold text-rose-600 text-sm block tabular-nums">
                       {formatCurrency(Number(exp.amount))}
                     </span>
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold">
+                    <span className="text-[10px] font-mono text-zinc-400 uppercase font-semibold">
                       Via {exp.paymentMethod}
                     </span>
                   </div>
@@ -293,59 +297,62 @@ export const FinancePage: React.FC = () => {
       {/* Tab 3: Estimated Gross Profit Report (FR-05) */}
       {tab === 'PROFIT' && profitReport && (
         <div className="space-y-4">
-          {/* Note Banner Required by PRD Section 5 / FR-05 */}
-          <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 leading-relaxed">
-            <strong className="block font-bold mb-1">Catatan Penting PRD 1.1 (FR-05):</strong>
-            Laporan laba kotor estimasi menggunakan perhitungan: <em>Pendapatan (Jasa + Sparepart) dikurangi HPP Sparepart berdasarkan snapshot biaya saat transaksi</em>.
-            Laporan ini <strong>tidak boleh diberi label laba bersih</strong> karena sistem MVP belum memperhitungkan amortisasi, penyusutan alat, dan beban akuntansi double-entry penuh.
+          {/* PRD Regulatory Note (FR-05) */}
+          <div className="p-3.5 bg-zinc-100 border border-zinc-200 rounded-xl text-xs text-zinc-700 leading-relaxed flex items-start gap-2.5">
+            <Info className="w-4 h-4 text-zinc-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <strong className="text-zinc-900 block mb-0.5">Ketentuan Laporan PRD 1.1 (FR-05):</strong>
+              Perhitungan Laba Kotor Estimasi: <code>Pendapatan Bersih (Jasa + Suku Cadang) - HPP Suku Cadang berdasarkan snapshot biaya saat transaksi</code>.
+              Laporan ini <strong>tidak menggunakan label laba bersih</strong> karena sistem ERP MVP belum memperhitungkan amortisasi, depresiasi aset, dan double-entry ledger penuh.
+            </div>
           </div>
 
           {/* Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                Total Pendapatan (Revenue)
+            <div className="bg-white p-4 rounded-xl border border-zinc-200/90 shadow-card">
+              <span className="text-[11px] font-mono uppercase text-zinc-400 tracking-wider block">
+                Total Pendapatan (Gross)
               </span>
-              <div className="text-xl sm:text-2xl font-black text-slate-900 mt-1">
+              <div className="text-xl sm:text-2xl font-mono font-bold text-zinc-950 mt-1 tabular-nums">
                 {formatCurrency(profitReport.totalRevenue)}
               </div>
-              <div className="mt-2 text-xs text-slate-500 space-y-0.5">
+              <div className="mt-2 text-xs text-zinc-500 space-y-0.5 font-mono text-[11px]">
                 <div>• Jasa: {formatCurrency(profitReport.serviceRevenue)}</div>
-                <div>• Sparepart: {formatCurrency(profitReport.partsRevenue)}</div>
+                <div>• Suku Cadang: {formatCurrency(profitReport.partsRevenue)}</div>
               </div>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                HPP Sparepart Terjual (COGS)
+            <div className="bg-white p-4 rounded-xl border border-zinc-200/90 shadow-card">
+              <span className="text-[11px] font-mono uppercase text-zinc-400 tracking-wider block">
+                HPP Suku Cadang (COGS)
               </span>
-              <div className="text-xl sm:text-2xl font-black text-rose-600 mt-1">
+              <div className="text-xl sm:text-2xl font-mono font-bold text-rose-600 mt-1 tabular-nums">
                 {formatCurrency(profitReport.partsCOGS)}
               </div>
-              <span className="text-[11px] text-slate-400 block mt-2">
-                Total modal beli sparepart & oli yang keluar
+              <span className="text-[11px] text-zinc-400 block mt-2">
+                Total modal beli sparepart & oli keluar
               </span>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-blue-200 shadow-sm bg-blue-50/30">
-              <span className="text-xs font-bold text-blue-700 uppercase tracking-wider block">
+            <div className="bg-white p-4 rounded-xl border border-zinc-900 shadow-card bg-zinc-950 text-white">
+              <span className="text-[11px] font-mono uppercase text-zinc-400 tracking-wider block">
                 Laba Kotor Estimasi
               </span>
-              <div className="text-xl sm:text-2xl font-black text-blue-700 mt-1">
+              <div className="text-xl sm:text-2xl font-mono font-bold text-emerald-400 mt-1 tabular-nums">
                 {formatCurrency(profitReport.estimatedGrossProfit)}
               </div>
-              <span className="text-[11px] text-blue-600 block mt-2">
+              <span className="text-[11px] font-mono text-zinc-400 block mt-2">
                 Pendapatan dikurangi HPP sparepart
               </span>
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center text-xs">
+          <div className="bg-white p-4 rounded-xl border border-zinc-200/90 shadow-card flex justify-between items-center text-xs">
             <div>
-              <span className="font-bold text-slate-800 block">Total Pengeluaran Kas Operasional:</span>
-              <span className="text-slate-500">Biaya listrik, air, konsumsi mekanik, dll.</span>
+              <span className="font-semibold text-zinc-900 block">Total Pengeluaran Kas Operasional:</span>
+              <span className="text-zinc-500 text-[11px]">Listrik, air, konsumsi mekanik, dan perlengkapan bengkel</span>
             </div>
-            <span className="text-base font-black text-rose-600">
+            <span className="text-base font-mono font-bold text-rose-600 tabular-nums">
               {formatCurrency(profitReport.totalExpenses)}
             </span>
           </div>
@@ -354,28 +361,32 @@ export const FinancePage: React.FC = () => {
 
       {/* Record Expense Modal */}
       {showExpenseModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h3 className="text-base font-bold text-slate-900">Catat Pengeluaran Operasional</h3>
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-modal space-y-3.5 border border-zinc-200">
+            <h3 className="text-sm font-bold text-zinc-900 tracking-tight">Catat Pengeluaran Operasional</h3>
             <form onSubmit={handleCreateExpense} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Kategori Pengeluaran</label>
+                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                  Kategori Biaya
+                </label>
                 <select
                   value={expCategory}
                   onChange={(e) => setExpCategory(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none"
+                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs outline-none"
                 >
                   <option value="OPERASIONAL">Operasional Umum</option>
                   <option value="LISTRIK_AIR">Listrik & Air Bengkel</option>
-                  <option value="KONSUMSI">Konsumsi & Makan Mekanik</option>
-                  <option value="ALAT_BENGKEL">Beli Perkakas / Alat Bengkel</option>
+                  <option value="KONSUMSI">Konsumsi Mekanik</option>
+                  <option value="ALAT_BENGKEL">Beli Perkakas / Tooling</option>
                   <option value="SEWA_TEMPAT">Sewa Tempat</option>
                   <option value="LAINNYA">Lain-lain</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Nominal (Rp)</label>
+                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                  Nominal Pengeluaran (Rp)
+                </label>
                 <input
                   type="number"
                   min="1"
@@ -383,42 +394,48 @@ export const FinancePage: React.FC = () => {
                   placeholder="50000"
                   value={expAmount}
                   onChange={(e) => setExpAmount(Number(e.target.value) || 0)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono font-bold focus:outline-none focus:border-zinc-500 tabular-nums"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Deskripsi / Keperluan</label>
+                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                  Keterangan / Keperluan
+                </label>
                 <input
                   type="text"
                   required
-                  placeholder="misal: Beli sabun cuci tangan & kopi mekanik"
+                  placeholder="misal: Beli sabun cuci tangan & oli pembersih rantai"
                   value={expDesc}
                   onChange={(e) => setExpDesc(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Penerima Uang (Opsional)</label>
+                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                  Penerima Dana (Opsional)
+                </label>
                 <input
                   type="text"
                   placeholder="Nama toko / penerima uang"
                   value={expRecipient}
                   onChange={(e) => setExpRecipient(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none"
+                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Metode Pembayaran</label>
+                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                  Metode Pembayaran
+                </label>
                 <select
                   value={expMethod}
                   onChange={(e) => setExpMethod(e.target.value as any)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none"
+                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs outline-none"
                 >
-                  <option value="CASH">Tunai (Potong dari laci kasir)</option>
-                  <option value="TRANSFER">Transfer Bank</option>
+                  <option value="CASH">Tunai (Potong dari laci kas register)</option>
+                  <option value="TRANSFER">Transfer Bank Rekening</option>
                 </select>
               </div>
 
@@ -426,14 +443,14 @@ export const FinancePage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowExpenseModal(false)}
-                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs"
+                  className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs shadow-md"
+                  className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle"
                 >
                   {actionLoading ? 'Menyimpan...' : 'Simpan Pengeluaran'}
                 </button>

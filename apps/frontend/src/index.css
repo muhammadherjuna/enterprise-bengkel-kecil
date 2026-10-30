@@ -3,14 +3,44 @@
 @tailwind utilities;
 
 @layer base {
+  * {
+    @apply border-zinc-200/80;
+  }
+  
   body {
-    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+    @apply bg-zinc-50/70 text-zinc-900 font-sans antialiased text-sm;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Numeric alignment for financial/inventory data */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Custom subtle scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-zinc-300 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-zinc-400;
   }
 }
 
-/* Custom receipt print styles */
+/* Print Stylesheet for POS Receipts */
 @media print {
+  @page {
+    margin: 0;
+    size: auto;
+  }
   body * {
     visibility: hidden;
   }
@@ -21,11 +51,13 @@
     position: absolute;
     left: 0;
     top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 10px;
-    font-size: 12px;
-    color: black !important;
-    background: white !important;
+    width: 72mm;
+    margin: 0 auto;
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.35;
+    color: #000 !important;
+    background: #fff !important;
   }
 }

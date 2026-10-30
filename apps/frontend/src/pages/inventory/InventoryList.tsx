@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { useSearchParams } from 'react-router-dom';
 import {
   Package,
@@ -9,15 +10,16 @@ import {
   Filter,
   AlertTriangle,
   History,
-  Edit,
   Sliders,
   Check,
   X,
   ArrowUpDown,
+  Tag,
 } from 'lucide-react';
 
 export const InventoryList: React.FC = () => {
   const { hasRole } = useAuth();
+  const { showToast } = useToast();
   const [searchParams] = useSearchParams();
 
   const [products, setProducts] = useState<any[]>([]);
@@ -49,8 +51,6 @@ export const InventoryList: React.FC = () => {
   const [newMinStock, setNewMinStock] = useState<number>(5);
 
   const [actionLoading, setActionLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const fetchProducts = async () => {
     try {
@@ -63,7 +63,7 @@ export const InventoryList: React.FC = () => {
       const res = await apiFetch<any[]>(`/products?${params.toString()}`);
       setProducts(res || []);
     } catch (err: any) {
-      console.error(err);
+      showToast('error', err.message || 'Gagal memuat inventori');
     } finally {
       setLoading(false);
     }
@@ -82,7 +82,6 @@ export const InventoryList: React.FC = () => {
     setSelectedProduct(product);
     setNewStockCount(product.stock);
     setAdjustReason('');
-    setError(null);
     setShowAdjustModal(true);
   };
 
@@ -90,12 +89,11 @@ export const InventoryList: React.FC = () => {
     e.preventDefault();
     if (!selectedProduct) return;
     if (!adjustReason.trim()) {
-      setError('Alasan penyesuaian wajib diisi (misal: Stock opname bulanan)');
+      showToast('error', 'Alasan penyesuaian wajib diisi (misal: Stock opname bulanan)');
       return;
     }
 
     setActionLoading(true);
-    setError(null);
     try {
       await apiFetch(`/products/${selectedProduct.id}/adjust`, {
         method: 'POST',
@@ -105,11 +103,11 @@ export const InventoryList: React.FC = () => {
         }),
       });
 
-      setSuccessMsg(`Stok ${selectedProduct.name} berhasil disesuaikan menjadi ${newStockCount}`);
+      showToast('success', `Stok ${selectedProduct.name} disesuaikan menjadi ${newStockCount} ${selectedProduct.unit}`);
       setShowAdjustModal(false);
       await fetchProducts();
     } catch (err: any) {
-      setError(err.message || 'Gagal menyesuaikan stok');
+      showToast('error', err.message || 'Gagal menyesuaikan stok');
     } finally {
       setActionLoading(false);
     }
@@ -129,7 +127,6 @@ export const InventoryList: React.FC = () => {
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     setActionLoading(true);
-    setError(null);
 
     try {
       await apiFetch('/products', {
@@ -146,9 +143,8 @@ export const InventoryList: React.FC = () => {
         }),
       });
 
-      setSuccessMsg('Produk baru berhasil disimpan ke katalog');
+      showToast('success', `Suku cadang "${newName}" berhasil ditambahkan ke katalog`);
       setShowCreateModal(false);
-      // Reset form
       setNewSku('');
       setNewName('');
       setNewCostPrice(0);
@@ -156,7 +152,7 @@ export const InventoryList: React.FC = () => {
       setNewInitialStock(0);
       await fetchProducts();
     } catch (err: any) {
-      setError(err.message || 'Gagal membuat produk');
+      showToast('error', err.message || 'Gagal membuat produk');
     } finally {
       setActionLoading(false);
     }
@@ -171,145 +167,146 @@ export const InventoryList: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4 pb-20">
+    <div className="space-y-4 pb-12">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-zinc-200">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Inventori & Stok</h1>
-          <p className="text-xs text-slate-500">Katalog sparepart, mutasi pergerakan stok, dan stock opname</p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
+              Katalog Suku Cadang & Inventori
+            </h1>
+            <span className="font-mono text-xs text-zinc-400">/ STOCK LEDGER</span>
+          </div>
+          <p className="text-xs text-zinc-500 mt-0.5">
+            Manajemen persediaan suku cadang, pelacakan mutasi barang keluar/masuk, dan stock opname fisik.
+          </p>
         </div>
 
         {hasRole('OWNER') || hasRole('KASIR') ? (
           <button
-            onClick={() => {
-              setError(null);
-              setShowCreateModal(true);
-            }}
-            className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs sm:text-sm shadow-sm transition"
+            onClick={() => setShowCreateModal(true)}
+            className="inline-flex items-center gap-2 px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold rounded-lg shadow-subtle transition"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5" />
             <span>Tambah Sparepart</span>
           </button>
         ) : null}
       </div>
 
-      {successMsg && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm rounded-xl flex items-center justify-between">
-          <span>{successMsg}</span>
-          <button onClick={() => setSuccessMsg(null)}>
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-
-      {/* Filters & Search */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-        <form onSubmit={handleSearchSubmit} className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-            <input
-              type="text"
-              placeholder="Cari kode SKU atau nama sparepart..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs sm:text-sm font-semibold transition"
-          >
-            Cari
-          </button>
+      {/* Filter and Search Bar */}
+      <div className="bg-white p-3.5 rounded-xl border border-zinc-200/90 shadow-card flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
+        <form onSubmit={handleSearchSubmit} className="relative flex-1">
+          <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-2.5" />
+          <input
+            type="text"
+            placeholder="Cari kode SKU atau nama suku cadang..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:bg-white transition"
+          />
         </form>
 
-        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-100 text-xs">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setLowStockFilter(!lowStockFilter)}
-            className={`px-3 py-1.5 rounded-lg font-bold border transition flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition flex items-center gap-1.5 ${
               lowStockFilter
-                ? 'bg-rose-100 border-rose-300 text-rose-800'
-                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                ? 'bg-amber-50 border-amber-300 text-amber-900'
+                : 'bg-zinc-50 border-zinc-200 text-zinc-600 hover:bg-zinc-100'
             }`}
           >
-            <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-            <span>Hanya Stok Menipis</span>
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+            <span>Stok Menipis ({products.filter((p) => p.stock <= p.minStock).length})</span>
           </button>
         </div>
       </div>
 
       {/* Product Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-zinc-200/90 shadow-card overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center text-slate-400 text-xs">Memuat katalog sparepart...</div>
+          <div className="p-12 text-center text-zinc-400 text-xs font-mono">
+            Memuat data suku cadang...
+          </div>
         ) : products.length === 0 ? (
-          <div className="p-12 text-center text-slate-400 text-xs">
-            Tidak ada produk yang cocok dengan pencarian.
+          <div className="p-12 text-center text-zinc-400 text-xs">
+            Tidak ada produk yang cocok dengan kriteria pencarian.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs text-left">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
-                  <th className="py-3 px-4">SKU / Nama</th>
-                  <th className="py-3 px-4">Kategori</th>
-                  <th className="py-3 px-4 text-right">Harga Beli (HPP)</th>
-                  <th className="py-3 px-4 text-right">Harga Jual</th>
-                  <th className="py-3 px-4 text-center">Stok Fisik</th>
-                  <th className="py-3 px-4 text-center">Aksi</th>
+                <tr className="bg-zinc-50/70 border-b border-zinc-200 text-[11px] font-mono text-zinc-500 uppercase tracking-wider">
+                  <th className="py-2.5 px-4 font-medium">SKU / Nama Sparepart</th>
+                  <th className="py-2.5 px-4 font-medium">Kategori</th>
+                  <th className="py-2.5 px-4 font-medium text-right">Harga Beli (HPP)</th>
+                  <th className="py-2.5 px-4 font-medium text-right">Harga Jual</th>
+                  <th className="py-2.5 px-4 font-medium text-center">Stok Sistem</th>
+                  <th className="py-2.5 px-4 font-medium text-center">Aksi</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-zinc-100">
                 {products.map((p) => {
                   const isLow = p.stock <= p.minStock;
+                  const isOut = p.stock <= 0;
                   return (
-                    <tr key={p.id} className="hover:bg-slate-50">
+                    <tr key={p.id} className="hover:bg-zinc-50/70 transition-colors">
                       <td className="py-3 px-4">
-                        <span className="font-bold text-slate-400 text-[10px] block">{p.sku}</span>
-                        <span className="font-semibold text-slate-900 text-xs sm:text-sm">{p.name}</span>
+                        <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-wider block">
+                          {p.sku}
+                        </span>
+                        <span className="font-semibold text-zinc-900 text-xs">{p.name}</span>
                       </td>
-                      <td className="py-3 px-4 text-slate-600">{p.category}</td>
-                      <td className="py-3 px-4 text-right text-slate-500 font-medium">
+
+                      <td className="py-3 px-4 text-zinc-600 text-[11px] font-medium">
+                        {p.category}
+                      </td>
+
+                      <td className="py-3 px-4 text-right font-mono text-zinc-500 tabular-nums">
                         {formatCurrency(Number(p.costPrice))}
                       </td>
-                      <td className="py-3 px-4 text-right font-black text-slate-900">
+
+                      <td className="py-3 px-4 text-right font-mono font-bold text-zinc-900 tabular-nums">
                         {formatCurrency(Number(p.sellPrice))}
                       </td>
+
                       <td className="py-3 px-4 text-center">
                         <span
-                          className={`inline-block px-2.5 py-1 rounded-full text-xs font-black ${
-                            isLow
-                              ? 'bg-rose-100 text-rose-800'
-                              : 'bg-emerald-100 text-emerald-800'
+                          className={`inline-flex items-center font-mono font-bold px-2 py-0.5 rounded text-xs tabular-nums ${
+                            isOut
+                              ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                              : isLow
+                              ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                              : 'bg-zinc-100 text-zinc-800'
                           }`}
                         >
                           {p.stock} {p.unit}
                         </span>
                         {isLow && (
-                          <span className="block text-[10px] text-rose-600 font-semibold mt-0.5">
+                          <span className="block text-[10px] font-mono text-amber-700 mt-0.5">
                             Min: {p.minStock}
                           </span>
                         )}
                       </td>
+
                       <td className="py-3 px-4 text-center">
                         <div className="flex items-center justify-center gap-1.5">
                           <button
                             type="button"
                             onClick={() => openMovementsModal(p)}
                             title="Riwayat Mutasi Stok"
-                            className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                            className="p-1.5 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 rounded transition"
                           >
-                            <History className="w-4 h-4" />
+                            <History className="w-3.5 h-3.5" />
                           </button>
                           {hasRole('OWNER') && (
                             <button
                               type="button"
                               onClick={() => openAdjustModal(p)}
-                              title="Stock Opname / Penyesuaian"
-                              className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+                              title="Stock Opname Fisik"
+                              className="p-1.5 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 rounded transition"
                             >
-                              <Sliders className="w-4 h-4" />
+                              <Sliders className="w-3.5 h-3.5" />
                             </button>
                           )}
                         </div>
@@ -323,27 +320,31 @@ export const InventoryList: React.FC = () => {
         )}
       </div>
 
-      {/* Stock Adjustment Modal (Owner Only) */}
+      {/* Stock Adjustment Modal */}
       {showAdjustModal && selectedProduct && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h3 className="text-base font-bold text-slate-900">Stock Opname / Penyesuaian</h3>
-            <p className="text-xs text-slate-600">
-              Ubah stok fisik untuk: <strong className="text-slate-900">{selectedProduct.name}</strong>
-            </p>
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-modal space-y-4 border border-zinc-200">
+            <div>
+              <h3 className="text-sm font-bold text-zinc-900 tracking-tight">
+                Penyesuaian Fisik (Stock Opname)
+              </h3>
+              <p className="text-xs text-zinc-500 mt-0.5">
+                Produk: <strong className="text-zinc-900">{selectedProduct.name}</strong> ({selectedProduct.sku})
+              </p>
+            </div>
 
-            <form onSubmit={handleSaveAdjustment} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl text-xs">
+            <form onSubmit={handleSaveAdjustment} className="space-y-3.5">
+              <div className="grid grid-cols-2 gap-3 p-3 bg-zinc-50 rounded-lg border border-zinc-200 text-xs">
                 <div>
-                  <span className="text-slate-500 block">Stok Sistem Saat Ini:</span>
-                  <span className="text-sm font-bold text-slate-900">
+                  <span className="text-zinc-500 block text-[11px] font-mono">Stok Sistem:</span>
+                  <span className="font-mono font-bold text-zinc-900">
                     {selectedProduct.stock} {selectedProduct.unit}
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-500 block">Selisih:</span>
+                  <span className="text-zinc-500 block text-[11px] font-mono">Selisih Stok:</span>
                   <span
-                    className={`text-sm font-bold ${
+                    className={`font-mono font-bold ${
                       newStockCount - selectedProduct.stock >= 0 ? 'text-emerald-600' : 'text-rose-600'
                     }`}
                   >
@@ -354,8 +355,8 @@ export const InventoryList: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Stok Fisik Baru (Hasil Hitung Manual):
+                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                  Stok Fisik Baru (Hasil Hitung Lapangan):
                 </label>
                 <input
                   type="number"
@@ -363,40 +364,38 @@ export const InventoryList: React.FC = () => {
                   required
                   value={newStockCount}
                   onChange={(e) => setNewStockCount(parseInt(e.target.value) || 0)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-base font-black text-slate-900 outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-base font-mono font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Alasan Penyesuaian (Wajib Diisi):
+                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                  Alasan Penyesuaian:
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="misal: Selisih stock opname akhir bulan / barang rusak"
+                  placeholder="misal: Selisih stock opname akhir bulan"
                   value={adjustReason}
                   onChange={(e) => setAdjustReason(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500 focus:bg-white"
                 />
               </div>
-
-              {error && <p className="text-xs text-rose-600 font-semibold">{error}</p>}
 
               <div className="flex gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowAdjustModal(false)}
-                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition"
+                  className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs transition"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md transition disabled:opacity-50"
+                  className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle transition disabled:opacity-40"
                 >
-                  {actionLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
+                  {actionLoading ? 'Menyimpan...' : 'Simpan Opname'}
                 </button>
               </div>
             </form>
@@ -406,48 +405,57 @@ export const InventoryList: React.FC = () => {
 
       {/* Stock Movements Ledger Modal */}
       {showMovementsModal && selectedProduct && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
-            <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-lg w-full p-5 shadow-modal space-y-3.5 border border-zinc-200 max-h-[85vh] flex flex-col">
+            <div className="flex justify-between items-start pb-2 border-b border-zinc-100">
               <div>
-                <h3 className="text-base font-bold text-slate-900">Riwayat Mutasi Stok</h3>
-                <span className="text-xs text-slate-500">{selectedProduct.name}</span>
+                <h3 className="text-sm font-bold text-zinc-900 tracking-tight">
+                  Buku Ledger Mutasi Suku Cadang
+                </h3>
+                <span className="text-xs text-zinc-500 font-mono">
+                  {selectedProduct.sku} • {selectedProduct.name}
+                </span>
               </div>
-              <button onClick={() => setShowMovementsModal(false)} className="p-1 hover:bg-slate-100 rounded-lg">
-                <X className="w-5 h-5 text-slate-500" />
+              <button
+                onClick={() => setShowMovementsModal(false)}
+                className="p-1 hover:bg-zinc-100 rounded text-zinc-400 hover:text-zinc-700"
+              >
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="overflow-y-auto flex-1 divide-y divide-slate-100 text-xs">
+            <div className="overflow-y-auto flex-1 divide-y divide-zinc-100 text-xs">
               {productMovements.length === 0 ? (
-                <div className="p-6 text-center text-slate-400">Belum ada mutasi stok tercatat.</div>
+                <div className="py-8 text-center text-zinc-400">Belum ada mutasi tercatat.</div>
               ) : (
                 productMovements.map((m) => (
                   <div key={m.id} className="py-2.5 flex justify-between items-center gap-2">
                     <div>
                       <div className="flex items-center gap-2">
                         <span
-                          className={`font-bold px-1.5 py-0.5 rounded text-[10px] uppercase ${
+                          className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase ${
                             m.quantity > 0
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-rose-100 text-rose-800'
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                              : 'bg-rose-50 text-rose-800 border-rose-200'
                           }`}
                         >
                           {m.type}
                         </span>
-                        <span className="font-bold text-slate-900">
+                        <span className="font-mono font-bold text-zinc-900">
                           {m.quantity > 0 ? `+${m.quantity}` : m.quantity} {selectedProduct.unit}
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-500 mt-0.5">{m.reason || '-'}</p>
-                      <span className="text-[10px] text-slate-400">
+                      <p className="text-[11px] text-zinc-500 mt-0.5">{m.reason || '-'}</p>
+                      <span className="text-[10px] font-mono text-zinc-400">
                         {new Date(m.createdAt).toLocaleString('id-ID')} • User: {m.user?.name || '-'}
                       </span>
                     </div>
 
                     <div className="text-right">
-                      <span className="text-slate-400 block text-[10px]">Sisa Stok</span>
-                      <span className="font-black text-slate-800 text-sm">{m.balanceAfter}</span>
+                      <span className="text-zinc-400 block text-[10px] font-mono">Saldo Sisa</span>
+                      <span className="font-mono font-bold text-zinc-900 text-xs tabular-nums">
+                        {m.balanceAfter} {selectedProduct.unit}
+                      </span>
                     </div>
                   </div>
                 ))
@@ -459,118 +467,134 @@ export const InventoryList: React.FC = () => {
 
       {/* Create Product Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h3 className="text-base font-bold text-slate-900">Tambah Sparepart Baru</h3>
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-modal space-y-3.5 border border-zinc-200">
+            <h3 className="text-sm font-bold text-zinc-900 tracking-tight">
+              Tambah Sparepart ke Katalog
+            </h3>
 
             <form onSubmit={handleCreateProduct} className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Kode SKU</label>
+                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                    Kode SKU
+                  </label>
                   <input
                     type="text"
                     required
-                    placeholder="misal: OLI-CASTROL"
+                    placeholder="OLI-MPX1"
                     value={newSku}
                     onChange={(e) => setNewSku(e.target.value.toUpperCase())}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs uppercase font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono uppercase font-bold focus:outline-none focus:border-zinc-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Kategori</label>
+                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                    Kategori
+                  </label>
                   <input
                     type="text"
-                    placeholder="misal: Oli Mesin"
+                    placeholder="Oli Mesin"
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Nama Sparepart</label>
+                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                  Nama Sparepart
+                </label>
                 <input
                   type="text"
                   required
-                  placeholder="misal: Oli Castrol Power 1 10W-40 0.8L"
+                  placeholder="misal: Oli AHM MPX 1 0.8L"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Harga Beli (HPP)</label>
+                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                    Harga Beli HPP (Rp)
+                  </label>
                   <input
                     type="number"
                     min="0"
                     required
                     value={newCostPrice}
                     onChange={(e) => setNewCostPrice(Number(e.target.value) || 0)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono focus:outline-none focus:border-zinc-500 tabular-nums"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Harga Jual</label>
+                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                    Harga Jual Eceran (Rp)
+                  </label>
                   <input
                     type="number"
                     min="0"
                     required
                     value={newSellPrice}
                     onChange={(e) => setNewSellPrice(Number(e.target.value) || 0)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500 font-bold text-blue-700"
+                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono font-bold focus:outline-none focus:border-zinc-500 tabular-nums"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Stok Awal</label>
+                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                    Stok Awal
+                  </label>
                   <input
                     type="number"
                     min="0"
                     value={newInitialStock}
                     onChange={(e) => setNewInitialStock(Number(e.target.value) || 0)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none"
+                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Satuan</label>
+                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                    Satuan
+                  </label>
                   <input
                     type="text"
                     value={newUnit}
                     onChange={(e) => setNewUnit(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none"
+                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Batas Min</label>
+                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                    Min Stok
+                  </label>
                   <input
                     type="number"
                     min="0"
                     value={newMinStock}
                     onChange={(e) => setNewMinStock(Number(e.target.value) || 0)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none"
+                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono"
                   />
                 </div>
               </div>
-
-              {error && <p className="text-xs text-rose-600 font-semibold">{error}</p>}
 
               <div className="flex gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition"
+                  className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs transition"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md transition disabled:opacity-50"
+                  className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle transition disabled:opacity-40"
                 >
                   {actionLoading ? 'Menyimpan...' : 'Simpan Produk'}
                 </button>

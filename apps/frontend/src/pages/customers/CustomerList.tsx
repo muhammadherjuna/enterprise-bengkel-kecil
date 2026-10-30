@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../../api/client';
+import { useToast } from '../../context/ToastContext';
+import { PlateBadge } from '../../components/PlateBadge';
 import {
   Users,
   Search,
@@ -11,17 +13,19 @@ import {
   Calendar,
   X,
   Wrench,
-  CheckCircle,
+  Clock,
+  ChevronRight,
 } from 'lucide-react';
 
 export const CustomerList: React.FC = () => {
+  const { showToast } = useToast();
   const [customers, setCustomers] = useState<any[]>([]);
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
   // Tab: Customers or Vehicles
-  const [tab, setTab] = useState<'CUSTOMERS' | 'VEHICLES'>('VEHICLES');
+  const [tab, setTab] = useState<'VEHICLES' | 'CUSTOMERS'>('VEHICLES');
 
   // History Modal (AC-18)
   const [showHistoryModal, setShowHistoryModal] = useState(false);
@@ -53,8 +57,8 @@ export const CustomerList: React.FC = () => {
       ]);
       setCustomers(cRes || []);
       setVehicles(vRes || []);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      showToast('error', err.message || 'Gagal memuat data pelanggan');
     } finally {
       setLoading(false);
     }
@@ -96,13 +100,14 @@ export const CustomerList: React.FC = () => {
           address: custAddress || undefined,
         }),
       });
+      showToast('success', `Pelanggan "${custName}" berhasil didaftarkan`);
       setShowCustomerModal(false);
       setCustName('');
       setCustPhone('');
       setCustAddress('');
       await loadData();
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      showToast('error', err.message || 'Gagal menyimpan pelanggan');
     } finally {
       setActionLoading(false);
     }
@@ -121,12 +126,13 @@ export const CustomerList: React.FC = () => {
           customerId: vehCustomerId || undefined,
         }),
       });
+      showToast('success', `Kendaraan ${vehPlate} berhasil didaftarkan`);
       setShowVehicleModal(false);
       setVehPlate('');
       setVehModel('');
       await loadData();
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      showToast('error', err.message || 'Gagal menyimpan kendaraan');
     } finally {
       setActionLoading(false);
     }
@@ -141,142 +147,150 @@ export const CustomerList: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4 pb-20">
+    <div className="space-y-4 pb-12">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-zinc-200">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Pelanggan & Kendaraan
-          </h1>
-          <p className="text-xs text-slate-500">
-            Database pemilik motor dan riwayat rekam medis kendaraan (AC-18)
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
+              Pelanggan & Riwayat Kendaraan
+            </h1>
+            <span className="font-mono text-xs text-zinc-400">/ FLEET LOG</span>
+          </div>
+          <p className="text-xs text-zinc-500 mt-0.5">
+            Pencatatan profil pemilik kendaraan dan riwayat rekam medis servis motor (AC-18).
           </p>
         </div>
 
         <div className="flex gap-2 w-full sm:w-auto">
           <button
             onClick={() => setShowVehicleModal(true)}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-sm transition"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold rounded-lg shadow-subtle transition"
           >
-            <Car className="w-4 h-4" />
-            <span>+ Motor</span>
+            <Car className="w-3.5 h-3.5" />
+            <span>+ Motor Baru</span>
           </button>
           <button
             onClick={() => setShowCustomerModal(true)}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs shadow-sm transition"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white border border-zinc-300 hover:bg-zinc-50 text-zinc-800 text-xs font-semibold rounded-lg shadow-subtle transition"
           >
-            <Users className="w-4 h-4" />
+            <Users className="w-3.5 h-3.5 text-zinc-600" />
             <span>+ Pelanggan</span>
           </button>
         </div>
       </div>
 
-      {/* Tab & Search */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-        <div className="flex justify-between items-center flex-wrap gap-2">
-          <div className="flex bg-slate-100 p-1 rounded-xl">
+      {/* Segmented Control & Search Bar */}
+      <div className="bg-white p-3.5 rounded-xl border border-zinc-200/90 shadow-card space-y-3">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="inline-flex bg-zinc-100 p-1 rounded-lg border border-zinc-200/80">
             <button
               onClick={() => setTab('VEHICLES')}
-              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
-                tab === 'VEHICLES' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-600'
+              className={`px-3 py-1 text-xs font-semibold rounded-md transition ${
+                tab === 'VEHICLES' ? 'bg-white text-zinc-900 shadow-subtle' : 'text-zinc-600'
               }`}
             >
-              Daftar Motor ({vehicles.length})
+              Database Motor ({vehicles.length})
             </button>
             <button
               onClick={() => setTab('CUSTOMERS')}
-              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
-                tab === 'CUSTOMERS' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-600'
+              className={`px-3 py-1 text-xs font-semibold rounded-md transition ${
+                tab === 'CUSTOMERS' ? 'bg-white text-zinc-900 shadow-subtle' : 'text-zinc-600'
               }`}
             >
-              Daftar Pelanggan ({customers.length})
+              Data Pelanggan ({customers.length})
             </button>
           </div>
         </div>
 
-        <form onSubmit={handleSearchSubmit} className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-            <input
-              type="text"
-              placeholder={
-                tab === 'VEHICLES'
-                  ? 'Cari plat nomor motor atau model...'
-                  : 'Cari nama atau telepon pelanggan...'
-              }
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-semibold"
-          >
-            Cari
-          </button>
+        <form onSubmit={handleSearchSubmit} className="relative">
+          <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-2.5" />
+          <input
+            type="text"
+            placeholder={
+              tab === 'VEHICLES'
+                ? 'Cari berdasarkan plat nomor motor atau model...'
+                : 'Cari berdasarkan nama atau nomor telepon...'
+            }
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:bg-white transition"
+          />
         </form>
       </div>
 
-      {/* Content View */}
+      {/* Main Content Table */}
       {tab === 'VEHICLES' ? (
-        /* Vehicles List */
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-zinc-200/90 shadow-card overflow-hidden">
           {loading ? (
-            <div className="p-8 text-center text-slate-400 text-xs">Memuat kendaraan...</div>
+            <div className="p-12 text-center text-zinc-400 text-xs font-mono">
+              Memuat data kendaraan...
+            </div>
           ) : vehicles.length === 0 ? (
-            <div className="p-8 text-center text-slate-400 text-xs">Tidak ada motor ditemukan.</div>
+            <div className="p-12 text-center text-zinc-400 text-xs">
+              Tidak ada data motor ditemukan.
+            </div>
           ) : (
-            <div className="divide-y divide-slate-100">
-              {vehicles.map((v) => (
-                <div
-                  key={v.id}
-                  className="p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:bg-slate-50 transition"
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-black text-base text-slate-900 tracking-wide">
-                        {v.plateNumber}
-                      </span>
-                      <span className="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                        {v.brand}
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-600 font-medium">{v.model}</p>
-                    <p className="text-[11px] text-slate-400">
-                      Pemilik: <strong className="text-slate-700">{v.customer?.name || 'Umum'}</strong>
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => openVehicleHistory(v)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 font-bold rounded-xl text-xs transition"
-                  >
-                    <History className="w-3.5 h-3.5" />
-                    <span>Lihat Riwayat Servis (AC-18)</span>
-                  </button>
-                </div>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left">
+                <thead>
+                  <tr className="bg-zinc-50/70 border-b border-zinc-200 text-[11px] font-mono text-zinc-500 uppercase tracking-wider">
+                    <th className="py-2.5 px-4 font-medium">Plat Nomor Kendaraan</th>
+                    <th className="py-2.5 px-4 font-medium">Merek & Tipe</th>
+                    <th className="py-2.5 px-4 font-medium">Pemilik Terdaftar</th>
+                    <th className="py-2.5 px-4 font-medium text-center">Rekam Medis (AC-18)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-100">
+                  {vehicles.map((v) => (
+                    <tr key={v.id} className="hover:bg-zinc-50/70 transition-colors">
+                      <td className="py-3 px-4">
+                        <PlateBadge plate={v.plateNumber} size="sm" />
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="font-semibold text-zinc-900 block">{v.brand} {v.model}</span>
+                        {v.year && <span className="text-[10px] font-mono text-zinc-400">Tahun {v.year}</span>}
+                      </td>
+                      <td className="py-3 px-4 text-zinc-700">
+                        {v.customer?.name || <span className="text-zinc-400 italic">Pelanggan Umum</span>}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <button
+                          type="button"
+                          onClick={() => openVehicleHistory(v)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-[11px] font-semibold transition"
+                        >
+                          <History className="w-3.5 h-3.5 text-zinc-500" />
+                          <span>Riwayat Servis</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
       ) : (
         /* Customers List */
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-zinc-200/90 shadow-card overflow-hidden">
           {loading ? (
-            <div className="p-8 text-center text-slate-400 text-xs">Memuat pelanggan...</div>
+            <div className="p-12 text-center text-zinc-400 text-xs font-mono">
+              Memuat data pelanggan...
+            </div>
           ) : customers.length === 0 ? (
-            <div className="p-8 text-center text-slate-400 text-xs">Tidak ada pelanggan ditemukan.</div>
+            <div className="p-12 text-center text-zinc-400 text-xs">
+              Tidak ada pelanggan ditemukan.
+            </div>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-zinc-100">
               {customers.map((c) => (
-                <div key={c.id} className="p-4 sm:p-5 flex justify-between items-center hover:bg-slate-50 transition">
+                <div key={c.id} className="p-4 flex justify-between items-center hover:bg-zinc-50 transition text-xs">
                   <div className="space-y-1">
-                    <h3 className="font-bold text-sm text-slate-900">{c.name}</h3>
-                    <div className="flex items-center gap-3 text-xs text-slate-500">
+                    <span className="font-bold text-zinc-900 block text-sm">{c.name}</span>
+                    <div className="flex items-center gap-3 text-zinc-500">
                       {c.phone && (
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1 font-mono">
                           <Phone className="w-3.5 h-3.5" /> {c.phone}
                         </span>
                       )}
@@ -286,10 +300,10 @@ export const CustomerList: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    <div className="text-[11px] text-slate-400 pt-0.5">
-                      Jumlah Motor: {c.vehicles?.length || 0} unit
-                    </div>
                   </div>
+                  <span className="text-[11px] font-mono text-zinc-400">
+                    {c.vehicles?.length || 0} unit motor terdaftar
+                  </span>
                 </div>
               ))}
             </div>
@@ -297,68 +311,73 @@ export const CustomerList: React.FC = () => {
         </div>
       )}
 
-      {/* Vehicle Service History Modal (AC-18) */}
+      {/* Vehicle Service Maintenance History Modal (AC-18) */}
       {showHistoryModal && selectedVehicle && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
-            <div className="flex justify-between items-start pb-3 border-b border-slate-100">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full p-5 shadow-modal space-y-3.5 border border-zinc-200 max-h-[85vh] flex flex-col">
+            <div className="flex justify-between items-start pb-2.5 border-b border-zinc-100">
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-black text-slate-900">{selectedVehicle.plateNumber}</h3>
-                  <span className="text-xs bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full">
+                  <PlateBadge plate={selectedVehicle.plateNumber} size="md" />
+                  <span className="font-bold text-zinc-900 text-sm">
                     {selectedVehicle.brand} {selectedVehicle.model}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Pemilik: {selectedVehicle.customer?.name || 'Pelanggan Umum'}
+                <p className="text-xs text-zinc-500 mt-1 font-mono">
+                  Rekam Medis Perawatan Motor (AC-18) • Pemilik: {selectedVehicle.customer?.name || 'Pelanggan Umum'}
                 </p>
               </div>
-              <button onClick={() => setShowHistoryModal(false)} className="p-1 hover:bg-slate-100 rounded-lg">
-                <X className="w-5 h-5 text-slate-500" />
+              <button
+                onClick={() => setShowHistoryModal(false)}
+                className="p-1 hover:bg-zinc-100 rounded text-zinc-400 hover:text-zinc-700"
+              >
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="overflow-y-auto flex-1 space-y-3 pr-1">
               {historyLoading ? (
-                <div className="p-8 text-center text-slate-400 text-xs">Memuat rekam servis...</div>
+                <div className="p-8 text-center text-zinc-400 text-xs font-mono">
+                  Memuat rekam servis kendaraan...
+                </div>
               ) : vehicleHistory.length === 0 ? (
-                <div className="p-8 text-center text-slate-400 text-xs">
-                  Belum ada riwayat perbaikan untuk kendaraan ini.
+                <div className="p-8 text-center text-zinc-400 text-xs">
+                  Belum ada catatan riwayat perawatan servis untuk kendaraan ini.
                 </div>
               ) : (
                 vehicleHistory.map((h) => (
-                  <div key={h.id} className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2">
+                  <div key={h.id} className="p-3.5 bg-zinc-50 rounded-lg border border-zinc-200 text-xs space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900">{h.orderNumber}</span>
-                        <span className="text-[10px] text-slate-500">
+                        <span className="font-mono font-bold text-zinc-900">{h.orderNumber}</span>
+                        <span className="font-mono text-[10px] text-zinc-400">
                           {new Date(h.date).toLocaleDateString('id-ID')}
                         </span>
                       </div>
-                      <span className="font-black text-slate-900">{formatCurrency(Number(h.totalAmount))}</span>
+                      <span className="font-mono font-bold text-zinc-900 tabular-nums">
+                        {formatCurrency(Number(h.totalAmount))}
+                      </span>
                     </div>
 
-                    <div className="flex gap-4 text-slate-600 text-[11px]">
-                      <span>
-                        Kilometer: <strong>{h.mileage ? `${h.mileage} km` : '-'}</strong>
-                      </span>
-                      <span>
-                        Mekanik: <strong>{h.mechanic?.name || '-'}</strong>
-                      </span>
+                    <div className="flex gap-4 text-zinc-600 text-[11px] font-mono">
+                      <span>Odo: <strong className="text-zinc-900">{h.mileage ? `${h.mileage.toLocaleString('id-ID')} km` : '-'}</strong></span>
+                      <span>Mekanik: <strong className="text-zinc-900">{h.mechanic?.name || '-'}</strong></span>
                     </div>
 
                     {h.complaints && (
-                      <p className="text-slate-500 italic">Keluhan: "{h.complaints}"</p>
+                      <p className="text-zinc-600 italic text-[11px]">Keluhan: "{h.complaints}"</p>
                     )}
 
                     {/* Items */}
-                    <div className="pt-2 border-t border-slate-200">
-                      <span className="font-semibold text-slate-700 block mb-1">Pekerjaan & Sparepart:</span>
-                      <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-600">
+                    <div className="pt-2 border-t border-zinc-200">
+                      <span className="font-semibold text-zinc-700 block text-[11px] font-mono uppercase mb-1">
+                        Pekerjaan Jasa & Suku Cadang:
+                      </span>
+                      <div className="grid grid-cols-2 gap-1 text-[11px] text-zinc-600">
                         {h.items?.map((it: any) => (
                           <div key={it.id} className="flex justify-between pr-2">
-                            <span>• {it.name} ({it.quantity}x)</span>
-                            <span className="font-medium">{formatCurrency(Number(it.subtotal))}</span>
+                            <span className="truncate pr-1">• {it.name} ({it.quantity}x)</span>
+                            <span className="font-mono tabular-nums text-zinc-800">{formatCurrency(Number(it.subtotal))}</span>
                           </div>
                         ))}
                       </div>
@@ -373,55 +392,61 @@ export const CustomerList: React.FC = () => {
 
       {/* Create Customer Modal */}
       {showCustomerModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h3 className="text-base font-bold text-slate-900">Tambah Pelanggan</h3>
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-modal space-y-3.5 border border-zinc-200">
+            <h3 className="text-sm font-bold text-zinc-900 tracking-tight">Daftarkan Pelanggan Baru</h3>
             <form onSubmit={handleCreateCustomer} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap</label>
+                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                  Nama Lengkap
+                </label>
                 <input
                   type="text"
                   required
                   placeholder="Nama pelanggan"
                   value={custName}
                   onChange={(e) => setCustName(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp / HP</label>
+                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                  Nomor Telepon / WhatsApp
+                </label>
                 <input
                   type="text"
                   placeholder="0812-XXXX-XXXX"
                   value={custPhone}
                   onChange={(e) => setCustPhone(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono focus:outline-none focus:border-zinc-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Alamat Singkat</label>
+                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                  Alamat Singkat
+                </label>
                 <input
                   type="text"
                   placeholder="Alamat pelanggan"
                   value={custAddress}
                   onChange={(e) => setCustAddress(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
                 />
               </div>
               <div className="flex gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowCustomerModal(false)}
-                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs"
+                  className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md"
+                  className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle"
                 >
-                  {actionLoading ? 'Menyimpan...' : 'Simpan'}
+                  Simpan Pelanggan
                 </button>
               </div>
             </form>
@@ -431,28 +456,32 @@ export const CustomerList: React.FC = () => {
 
       {/* Create Vehicle Modal */}
       {showVehicleModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h3 className="text-base font-bold text-slate-900">Tambah Kendaraan Motor</h3>
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-modal space-y-3.5 border border-zinc-200">
+            <h3 className="text-sm font-bold text-zinc-900 tracking-tight">Registrasi Kendaraan Motor</h3>
             <form onSubmit={handleCreateVehicle} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Nomor Polisi (Plat)</label>
+                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                  Nomor Polisi (Plat)
+                </label>
                 <input
                   type="text"
                   required
-                  placeholder="misal: B 1234 ABC"
+                  placeholder="B 1234 ABC"
                   value={vehPlate}
                   onChange={(e) => setVehPlate(e.target.value.toUpperCase())}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs uppercase font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono font-bold uppercase focus:outline-none focus:border-zinc-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Merek</label>
+                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                    Merek
+                  </label>
                   <select
                     value={vehBrand}
                     onChange={(e) => setVehBrand(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none"
+                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs outline-none"
                   >
                     <option value="Honda">Honda</option>
                     <option value="Yamaha">Yamaha</option>
@@ -462,23 +491,27 @@ export const CustomerList: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Model / Tipe</label>
+                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                    Model / Tipe
+                  </label>
                   <input
                     type="text"
                     required
-                    placeholder="misal: Beat ESP 110"
+                    placeholder="Beat ESP 110"
                     value={vehModel}
                     onChange={(e) => setVehModel(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Hubungkan ke Pelanggan</label>
+                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                  Hubungkan ke Pemilik
+                </label>
                 <select
                   value={vehCustomerId}
                   onChange={(e) => setVehCustomerId(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-none"
+                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs outline-none"
                 >
                   <option value="">-- Pelanggan Umum (Tanpa Akun) --</option>
                   {customers.map((c) => (
@@ -492,16 +525,16 @@ export const CustomerList: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowVehicleModal(false)}
-                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs"
+                  className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md"
+                  className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle"
                 >
-                  {actionLoading ? 'Menyimpan...' : 'Simpan Motor'}
+                  Simpan Motor
                 </button>
               </div>
             </form>

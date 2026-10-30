@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../../api/client';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../context/ToastContext';
 import {
   Wrench,
   Package,
   Plus,
   Trash2,
-  AlertCircle,
   Save,
   ArrowLeft,
-  User,
   Car,
-  FileText,
+  User,
+  Info,
 } from 'lucide-react';
 
 interface SelectedItem {
@@ -27,6 +27,7 @@ interface SelectedItem {
 
 export const ServiceCreate: React.FC = () => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   // Form State
   const [customerName, setCustomerName] = useState('');
@@ -52,11 +53,9 @@ export const ServiceCreate: React.FC = () => {
   const [selectedServiceId, setSelectedServiceId] = useState('');
   const [selectedProductId, setSelectedProductId] = useState('');
 
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Load master data
     apiFetch<any[]>('/services').then((res) => setServicesList(res || [])).catch(() => {});
     apiFetch<any[]>('/products').then((res) => setProductsList(res || [])).catch(() => {});
     apiFetch<any[]>('/mechanics').then((res) => setMechanicsList(res?.filter((m) => m.isActive) || [])).catch(() => {});
@@ -87,7 +86,7 @@ export const ServiceCreate: React.FC = () => {
     if (!prod) return;
 
     if (prod.stock <= 0) {
-      setError(`Stok untuk "${prod.name}" habis (${prod.stock} ${prod.unit})`);
+      showToast('error', `Stok barang "${prod.name}" habis (${prod.stock} ${prod.unit})`);
       return;
     }
 
@@ -104,7 +103,6 @@ export const ServiceCreate: React.FC = () => {
       },
     ]);
     setSelectedProductId('');
-    setError(null);
   };
 
   const handleRemoveItem = (id: string) => {
@@ -117,7 +115,7 @@ export const ServiceCreate: React.FC = () => {
       prev.map((i) => {
         if (i.id === id) {
           if (i.stock !== undefined && qty > i.stock) {
-            setError(`Stok "${i.name}" hanya tersedia ${i.stock}`);
+            showToast('error', `Stok "${i.name}" hanya tersedia ${i.stock}`);
             return { ...i, quantity: i.stock };
           }
           return { ...i, quantity: qty };
@@ -127,7 +125,6 @@ export const ServiceCreate: React.FC = () => {
     );
   };
 
-  // Calculations
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const totalAmount = Math.max(0, subtotal - Number(discount || 0));
 
@@ -141,11 +138,10 @@ export const ServiceCreate: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
 
     // AC-04 validation: at least 1 item
     if (items.length === 0) {
-      setError('Order servis harus memiliki minimal 1 jasa atau sparepart (AC-04)');
+      showToast('error', 'Order servis harus memiliki minimal 1 jasa atau sparepart (AC-04)');
       return;
     }
 
@@ -177,9 +173,10 @@ export const ServiceCreate: React.FC = () => {
         body: JSON.stringify(payload),
       });
 
+      showToast('success', `Order servis ${res.orderNumber} berhasil dibuat.`);
       navigate(`/services/${res.id}`);
     } catch (err: any) {
-      setError(err.message || 'Gagal menyimpan order servis');
+      showToast('error', err.message || 'Gagal menyimpan order servis');
     } finally {
       setLoading(false);
     }
@@ -187,90 +184,103 @@ export const ServiceCreate: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-20">
-      {/* Back button & Title */}
-      <div className="flex items-center gap-3">
+      {/* Top Header */}
+      <div className="flex items-center gap-3 pb-3 border-b border-zinc-200">
         <button
           type="button"
           onClick={() => navigate('/services')}
-          className="p-2 hover:bg-slate-200 rounded-xl text-slate-600 transition"
+          className="p-1.5 hover:bg-zinc-200 rounded-lg text-zinc-600 transition"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-4 h-4" />
         </button>
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Buat Order Servis Baru
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
+            Formulir Intake Servis Baru
           </h1>
-          <p className="text-xs text-slate-500">Form satu halaman pencatatan pekerjaan servis</p>
+          <p className="text-xs text-zinc-500">
+            Pencatatan data kendaraan, keluhan pemilik, jasa servis, dan estimasi pemakaian sparepart.
+          </p>
         </div>
       </div>
 
-      {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3 text-red-700 text-sm">
-          <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-500 mt-0.5" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Section 1: Kendaraan & Pelanggan (AC-03: Opsional) */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-slate-100 text-slate-800 font-bold text-sm">
-            <Car className="w-4 h-4 text-blue-600" />
-            <span>Data Motor & Pelanggan (Boleh dikosongkan untuk walk-in cepat)</span>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Section 1: Kendaraan & Pelanggan */}
+        <div className="bg-white p-5 rounded-xl border border-zinc-200/90 shadow-card space-y-4">
+          <div className="flex items-center justify-between pb-2.5 border-b border-zinc-100">
+            <div className="flex items-center gap-2">
+              <Car className="w-4 h-4 text-zinc-700" />
+              <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-900">
+                1. Identitas Kendaraan & Pelanggan (AC-03: Opsional)
+              </h2>
+            </div>
+            <span className="text-[11px] font-mono text-zinc-400">Boleh dikosongkan untuk walk-in cepat</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Nomor Polisi (Plat)</label>
+              <label className="block text-[11px] font-mono text-zinc-600 uppercase mb-1">
+                Plat Nomor Motor
+              </label>
               <input
                 type="text"
-                placeholder="misal: B 1234 XYZ"
+                placeholder="B 1234 XYZ"
                 value={plateNumber}
                 onChange={(e) => setPlateNumber(e.target.value.toUpperCase())}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm uppercase font-semibold focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono font-bold uppercase placeholder:text-zinc-400 focus:outline-none focus:border-zinc-500 focus:bg-white transition"
               />
             </div>
+
             <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Merek & Tipe Motor</label>
+              <label className="block text-[11px] font-mono text-zinc-600 uppercase mb-1">
+                Tipe & Model Motor
+              </label>
               <input
                 type="text"
-                placeholder="misal: Honda Vario 125"
+                placeholder="misal: Vario 125 FI"
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs placeholder:text-zinc-400 focus:outline-none focus:border-zinc-500 focus:bg-white transition"
               />
             </div>
+
             <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Kilometer (Odometer)</label>
+              <label className="block text-[11px] font-mono text-zinc-600 uppercase mb-1">
+                Kilometer (Odo)
+              </label>
               <input
                 type="number"
-                placeholder="misal: 15400"
+                placeholder="15000"
                 value={mileage}
                 onChange={(e) => setMileage(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono placeholder:text-zinc-400 focus:outline-none focus:border-zinc-500 focus:bg-white transition"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Nama Pelanggan (Opsional)</label>
+              <label className="block text-[11px] font-mono text-zinc-600 uppercase mb-1">
+                Nama Pelanggan (Pemilik)
+              </label>
               <input
                 type="text"
-                placeholder="Nama pemilik / pembawa motor"
+                placeholder="Pelanggan Umum"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs placeholder:text-zinc-400 focus:outline-none focus:border-zinc-500 focus:bg-white transition"
               />
             </div>
+
             <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Pilih Mekanik</label>
+              <label className="block text-[11px] font-mono text-zinc-600 uppercase mb-1">
+                Penugasan Mekanik
+              </label>
               <select
                 value={mechanicId}
                 onChange={(e) => setMechanicId(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs text-zinc-800 outline-none focus:border-zinc-500"
               >
-                <option value="">-- Belum Ditentukan --</option>
+                <option value="">-- Belum Ditentukan (Antrean Bebas) --</option>
                 {mechanicsList.map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.name}
@@ -281,39 +291,45 @@ export const ServiceCreate: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">Keluhan Pelanggan</label>
+            <label className="block text-[11px] font-mono text-zinc-600 uppercase mb-1">
+              Keluhan Pengendara
+            </label>
             <input
               type="text"
-              placeholder="misal: Tarikan gredeg di putaran bawah, rem depan bunyi"
+              placeholder="misal: Rem depan bunyi mendecit, ganti oli mesin rutin"
               value={complaints}
               onChange={(e) => setComplaints(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full px-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs placeholder:text-zinc-400 focus:outline-none focus:border-zinc-500 focus:bg-white transition"
             />
           </div>
         </div>
 
-        {/* Section 2: Jasa & Sparepart (Wajib Minimal 1) */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-100 text-slate-800 font-bold text-sm">
+        {/* Section 2: Jasa & Sparepart Selector */}
+        <div className="bg-white p-5 rounded-xl border border-zinc-200/90 shadow-card space-y-4">
+          <div className="flex items-center justify-between pb-2.5 border-b border-zinc-100">
             <div className="flex items-center gap-2">
-              <Wrench className="w-4 h-4 text-blue-600" />
-              <span>Jasa & Sparepart Yang Dikerjakan</span>
+              <Wrench className="w-4 h-4 text-zinc-700" />
+              <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-900">
+                2. Rincian Pekerjaan Jasa & Suku Cadang (AC-04: Min. 1 Item)
+              </h2>
             </div>
-            <span className="text-xs text-rose-600 font-semibold">* Minimal 1 item</span>
+            <span className="text-[11px] font-mono text-rose-600 font-semibold">* Wajib Diisi</span>
           </div>
 
-          {/* Quick Item Selectors */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          {/* Quick Selectors Bar */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-zinc-50 p-3 rounded-lg border border-zinc-200/80">
             {/* Service selector */}
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700">Tambah Jasa:</label>
+              <span className="text-[11px] font-mono text-zinc-600 uppercase block font-semibold">
+                + Tambah Jasa Servis:
+              </span>
               <div className="flex gap-2">
                 <select
                   value={selectedServiceId}
                   onChange={(e) => setSelectedServiceId(e.target.value)}
-                  className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs outline-none"
+                  className="flex-1 px-2.5 py-1.5 bg-white border border-zinc-200 rounded-md text-xs outline-none"
                 >
-                  <option value="">-- Pilih Jasa Bengkel --</option>
+                  <option value="">-- Pilih Katalog Jasa --</option>
                   {servicesList.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.name} ({formatCurrency(Number(s.price))})
@@ -323,23 +339,25 @@ export const ServiceCreate: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleAddService}
-                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold"
+                  className="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-md text-xs font-semibold"
                 >
-                  + Jasa
+                  Tambah
                 </button>
               </div>
             </div>
 
-            {/* Product / Sparepart selector */}
+            {/* Product selector */}
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700">Tambah Sparepart / Oli:</label>
+              <span className="text-[11px] font-mono text-zinc-600 uppercase block font-semibold">
+                + Tambah Sparepart / Oli:
+              </span>
               <div className="flex gap-2">
                 <select
                   value={selectedProductId}
                   onChange={(e) => setSelectedProductId(e.target.value)}
-                  className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs outline-none"
+                  className="flex-1 px-2.5 py-1.5 bg-white border border-zinc-200 rounded-md text-xs outline-none"
                 >
-                  <option value="">-- Pilih Sparepart / Oli --</option>
+                  <option value="">-- Pilih Sparepart --</option>
                   {productsList.map((p) => (
                     <option key={p.id} value={p.id} disabled={p.stock <= 0}>
                       {p.name} - {formatCurrency(Number(p.sellPrice))} (Stok: {p.stock} {p.unit})
@@ -349,9 +367,9 @@ export const ServiceCreate: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleAddProduct}
-                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold"
+                  className="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-md text-xs font-semibold"
                 >
-                  + Barang
+                  Tambah
                 </button>
               </div>
             </div>
@@ -359,57 +377,59 @@ export const ServiceCreate: React.FC = () => {
 
           {/* Items Table */}
           {items.length === 0 ? (
-            <div className="p-8 text-center text-slate-400 text-xs border border-dashed border-slate-200 rounded-xl">
-              Belum ada item ditambahkan. Pilih jasa atau sparepart di atas.
+            <div className="p-8 text-center text-zinc-400 text-xs border border-dashed border-zinc-200 rounded-lg">
+              Belum ada item ditambahkan. Pilih jasa atau suku cadang di panel atas.
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-xs text-left">
                 <thead>
-                  <tr className="border-b border-slate-200 text-slate-500">
-                    <th className="py-2">Tipe</th>
-                    <th className="py-2">Nama Item</th>
-                    <th className="py-2 text-right">Harga</th>
-                    <th className="py-2 text-center">Jumlah</th>
-                    <th className="py-2 text-right">Subtotal</th>
-                    <th className="py-2 text-center">Aksi</th>
+                  <tr className="bg-zinc-50 border-b border-zinc-200 text-[11px] font-mono text-zinc-500 uppercase tracking-wider">
+                    <th className="py-2 px-3">Tipe</th>
+                    <th className="py-2 px-3">Nama Pekerjaan / Barang</th>
+                    <th className="py-2 px-3 text-right">Harga Satuan</th>
+                    <th className="py-2 px-3 text-center">Jumlah</th>
+                    <th className="py-2 px-3 text-right">Subtotal</th>
+                    <th className="py-2 px-3 text-center">Hapus</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-zinc-100">
                   {items.map((item) => (
-                    <tr key={item.id} className="hover:bg-slate-50">
-                      <td className="py-2">
+                    <tr key={item.id} className="hover:bg-zinc-50/50">
+                      <td className="py-2.5 px-3">
                         <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase ${
                             item.itemType === 'SERVICE'
-                              ? 'bg-blue-100 text-blue-700'
-                              : 'bg-emerald-100 text-emerald-700'
+                              ? 'bg-blue-50 text-blue-800 border-blue-200'
+                              : 'bg-emerald-50 text-emerald-800 border-emerald-200'
                           }`}
                         >
                           {item.itemType === 'SERVICE' ? 'Jasa' : 'Barang'}
                         </span>
                       </td>
-                      <td className="py-2 font-medium text-slate-800">{item.name}</td>
-                      <td className="py-2 text-right">{formatCurrency(item.price)}</td>
-                      <td className="py-2 text-center">
+                      <td className="py-2.5 px-3 font-medium text-zinc-900">{item.name}</td>
+                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-zinc-600">
+                        {formatCurrency(item.price)}
+                      </td>
+                      <td className="py-2.5 px-3 text-center">
                         <input
                           type="number"
                           min="1"
                           value={item.quantity}
                           onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
-                          className="w-14 px-1.5 py-1 text-center bg-slate-100 border border-slate-300 rounded font-semibold"
+                          className="w-12 px-1 py-0.5 text-center font-mono bg-zinc-100 border border-zinc-300 rounded font-semibold text-xs"
                         />
                       </td>
-                      <td className="py-2 text-right font-bold text-slate-900">
+                      <td className="py-2.5 px-3 text-right font-mono font-bold text-zinc-900 tabular-nums">
                         {formatCurrency(item.price * item.quantity)}
                       </td>
-                      <td className="py-2 text-center">
+                      <td className="py-2.5 px-3 text-center">
                         <button
                           type="button"
                           onClick={() => handleRemoveItem(item.id)}
-                          className="text-red-500 hover:text-red-700 p-1"
+                          className="p-1 text-zinc-400 hover:text-rose-600 transition"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </td>
                     </tr>
@@ -419,45 +439,45 @@ export const ServiceCreate: React.FC = () => {
             </div>
           )}
 
-          {/* Totals & Discount */}
-          <div className="bg-slate-50 p-4 rounded-xl space-y-2 border border-slate-200">
-            <div className="flex justify-between text-xs text-slate-600">
-              <span>Subtotal Item:</span>
-              <span className="font-semibold">{formatCurrency(subtotal)}</span>
+          {/* Pricing Breakdown Summary */}
+          <div className="bg-zinc-50 p-4 rounded-lg space-y-2 border border-zinc-200/80 text-xs">
+            <div className="flex justify-between text-zinc-600">
+              <span>Subtotal Pekerjaan:</span>
+              <span className="font-mono font-semibold tabular-nums">{formatCurrency(subtotal)}</span>
             </div>
-            <div className="flex justify-between items-center text-xs text-slate-600">
-              <span>Potongan / Diskon (Rp):</span>
+            <div className="flex justify-between items-center text-zinc-600">
+              <span>Potongan Diskon (Rp):</span>
               <input
                 type="number"
                 min="0"
                 value={discount}
                 onChange={(e) => setDiscount(Math.max(0, parseInt(e.target.value) || 0))}
-                className="w-28 px-2 py-1 bg-white border border-slate-300 rounded text-right font-semibold text-xs"
+                className="w-24 px-2 py-0.5 bg-white border border-zinc-300 rounded text-right font-mono font-semibold text-xs outline-none"
               />
             </div>
-            <div className="flex justify-between items-center text-sm font-black text-slate-900 pt-2 border-t border-slate-200">
-              <span>Total Biaya Servis:</span>
-              <span className="text-base text-blue-700">{formatCurrency(totalAmount)}</span>
+            <div className="flex justify-between items-center text-sm font-bold text-zinc-900 pt-2 border-t border-zinc-200">
+              <span>Total Estimasi Biaya:</span>
+              <span className="font-mono text-base text-zinc-950 tabular-nums">
+                {formatCurrency(totalAmount)}
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Section 3: Status Pekerjaan Awal */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        {/* Section 3: Status Awal */}
+        <div className="bg-white p-4 rounded-xl border border-zinc-200/90 shadow-card flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <span className="block text-xs font-bold text-slate-700 uppercase">Status Pekerjaan:</span>
-            <span className="text-xs text-slate-500">
-              Pilih langsung 'Dikerjakan' jika motor langsung masuk ke stall mekanik
-            </span>
+            <span className="text-xs font-mono font-bold uppercase text-zinc-700">Status Pekerjaan:</span>
+            <p className="text-xs text-zinc-500">Pilih 'Dikerjakan' jika motor langsung masuk ke bay mekanik.</p>
           </div>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => setStatus('PENDING')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold border transition ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition ${
                 status === 'PENDING'
-                  ? 'bg-amber-100 border-amber-400 text-amber-900'
-                  : 'bg-white border-slate-200 text-slate-600'
+                  ? 'bg-zinc-900 border-zinc-900 text-white shadow-subtle'
+                  : 'bg-white border-zinc-200 text-zinc-700'
               }`}
             >
               Menunggu Antrean
@@ -465,10 +485,10 @@ export const ServiceCreate: React.FC = () => {
             <button
               type="button"
               onClick={() => setStatus('IN_PROGRESS')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold border transition ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition ${
                 status === 'IN_PROGRESS'
-                  ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
-                  : 'bg-white border-slate-200 text-slate-600'
+                  ? 'bg-zinc-900 border-zinc-900 text-white shadow-subtle'
+                  : 'bg-white border-zinc-200 text-zinc-700'
               }`}
             >
               Langsung Dikerjakan
@@ -476,19 +496,21 @@ export const ServiceCreate: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile-Friendly Sticky Bottom Bar */}
-        <div className="fixed bottom-0 left-0 right-0 md:static z-30 bg-white md:bg-transparent border-t md:border-t-0 border-slate-200 p-4 md:p-0 shadow-lg md:shadow-none flex items-center justify-between gap-4">
-          <div className="md:hidden">
-            <span className="text-[10px] text-slate-500 uppercase font-bold block">Total Servis</span>
-            <span className="text-sm font-black text-blue-700">{formatCurrency(totalAmount)}</span>
-          </div>
-
+        {/* Submit Actions */}
+        <div className="flex justify-end gap-3 pt-2">
+          <button
+            type="button"
+            onClick={() => navigate('/services')}
+            className="px-4 py-2 border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700 rounded-lg text-xs font-semibold transition"
+          >
+            Batal
+          </button>
           <button
             type="submit"
             disabled={loading}
-            className="w-full md:w-auto ml-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-black text-sm rounded-xl shadow-md transition flex items-center justify-center gap-2 disabled:opacity-50"
+            className="px-6 py-2 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg text-xs font-semibold shadow-subtle transition flex items-center gap-2 disabled:opacity-50"
           >
-            <Save className="w-4 h-4" />
+            <Save className="w-3.5 h-3.5" />
             <span>{loading ? 'Menyimpan Order...' : 'Simpan Order Servis'}</span>
           </button>
         </div>
