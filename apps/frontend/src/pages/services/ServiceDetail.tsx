@@ -13,7 +13,7 @@ import {
   CheckCircle,
   Clock,
   Printer,
-  DollarSign,
+  Banknote,
   ShieldAlert,
   Car,
   User,
@@ -233,7 +233,7 @@ export const ServiceDetail: React.FC = () => {
               onClick={() => setShowPaymentModal(true)}
               className="px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg text-xs font-semibold shadow-subtle transition flex items-center gap-1.5"
             >
-              <DollarSign className="w-3.5 h-3.5" />
+              <Banknote className="w-3.5 h-3.5" />
               <span>Bayar Kasir</span>
             </button>
           )}

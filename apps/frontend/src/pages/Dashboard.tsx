@@ -6,7 +6,8 @@ import { PlateBadge } from '../components/PlateBadge';
 import { StatusBadge } from '../components/StatusBadge';
 import {
   Wrench,
-  DollarSign,
+  Banknote,
+  Wallet,
   Package,
   Plus,
   AlertTriangle,
@@ -112,7 +113,7 @@ export const Dashboard: React.FC = () => {
                 Omzet Diterima Hari Ini
               </span>
               <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
-                <DollarSign className="w-3.5 h-3.5" />
+                <Banknote className="w-3.5 h-3.5" />
               </div>
             </div>
             <div>
@@ -132,7 +133,7 @@ export const Dashboard: React.FC = () => {
                 Saldo Laci Kasir (Cash)
               </span>
               <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
-                <CreditCard className="w-3.5 h-3.5" />
+                <Wallet className="w-3.5 h-3.5" />
               </div>
             </div>
             <div>
@@ -303,7 +304,7 @@ export const Dashboard: React.FC = () => {
               Omzet Hari Ini
             </span>
             <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
-              <DollarSign className="w-3.5 h-3.5" />
+              <Banknote className="w-3.5 h-3.5" />
             </div>
           </div>
           <div>
@@ -350,7 +351,7 @@ export const Dashboard: React.FC = () => {
               Saldo Laci Kasir
             </span>
             <div className="w-7 h-7 rounded-lg bg-zinc-100 text-zinc-700 flex items-center justify-center">
-              <CreditCard className="w-3.5 h-3.5" />
+              <Wallet className="w-3.5 h-3.5" />
             </div>
           </div>
           <div>

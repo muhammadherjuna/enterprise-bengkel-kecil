@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { Modal } from '../../components/Modal';
 import {
-  DollarSign,
+  Wallet,
   TrendingUp,
   TrendingDown,
   Plus,
@@ -186,7 +186,7 @@ export const FinancePage: React.FC = () => {
               </span>
             </div>
             <div className="w-12 h-12 rounded-xl bg-zinc-100 border flex items-center justify-center text-zinc-700">
-              <DollarSign className="w-6 h-6" />
+              <Wallet className="w-6 h-6" />
             </div>
           </div>
 

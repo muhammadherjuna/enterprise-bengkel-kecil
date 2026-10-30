@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import {
   Users,
   Wrench,
-  DollarSign,
+  Wallet,
   FileText,
   Settings,
   Shield,
@@ -34,7 +34,7 @@ export const MenuPage: React.FC = () => {
           {
             title: 'Keuangan & Laporan',
             items: [
-              { to: '/finance', label: 'Buku Kas & Pengeluaran', desc: 'Catatan kas masuk & biaya operasional', icon: DollarSign },
+              { to: '/finance', label: 'Buku Kas & Pengeluaran', desc: 'Catatan kas masuk & biaya operasional', icon: Wallet },
               { to: '/reports', label: 'Laporan Rekapitulasi', desc: 'Rekap harian & rekonsiliasi transaksi', icon: FileText },
             ],
           },

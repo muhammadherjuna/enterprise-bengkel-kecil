@@ -14,7 +14,6 @@ import {
   X,
   Phone,
   Tag,
-  DollarSign,
   UserCheck,
   Clock,
   FileCode2,

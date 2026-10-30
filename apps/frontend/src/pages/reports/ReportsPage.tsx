@@ -3,7 +3,6 @@ import { apiFetch } from '../../api/client';
 import {
   FileText,
   Calendar,
-  DollarSign,
   TrendingUp,
   Printer,
   XCircle,
