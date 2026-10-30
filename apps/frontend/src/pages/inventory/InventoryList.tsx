@@ -176,7 +176,7 @@ export const InventoryList: React.FC = () => {
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
               Katalog Suku Cadang & Inventori
             </h1>
-            <span className="font-mono text-xs text-zinc-400">/ STOCK LEDGER</span>
+            <span className="text-xs uppercase tracking-wider text-zinc-400 font-medium">/ STOCK LEDGER</span>
           </div>
           <p className="text-xs text-zinc-500 mt-0.5">
             Manajemen persediaan suku cadang, pelacakan mutasi barang keluar/masuk, dan stock opname fisik.
@@ -226,7 +226,7 @@ export const InventoryList: React.FC = () => {
       {/* Product Table */}
       <div className="bg-white rounded-xl border border-zinc-200/90 shadow-card overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center text-zinc-400 text-xs font-mono">
+          <div className="p-12 text-center text-zinc-400 text-xs">
             Memuat data suku cadang...
           </div>
         ) : products.length === 0 ? (
@@ -237,7 +237,7 @@ export const InventoryList: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-xs text-left">
               <thead>
-                <tr className="bg-zinc-50/70 border-b border-zinc-200 text-[11px] font-mono text-zinc-500 uppercase tracking-wider">
+                <tr className="bg-zinc-50/70 border-b border-zinc-200 text-xs font-semibold text-zinc-500 uppercase tracking-wider">
                   <th className="py-2.5 px-4 font-medium">SKU / Nama Sparepart</th>
                   <th className="py-2.5 px-4 font-medium">Kategori</th>
                   <th className="py-2.5 px-4 font-medium text-right">Harga Beli (HPP)</th>
@@ -263,17 +263,17 @@ export const InventoryList: React.FC = () => {
                         {p.category}
                       </td>
 
-                      <td className="py-3 px-4 text-right font-mono text-zinc-500 tabular-nums">
+                      <td className="py-3 px-4 text-right text-zinc-500 font-medium tabular-nums">
                         {formatCurrency(Number(p.costPrice))}
                       </td>
 
-                      <td className="py-3 px-4 text-right font-mono font-bold text-zinc-900 tabular-nums">
+                      <td className="py-3 px-4 text-right font-semibold text-zinc-900 tabular-nums">
                         {formatCurrency(Number(p.sellPrice))}
                       </td>
 
                       <td className="py-3 px-4 text-center">
                         <span
-                          className={`inline-flex items-center font-mono font-bold px-2 py-0.5 rounded text-xs tabular-nums ${
+                          className={`inline-flex items-center font-semibold px-2 py-0.5 rounded text-xs tabular-nums ${
                             isOut
                               ? 'bg-rose-50 text-rose-700 border border-rose-200'
                               : isLow
@@ -284,7 +284,7 @@ export const InventoryList: React.FC = () => {
                           {p.stock} {p.unit}
                         </span>
                         {isLow && (
-                          <span className="block text-[10px] font-mono text-amber-700 mt-0.5">
+                          <span className="block text-[10px] font-medium text-amber-700 mt-0.5 tabular-nums">
                             Min: {p.minStock}
                           </span>
                         )}
@@ -332,15 +332,15 @@ export const InventoryList: React.FC = () => {
           <form onSubmit={handleSaveAdjustment} className="space-y-3.5">
             <div className="grid grid-cols-2 gap-3 p-3 bg-zinc-50 rounded-lg border border-zinc-200 text-xs">
               <div>
-                <span className="text-zinc-500 block text-[11px] font-mono">Stok Sistem:</span>
-                <span className="font-mono font-bold text-zinc-900">
+                <span className="text-zinc-500 block text-[11px]">Stok Sistem:</span>
+                <span className="font-semibold text-zinc-900 tabular-nums">
                   {selectedProduct.stock} {selectedProduct.unit}
                 </span>
               </div>
               <div>
-                <span className="text-zinc-500 block text-[11px] font-mono">Selisih Stok:</span>
+                <span className="text-zinc-500 block text-[11px]">Selisih Stok:</span>
                 <span
-                  className={`font-mono font-bold ${
+                  className={`font-semibold tabular-nums ${
                     newStockCount - selectedProduct.stock >= 0 ? 'text-emerald-600' : 'text-rose-600'
                   }`}
                 >
@@ -351,7 +351,7 @@ export const InventoryList: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Stok Fisik Baru (Hasil Hitung Lapangan):
               </label>
               <input
@@ -360,12 +360,12 @@ export const InventoryList: React.FC = () => {
                 required
                 value={newStockCount}
                 onChange={(e) => setNewStockCount(parseInt(e.target.value) || 0)}
-                className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-base font-mono font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white"
+                className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-lg font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white tabular-nums"
               />
             </div>
 
             <div>
-              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Alasan Penyesuaian:
               </label>
               <input
@@ -416,7 +416,7 @@ export const InventoryList: React.FC = () => {
                   <div>
                     <div className="flex items-center gap-2">
                       <span
-                        className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase ${
+                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase ${
                           m.quantity > 0
                             ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                             : 'bg-rose-50 text-rose-800 border-rose-200'
@@ -424,19 +424,19 @@ export const InventoryList: React.FC = () => {
                       >
                         {m.type}
                       </span>
-                      <span className="font-mono font-bold text-zinc-900">
+                      <span className="font-semibold text-zinc-900 tabular-nums">
                         {m.quantity > 0 ? `+${m.quantity}` : m.quantity} {selectedProduct.unit}
                       </span>
                     </div>
                     <p className="text-[11px] text-zinc-500 mt-0.5">{m.reason || '-'}</p>
-                    <span className="text-[10px] font-mono text-zinc-400">
+                    <span className="text-[10px] text-zinc-400">
                       {new Date(m.createdAt).toLocaleString('id-ID')} • User: {m.user?.name || '-'}
                     </span>
                   </div>
 
                   <div className="text-right">
-                    <span className="text-zinc-400 block text-[10px] font-mono">Saldo Sisa</span>
-                    <span className="font-mono font-bold text-zinc-900 text-xs tabular-nums">
+                    <span className="text-zinc-400 block text-[10px]">Saldo Sisa</span>
+                    <span className="font-semibold text-zinc-900 text-xs tabular-nums">
                       {m.balanceAfter} {selectedProduct.unit}
                     </span>
                   </div>
@@ -457,7 +457,7 @@ export const InventoryList: React.FC = () => {
         <form onSubmit={handleCreateProduct} className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Kode SKU
               </label>
               <input
@@ -466,11 +466,11 @@ export const InventoryList: React.FC = () => {
                 placeholder="OLI-MPX1"
                 value={newSku}
                 onChange={(e) => setNewSku(e.target.value.toUpperCase())}
-                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono uppercase font-bold focus:outline-none focus:border-zinc-500"
+                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono uppercase font-semibold focus:outline-none focus:border-zinc-500"
               />
             </div>
             <div>
-              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Kategori
               </label>
               <input
@@ -484,7 +484,7 @@ export const InventoryList: React.FC = () => {
           </div>
 
           <div>
-            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+            <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
               Nama Sparepart
             </label>
             <input
@@ -499,7 +499,7 @@ export const InventoryList: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Harga Beli HPP (Rp)
               </label>
               <input
@@ -508,11 +508,11 @@ export const InventoryList: React.FC = () => {
                 required
                 value={newCostPrice}
                 onChange={(e) => setNewCostPrice(Number(e.target.value) || 0)}
-                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono focus:outline-none focus:border-zinc-500 tabular-nums"
+                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-zinc-500 tabular-nums"
               />
             </div>
             <div>
-              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Harga Jual Eceran (Rp)
               </label>
               <input
@@ -521,14 +521,14 @@ export const InventoryList: React.FC = () => {
                 required
                 value={newSellPrice}
                 onChange={(e) => setNewSellPrice(Number(e.target.value) || 0)}
-                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono font-bold focus:outline-none focus:border-zinc-500 tabular-nums"
+                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-zinc-500 tabular-nums"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Stok Awal
               </label>
               <input
@@ -536,11 +536,11 @@ export const InventoryList: React.FC = () => {
                 min="0"
                 value={newInitialStock}
                 onChange={(e) => setNewInitialStock(Number(e.target.value) || 0)}
-                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono"
+                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-medium tabular-nums"
               />
             </div>
             <div>
-              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Satuan
               </label>
               <input
@@ -551,7 +551,7 @@ export const InventoryList: React.FC = () => {
               />
             </div>
             <div>
-              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Min Stok
               </label>
               <input
@@ -559,7 +559,7 @@ export const InventoryList: React.FC = () => {
                 min="0"
                 value={newMinStock}
                 onChange={(e) => setNewMinStock(Number(e.target.value) || 0)}
-                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono"
+                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-medium tabular-nums"
               />
             </div>
           </div>

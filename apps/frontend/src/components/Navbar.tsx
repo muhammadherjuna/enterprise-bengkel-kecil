@@ -63,7 +63,7 @@ export const Navbar: React.FC = () => {
     };
     return (
       <span
-        className={`text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded border uppercase tracking-wider ${
+        className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border uppercase tracking-wider ${
           styles[primary] || 'bg-zinc-100 text-zinc-700'
         }`}
       >
@@ -86,7 +86,7 @@ export const Navbar: React.FC = () => {
                 <span className="font-bold text-sm tracking-tight text-zinc-900 leading-none">
                   {workshopName}
                 </span>
-                <span className="text-[10px] font-mono text-zinc-400 leading-none mt-1">
+                <span className="text-[10px] font-medium text-zinc-400 leading-none mt-1 uppercase tracking-wider">
                   v1.1 • ENTERPRISE
                 </span>
               </div>
@@ -118,14 +118,14 @@ export const Navbar: React.FC = () => {
 
           {/* Right Controls: Clock & User Session */}
           <div className="flex items-center gap-3">
-            <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 bg-zinc-50 rounded-md border text-[11px] font-mono text-zinc-500">
+            <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 bg-zinc-50 rounded-md border text-xs text-zinc-600">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span className="tabular-nums">{currentTime} WIB</span>
+              <span className="tabular-nums font-medium">{currentTime} WIB</span>
             </div>
 
             <div className="flex items-center gap-2 pl-2 border-l border-zinc-200">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-zinc-100 border flex items-center justify-center text-zinc-700 text-xs font-bold font-mono">
+                <div className="w-7 h-7 rounded-full bg-zinc-100 border flex items-center justify-center text-zinc-700 text-xs font-bold">
                   {user?.username?.charAt(0).toUpperCase()}
                 </div>
                 <div className="hidden sm:flex flex-col text-left">

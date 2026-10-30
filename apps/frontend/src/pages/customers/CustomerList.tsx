@@ -156,7 +156,7 @@ export const CustomerList: React.FC = () => {
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
               Pelanggan & Riwayat Kendaraan
             </h1>
-            <span className="font-mono text-xs text-zinc-400">/ FLEET LOG</span>
+            <span className="text-xs uppercase tracking-wider text-zinc-400 font-medium">/ FLEET LOG</span>
           </div>
           <p className="text-xs text-zinc-500 mt-0.5">
             Pencatatan profil pemilik kendaraan dan riwayat rekam medis servis motor (AC-18).
@@ -235,7 +235,7 @@ export const CustomerList: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-xs text-left">
                 <thead>
-                  <tr className="bg-zinc-50/70 border-b border-zinc-200 text-[11px] font-mono text-zinc-500 uppercase tracking-wider">
+                  <tr className="bg-zinc-50/70 border-b border-zinc-200 text-xs font-semibold text-zinc-500 uppercase tracking-wider">
                     <th className="py-2.5 px-4 font-medium">Plat Nomor Kendaraan</th>
                     <th className="py-2.5 px-4 font-medium">Merek & Tipe</th>
                     <th className="py-2.5 px-4 font-medium">Pemilik Terdaftar</th>
@@ -250,7 +250,7 @@ export const CustomerList: React.FC = () => {
                       </td>
                       <td className="py-3 px-4">
                         <span className="font-semibold text-zinc-900 block">{v.brand} {v.model}</span>
-                        {v.year && <span className="text-[10px] font-mono text-zinc-400">Tahun {v.year}</span>}
+                        {v.year && <span className="text-[10px] text-zinc-500 tabular-nums">Tahun {v.year}</span>}
                       </td>
                       <td className="py-3 px-4 text-zinc-700">
                         {v.customer?.name || <span className="text-zinc-400 italic">Pelanggan Umum</span>}
@@ -276,7 +276,7 @@ export const CustomerList: React.FC = () => {
         /* Customers List */
         <div className="bg-white rounded-xl border border-zinc-200/90 shadow-card overflow-hidden">
           {loading ? (
-            <div className="p-12 text-center text-zinc-400 text-xs font-mono">
+            <div className="p-12 text-center text-zinc-400 text-xs">
               Memuat data pelanggan...
             </div>
           ) : customers.length === 0 ? (
@@ -291,7 +291,7 @@ export const CustomerList: React.FC = () => {
                     <span className="font-bold text-zinc-900 block text-sm">{c.name}</span>
                     <div className="flex items-center gap-3 text-zinc-500">
                       {c.phone && (
-                        <span className="flex items-center gap-1 font-mono">
+                        <span className="flex items-center gap-1 tabular-nums font-medium">
                           <Phone className="w-3.5 h-3.5" /> {c.phone}
                         </span>
                       )}
@@ -302,7 +302,7 @@ export const CustomerList: React.FC = () => {
                       )}
                     </div>
                   </div>
-                  <span className="text-[11px] font-mono text-zinc-400">
+                  <span className="text-[11px] text-zinc-500">
                     {c.vehicles?.length || 0} unit motor terdaftar
                   </span>
                 </div>
@@ -323,7 +323,7 @@ export const CustomerList: React.FC = () => {
         >
           <div className="overflow-y-auto max-h-[60vh] space-y-3 pr-1">
             {historyLoading ? (
-              <div className="p-8 text-center text-zinc-400 text-xs font-mono">
+              <div className="p-8 text-center text-zinc-400 text-xs">
                 Memuat rekam servis kendaraan...
               </div>
             ) : vehicleHistory.length === 0 ? (
@@ -336,17 +336,17 @@ export const CustomerList: React.FC = () => {
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <span className="font-mono font-bold text-zinc-900">{h.orderNumber}</span>
-                      <span className="font-mono text-[10px] text-zinc-400">
+                      <span className="text-[10px] text-zinc-500">
                         {new Date(h.date).toLocaleDateString('id-ID')}
                       </span>
                     </div>
-                    <span className="font-mono font-bold text-zinc-900 tabular-nums">
+                    <span className="font-semibold text-zinc-900 tabular-nums">
                       {formatCurrency(Number(h.totalAmount))}
                     </span>
                   </div>
 
-                  <div className="flex gap-4 text-zinc-600 text-[11px] font-mono">
-                    <span>Odo: <strong className="text-zinc-900">{h.mileage ? `${h.mileage.toLocaleString('id-ID')} km` : '-'}</strong></span>
+                  <div className="flex gap-4 text-zinc-600 text-[11px]">
+                    <span>Odo: <strong className="text-zinc-900 tabular-nums">{h.mileage ? `${h.mileage.toLocaleString('id-ID')} km` : '-'}</strong></span>
                     <span>Mekanik: <strong className="text-zinc-900">{h.mechanic?.name || '-'}</strong></span>
                   </div>
 
@@ -356,14 +356,14 @@ export const CustomerList: React.FC = () => {
 
                   {/* Items */}
                   <div className="pt-2 border-t border-zinc-200">
-                    <span className="font-semibold text-zinc-700 block text-[11px] font-mono uppercase mb-1">
+                    <span className="font-semibold text-zinc-700 block text-[11px] uppercase mb-1">
                       Pekerjaan Jasa & Suku Cadang:
                     </span>
                     <div className="grid grid-cols-2 gap-1 text-[11px] text-zinc-600">
                       {h.items?.map((it: any) => (
                         <div key={it.id} className="flex justify-between pr-2">
                           <span className="truncate pr-1">• {it.name} ({it.quantity}x)</span>
-                          <span className="font-mono tabular-nums text-zinc-800">{formatCurrency(Number(it.subtotal))}</span>
+                          <span className="tabular-nums font-medium text-zinc-800">{formatCurrency(Number(it.subtotal))}</span>
                         </div>
                       ))}
                     </div>
@@ -384,7 +384,7 @@ export const CustomerList: React.FC = () => {
       >
         <form onSubmit={handleCreateCustomer} className="space-y-3">
           <div>
-            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+            <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
               Nama Lengkap
             </label>
             <input
@@ -397,7 +397,7 @@ export const CustomerList: React.FC = () => {
             />
           </div>
           <div>
-            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+            <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
               Nomor Telepon / WhatsApp
             </label>
             <input
@@ -405,11 +405,11 @@ export const CustomerList: React.FC = () => {
               placeholder="0812-XXXX-XXXX"
               value={custPhone}
               onChange={(e) => setCustPhone(e.target.value)}
-              className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono focus:outline-none focus:border-zinc-500"
+              className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs tabular-nums focus:outline-none focus:border-zinc-500"
             />
           </div>
           <div>
-            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+            <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
               Alamat Singkat
             </label>
             <input
@@ -448,7 +448,7 @@ export const CustomerList: React.FC = () => {
       >
         <form onSubmit={handleCreateVehicle} className="space-y-3">
           <div>
-            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+            <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
               Nomor Polisi (Plat)
             </label>
             <input
@@ -462,7 +462,7 @@ export const CustomerList: React.FC = () => {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Merek
               </label>
               <select
@@ -478,7 +478,7 @@ export const CustomerList: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Model / Tipe
               </label>
               <input
@@ -492,7 +492,7 @@ export const CustomerList: React.FC = () => {
             </div>
           </div>
           <div>
-            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+            <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
               Hubungkan ke Pemilik
             </label>
             <select

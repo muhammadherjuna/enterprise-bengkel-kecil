@@ -320,7 +320,7 @@ export const PosPage: React.FC = () => {
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
               Terminal Kasir POS
             </h1>
-            <span className="font-mono text-xs text-zinc-400">/ REG-01</span>
+            <span className="text-xs uppercase tracking-wider text-zinc-400 font-medium">/ REG-01</span>
           </div>
           <p className="text-xs text-zinc-500 mt-0.5">
             Pencatatan penjualan suku cadang langsung dan pelunasan invoice servis.
@@ -349,7 +349,7 @@ export const PosPage: React.FC = () => {
           >
             <span>Pelunasan Servis</span>
             {unpaidOrders.length > 0 && (
-              <span className="bg-rose-600 text-white font-mono text-[10px] px-1.5 py-0.2 rounded-full font-bold">
+              <span className="bg-rose-600 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">
                 {unpaidOrders.length}
               </span>
             )}
@@ -412,7 +412,7 @@ export const PosPage: React.FC = () => {
                       }`}
                     >
                       {inCartItem && (
-                        <span className="absolute top-2 right-2 bg-blue-600 text-white text-[10px] font-mono font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                        <span className="absolute top-2 right-2 bg-blue-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
                           {inCartItem.quantity}
                         </span>
                       )}
@@ -425,12 +425,12 @@ export const PosPage: React.FC = () => {
                         </span>
                       </div>
                       <div className="mt-3 pt-2 border-t border-zinc-100 flex items-center justify-between">
-                        <span className="font-mono font-bold text-xs text-zinc-900 tabular-nums">
+                        <span className="font-semibold text-xs text-zinc-900 tabular-nums">
                           {formatCurrency(Number(p.sellPrice))}
                         </span>
                         <span
-                          className={`text-[10px] font-mono font-medium ${
-                            p.stock <= p.minStock ? 'text-rose-600 font-bold' : 'text-zinc-400'
+                          className={`text-[10px] font-medium tabular-nums ${
+                            p.stock <= p.minStock ? 'text-rose-600 font-bold' : 'text-zinc-500'
                           }`}
                         >
                           {p.stock} {p.unit}
@@ -448,7 +448,7 @@ export const PosPage: React.FC = () => {
                 <span className="text-xs font-semibold text-zinc-700">
                   Antrean Faktur Servis Menunggu Pelunasan
                 </span>
-                <span className="font-mono text-xs text-zinc-500">
+                <span className="text-xs text-zinc-500">
                   {unpaidOrders.length} order
                 </span>
               </div>
@@ -482,13 +482,13 @@ export const PosPage: React.FC = () => {
                             {ord.customer?.name || 'Pelanggan Umum'} • {ord.vehicle?.brand}{' '}
                             {ord.vehicle?.model}
                           </p>
-                          <p className="text-[11px] text-zinc-400 font-mono">
+                          <p className="text-[11px] text-zinc-400">
                             Mekanik: {ord.mechanic?.name || 'Belum diisi'} • {ord.items?.length || 0} item pekerjaan
                           </p>
                         </div>
 
                         <div className="text-right">
-                          <span className="font-mono font-bold text-sm text-zinc-900 block tabular-nums">
+                          <span className="font-semibold text-sm text-zinc-900 block tabular-nums">
                             {formatCurrency(Number(ord.totalAmount))}
                           </span>
                           <span className="text-[10px] font-semibold text-rose-600 uppercase tracking-wider">
@@ -511,7 +511,7 @@ export const PosPage: React.FC = () => {
               <h2 className="font-bold text-sm text-zinc-900 tracking-tight">
                 {activeTab === 'DIRECT' ? 'Tiket Belanja Kasir' : 'Pelunasan Faktur Servis'}
               </h2>
-              <span className="text-[11px] text-zinc-400 font-mono">
+              <span className="text-[11px] text-zinc-400">
                 Operator: {user?.name || user?.username}
               </span>
             </div>
@@ -520,7 +520,7 @@ export const PosPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setCart([])}
-                className="text-[11px] text-zinc-400 hover:text-rose-600 font-mono transition flex items-center gap-1"
+                className="text-[11px] text-zinc-400 hover:text-rose-600 transition flex items-center gap-1"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Reset</span>
@@ -552,7 +552,7 @@ export const PosPage: React.FC = () => {
                     <div key={item.productId} className="py-2.5 flex items-center justify-between gap-3 text-xs">
                       <div className="flex-1 min-w-0">
                         <span className="font-semibold text-zinc-900 block truncate">{item.name}</span>
-                        <span className="text-[11px] font-mono text-zinc-500 tabular-nums">
+                        <span className="text-[11px] text-zinc-500 tabular-nums">
                           {formatCurrency(item.price)} × {item.quantity} {item.unit}
                         </span>
                       </div>
@@ -566,7 +566,7 @@ export const PosPage: React.FC = () => {
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="w-7 text-center font-mono font-bold text-xs tabular-nums">
+                        <span className="w-7 text-center font-semibold text-xs tabular-nums">
                           {item.quantity}
                         </span>
                         <button
@@ -597,7 +597,7 @@ export const PosPage: React.FC = () => {
                   min="0"
                   value={discount}
                   onChange={(e) => setDiscount(Math.max(0, parseInt(e.target.value) || 0))}
-                  className="w-24 px-2 py-1 bg-zinc-50 border border-zinc-200 rounded font-mono font-semibold text-right text-xs focus:outline-none focus:border-zinc-400"
+                  className="w-24 px-2 py-1 bg-zinc-50 border border-zinc-200 rounded font-semibold text-right text-xs focus:outline-none focus:border-zinc-400 tabular-nums"
                 />
               </div>
             </div>
@@ -618,7 +618,7 @@ export const PosPage: React.FC = () => {
                     {selectedOrder.items?.map((it: any) => (
                       <div key={it.id} className="flex justify-between text-[11px] text-zinc-600">
                         <span className="truncate pr-2">• {it.name} ({it.quantity}x)</span>
-                        <span className="font-mono tabular-nums">{formatCurrency(Number(it.subtotal))}</span>
+                        <span className="font-medium tabular-nums">{formatCurrency(Number(it.subtotal))}</span>
                       </div>
                     ))}
                   </div>
@@ -634,19 +634,19 @@ export const PosPage: React.FC = () => {
           {/* Grand Total Display */}
           <div className="p-3.5 bg-zinc-900 rounded-lg text-white flex justify-between items-center shadow-subtle">
             <div>
-              <span className="text-[10px] font-mono uppercase text-zinc-400 block tracking-widest">
+              <span className="text-xs uppercase text-zinc-400 block font-semibold tracking-wider">
                 Total Pembayaran
               </span>
-              <span className="text-xl font-mono font-bold tracking-tight tabular-nums">
+              <span className="text-2xl font-bold tracking-tight tabular-nums">
                 {formatCurrency(currentTotal)}
               </span>
             </div>
-            <span className="text-xs font-mono text-zinc-400">NET TOTAL</span>
+            <span className="text-xs uppercase text-zinc-400 font-semibold tracking-wider">NET TOTAL</span>
           </div>
 
           {/* Payment Method Selector */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-mono uppercase text-zinc-500 tracking-wider block font-semibold">
+            <label className="text-xs uppercase text-zinc-500 tracking-wider block font-semibold">
               Metode Pembayaran
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -670,7 +670,7 @@ export const PosPage: React.FC = () => {
           {/* Cash Tender Input & Change */}
           {paymentMethod === 'CASH' && (
             <div className="space-y-2 pt-1 border-t border-zinc-100">
-              <label className="text-[11px] font-mono uppercase text-zinc-500 tracking-wider block font-semibold">
+              <label className="text-xs uppercase text-zinc-500 tracking-wider block font-semibold">
                 Nominal Uang Diterima (Rp)
               </label>
               <input
@@ -678,7 +678,7 @@ export const PosPage: React.FC = () => {
                 min={currentTotal}
                 value={amountPaid}
                 onChange={(e) => setAmountPaid(Number(e.target.value) || 0)}
-                className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-base font-mono font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white transition tabular-nums"
+                className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-lg font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white transition tabular-nums"
               />
 
               {/* Quick Cash Presets */}
@@ -686,7 +686,7 @@ export const PosPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setAmountPaid(currentTotal)}
-                  className="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-[11px] font-mono font-semibold rounded"
+                  className="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold rounded tabular-nums"
                 >
                   Uang Pas
                 </button>
@@ -697,7 +697,7 @@ export const PosPage: React.FC = () => {
                         key={amt}
                         type="button"
                         onClick={() => setAmountPaid(amt)}
-                        className="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-[11px] font-mono rounded"
+                        className="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-medium rounded tabular-nums"
                       >
                         {formatCurrency(amt)}
                       </button>
@@ -710,7 +710,7 @@ export const PosPage: React.FC = () => {
               {/* Change Output */}
               <div className="p-2.5 bg-zinc-50 rounded-lg border border-zinc-200 flex justify-between items-center text-xs">
                 <span className="font-medium text-zinc-600">Uang Kembalian:</span>
-                <span className="font-mono font-bold text-zinc-900 tabular-nums">
+                <span className="font-bold text-zinc-900 tabular-nums">
                   {formatCurrency(changeAmount)}
                 </span>
               </div>

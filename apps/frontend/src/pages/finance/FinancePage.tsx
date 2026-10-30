@@ -121,7 +121,7 @@ export const FinancePage: React.FC = () => {
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
               Keuangan & Buku Kas Bengkel
             </h1>
-            <span className="font-mono text-xs text-zinc-400">/ CASH LEDGER</span>
+            <span className="text-xs uppercase tracking-wider text-zinc-400 font-medium">/ CASH LEDGER</span>
           </div>
           <p className="text-xs text-zinc-500 mt-0.5">
             Arus kas masuk dari pembayaran, pengeluaran operasional bengkel, dan analisis estimasi laba kotor.
@@ -175,10 +175,10 @@ export const FinancePage: React.FC = () => {
           {/* Current Balance Bar */}
           <div className="bg-white p-5 rounded-xl border border-zinc-200/90 shadow-card flex items-center justify-between">
             <div>
-              <span className="text-[11px] font-mono uppercase text-zinc-400 tracking-wider block">
+              <span className="text-xs uppercase text-zinc-500 font-semibold tracking-wider block">
                 Total Saldo Kas Fisik (Cash in Drawer)
               </span>
-              <div className="text-2xl sm:text-3xl font-mono font-bold text-zinc-950 mt-1 tabular-nums">
+              <div className="text-2xl sm:text-3xl font-bold text-zinc-950 mt-1 tabular-nums">
                 {formatCurrency(currentCashBalance)}
               </div>
               <span className="text-xs text-zinc-500 mt-0.5 block">
@@ -193,14 +193,14 @@ export const FinancePage: React.FC = () => {
           {/* Transactions Table */}
           <div className="bg-white rounded-xl border border-zinc-200/90 shadow-card overflow-hidden">
             <div className="px-4 py-3 border-b border-zinc-100 bg-zinc-50/50 flex justify-between items-center">
-              <h3 className="font-bold text-xs uppercase font-mono tracking-wider text-zinc-900">
+              <h3 className="font-bold text-xs uppercase tracking-wider text-zinc-900">
                 Mutasi Buku Kas Masuk & Keluar
               </h3>
-              <span className="text-xs font-mono text-zinc-400">{transactions.length} mutasi</span>
+              <span className="text-xs text-zinc-500">{transactions.length} mutasi</span>
             </div>
 
             {loading ? (
-              <div className="p-12 text-center text-zinc-400 text-xs font-mono">Memuat mutasi kas...</div>
+              <div className="p-12 text-center text-zinc-400 text-xs">Memuat mutasi kas...</div>
             ) : transactions.length === 0 ? (
               <div className="p-12 text-center text-zinc-400 text-xs">Belum ada transaksi kas tercatat.</div>
             ) : (
@@ -222,21 +222,21 @@ export const FinancePage: React.FC = () => {
                           </span>
                           <span className="font-semibold text-zinc-900">{tx.description}</span>
                         </div>
-                        <span className="text-[11px] font-mono text-zinc-400 block">
+                        <span className="text-[11px] text-zinc-400 block">
                           {new Date(tx.createdAt).toLocaleString('id-ID')} • Operator: {tx.user?.name || '-'}
                         </span>
                       </div>
 
                       <div className="text-right">
                         <span
-                          className={`font-mono font-bold text-sm block tabular-nums ${
+                          className={`font-semibold text-sm block tabular-nums ${
                             isCashIn ? 'text-emerald-700' : 'text-rose-600'
                           }`}
                         >
                           {isCashIn ? '+' : '-'}
                           {formatCurrency(Number(tx.amount))}
                         </span>
-                        <span className="text-[10px] font-mono text-zinc-400 tabular-nums">
+                        <span className="text-[10px] text-zinc-400 tabular-nums">
                           Saldo Sisa: {formatCurrency(Number(tx.balanceAfter))}
                         </span>
                       </div>
@@ -253,14 +253,14 @@ export const FinancePage: React.FC = () => {
       {tab === 'EXPENSES' && (
         <div className="bg-white rounded-xl border border-zinc-200/90 shadow-card overflow-hidden">
           <div className="px-4 py-3 border-b border-zinc-100 bg-zinc-50/50 flex justify-between items-center">
-            <h3 className="font-bold text-xs uppercase font-mono tracking-wider text-zinc-900">
+            <h3 className="font-bold text-xs uppercase tracking-wider text-zinc-900">
               Daftar Beban Pengeluaran Kasir
             </h3>
-            <span className="font-mono text-xs text-zinc-400">{expenses.length} pengeluaran</span>
+            <span className="text-xs text-zinc-500">{expenses.length} pengeluaran</span>
           </div>
 
           {loading ? (
-            <div className="p-12 text-center text-zinc-400 text-xs font-mono">Memuat data pengeluaran...</div>
+            <div className="p-12 text-center text-zinc-400 text-xs">Memuat data pengeluaran...</div>
           ) : expenses.length === 0 ? (
             <div className="p-12 text-center text-zinc-400 text-xs">Belum ada catatan pengeluaran operasional.</div>
           ) : (
@@ -270,21 +270,21 @@ export const FinancePage: React.FC = () => {
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
                       <span className="font-mono font-bold text-zinc-900">{exp.expenseNumber}</span>
-                      <span className="bg-zinc-100 text-zinc-700 px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold uppercase">
+                      <span className="bg-zinc-100 text-zinc-700 px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase">
                         {exp.category}
                       </span>
                     </div>
                     <p className="text-zinc-700">{exp.description}</p>
-                    <span className="text-[11px] font-mono text-zinc-400 block">
+                    <span className="text-[11px] text-zinc-500 block">
                       Tgl: {new Date(exp.date).toLocaleDateString('id-ID')} • Penerima: {exp.recipient || '-'} • Petugas: {exp.user?.name}
                     </span>
                   </div>
 
                   <div className="text-right">
-                    <span className="font-mono font-bold text-rose-600 text-sm block tabular-nums">
+                    <span className="font-semibold text-rose-600 text-sm block tabular-nums">
                       {formatCurrency(Number(exp.amount))}
                     </span>
-                    <span className="text-[10px] font-mono text-zinc-400 uppercase font-semibold">
+                    <span className="text-[10px] text-zinc-400 uppercase font-semibold">
                       Via {exp.paymentMethod}
                     </span>
                   </div>
@@ -311,23 +311,23 @@ export const FinancePage: React.FC = () => {
           {/* Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-white p-4 rounded-xl border border-zinc-200/90 shadow-card">
-              <span className="text-[11px] font-mono uppercase text-zinc-400 tracking-wider block">
+              <span className="text-xs uppercase text-zinc-500 font-semibold tracking-wider block">
                 Total Pendapatan (Gross)
               </span>
-              <div className="text-xl sm:text-2xl font-mono font-bold text-zinc-950 mt-1 tabular-nums">
+              <div className="text-xl sm:text-2xl font-bold text-zinc-950 mt-1 tabular-nums">
                 {formatCurrency(profitReport.totalRevenue)}
               </div>
-              <div className="mt-2 text-xs text-zinc-500 space-y-0.5 font-mono text-[11px]">
+              <div className="mt-2 text-xs text-zinc-500 space-y-0.5 tabular-nums text-[11px]">
                 <div>• Jasa: {formatCurrency(profitReport.serviceRevenue)}</div>
                 <div>• Suku Cadang: {formatCurrency(profitReport.partsRevenue)}</div>
               </div>
             </div>
 
             <div className="bg-white p-4 rounded-xl border border-zinc-200/90 shadow-card">
-              <span className="text-[11px] font-mono uppercase text-zinc-400 tracking-wider block">
+              <span className="text-xs uppercase text-zinc-500 font-semibold tracking-wider block">
                 HPP Suku Cadang (COGS)
               </span>
-              <div className="text-xl sm:text-2xl font-mono font-bold text-rose-600 mt-1 tabular-nums">
+              <div className="text-xl sm:text-2xl font-bold text-rose-600 mt-1 tabular-nums">
                 {formatCurrency(profitReport.partsCOGS)}
               </div>
               <span className="text-[11px] text-zinc-400 block mt-2">
@@ -335,14 +335,14 @@ export const FinancePage: React.FC = () => {
               </span>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-zinc-900 shadow-card bg-zinc-950 text-white">
-              <span className="text-[11px] font-mono uppercase text-zinc-400 tracking-wider block">
+            <div className="p-4 rounded-xl border border-zinc-900 shadow-card bg-zinc-950 text-white">
+              <span className="text-xs uppercase text-zinc-400 font-semibold tracking-wider block">
                 Laba Kotor Estimasi
               </span>
-              <div className="text-xl sm:text-2xl font-mono font-bold text-emerald-400 mt-1 tabular-nums">
+              <div className="text-xl sm:text-2xl font-bold text-emerald-400 mt-1 tabular-nums">
                 {formatCurrency(profitReport.estimatedGrossProfit)}
               </div>
-              <span className="text-[11px] font-mono text-zinc-400 block mt-2">
+              <span className="text-[11px] text-zinc-400 block mt-2">
                 Pendapatan dikurangi HPP sparepart
               </span>
             </div>
@@ -353,7 +353,7 @@ export const FinancePage: React.FC = () => {
               <span className="font-semibold text-zinc-900 block">Total Pengeluaran Kas Operasional:</span>
               <span className="text-zinc-500 text-[11px]">Listrik, air, konsumsi mekanik, dan perlengkapan bengkel</span>
             </div>
-            <span className="text-base font-mono font-bold text-rose-600 tabular-nums">
+            <span className="text-base font-semibold text-rose-600 tabular-nums">
               {formatCurrency(profitReport.totalExpenses)}
             </span>
           </div>
@@ -369,7 +369,7 @@ export const FinancePage: React.FC = () => {
       >
         <form onSubmit={handleCreateExpense} className="space-y-3">
           <div>
-            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+            <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
               Kategori Biaya
             </label>
             <select
@@ -387,7 +387,7 @@ export const FinancePage: React.FC = () => {
           </div>
 
           <div>
-            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+            <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
               Nominal Pengeluaran (Rp)
             </label>
             <input
@@ -397,12 +397,12 @@ export const FinancePage: React.FC = () => {
               placeholder="50000"
               value={expAmount}
               onChange={(e) => setExpAmount(Number(e.target.value) || 0)}
-              className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono font-bold focus:outline-none focus:border-zinc-500 tabular-nums"
+              className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-zinc-500 tabular-nums"
             />
           </div>
 
           <div>
-            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+            <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
               Keterangan / Keperluan
             </label>
             <input
@@ -416,7 +416,7 @@ export const FinancePage: React.FC = () => {
           </div>
 
           <div>
-            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+            <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
               Penerima Dana (Opsional)
             </label>
             <input
@@ -429,7 +429,7 @@ export const FinancePage: React.FC = () => {
           </div>
 
           <div>
-            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+            <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
               Metode Pembayaran
             </label>
             <select

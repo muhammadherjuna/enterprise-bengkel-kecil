@@ -312,13 +312,13 @@ export const ServiceDetail: React.FC = () => {
           <h2 className="font-bold text-xs uppercase font-mono tracking-wider text-zinc-900">
             Daftar Jasa Servis & Suku Cadang Terpakai
           </h2>
-          <span className="font-mono text-xs text-zinc-500">{order.items.length} item</span>
+          <span className="text-xs text-zinc-500">{order.items.length} item</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-xs text-left">
             <thead>
-              <tr className="bg-zinc-50/70 border-b border-zinc-200 text-[11px] font-mono text-zinc-500 uppercase tracking-wider">
+              <tr className="bg-zinc-50/70 border-b border-zinc-200 text-xs font-semibold text-zinc-500 uppercase tracking-wider">
                 <th className="py-2.5 px-4">Tipe</th>
                 <th className="py-2.5 px-4">Nama Item Pekerjaan</th>
                 <th className="py-2.5 px-4 text-right">Harga Satuan</th>
@@ -331,7 +331,7 @@ export const ServiceDetail: React.FC = () => {
                 <tr key={item.id} className="hover:bg-zinc-50/50">
                   <td className="py-3 px-4">
                     <span
-                      className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase ${
+                      className={`text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase ${
                         item.itemType === 'SERVICE'
                           ? 'bg-blue-50 text-blue-800 border-blue-200'
                           : 'bg-emerald-50 text-emerald-800 border-emerald-200'
@@ -341,13 +341,13 @@ export const ServiceDetail: React.FC = () => {
                     </span>
                   </td>
                   <td className="py-3 px-4 font-semibold text-zinc-900">{item.name}</td>
-                  <td className="py-3 px-4 text-right font-mono tabular-nums text-zinc-600">
+                  <td className="py-3 px-4 text-right tabular-nums text-zinc-600">
                     {formatCurrency(Number(item.price))}
                   </td>
-                  <td className="py-3 px-4 text-center font-mono font-bold text-zinc-900">
+                  <td className="py-3 px-4 text-center font-semibold text-zinc-900 tabular-nums">
                     {item.quantity}
                   </td>
-                  <td className="py-3 px-4 text-right font-mono font-bold text-zinc-900 tabular-nums">
+                  <td className="py-3 px-4 text-right font-semibold text-zinc-900 tabular-nums">
                     {formatCurrency(Number(item.subtotal))}
                   </td>
                 </tr>
@@ -360,21 +360,21 @@ export const ServiceDetail: React.FC = () => {
         <div className="p-4 bg-zinc-50 border-t border-zinc-200 space-y-1.5 text-xs">
           <div className="flex justify-between text-zinc-600">
             <span>Subtotal Jasa:</span>
-            <span className="font-mono tabular-nums">{formatCurrency(Number(order.subtotalServices))}</span>
+            <span className="tabular-nums font-medium">{formatCurrency(Number(order.subtotalServices))}</span>
           </div>
           <div className="flex justify-between text-zinc-600">
             <span>Subtotal Sparepart:</span>
-            <span className="font-mono tabular-nums">{formatCurrency(Number(order.subtotalProducts))}</span>
+            <span className="tabular-nums font-medium">{formatCurrency(Number(order.subtotalProducts))}</span>
           </div>
           {Number(order.discount) > 0 && (
             <div className="flex justify-between text-rose-600 font-medium">
               <span>Potongan Diskon:</span>
-              <span className="font-mono tabular-nums">-{formatCurrency(Number(order.discount))}</span>
+              <span className="tabular-nums font-medium">-{formatCurrency(Number(order.discount))}</span>
             </div>
           )}
           <div className="flex justify-between items-center text-sm font-bold text-zinc-900 pt-2 border-t border-zinc-200">
             <span>TOTAL TAGIHAN:</span>
-            <span className="font-mono text-base tabular-nums">{formatCurrency(Number(order.totalAmount))}</span>
+            <span className="text-base tabular-nums font-bold">{formatCurrency(Number(order.totalAmount))}</span>
           </div>
         </div>
       </div>
@@ -388,17 +388,17 @@ export const ServiceDetail: React.FC = () => {
       >
         <div className="space-y-4">
           <div className="p-3 bg-zinc-900 rounded-lg text-white text-center">
-            <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest block">
+            <span className="text-xs uppercase text-zinc-400 font-semibold tracking-wider block">
               Total Tagihan
             </span>
-            <div className="text-2xl font-mono font-bold mt-0.5 tabular-nums">
+            <div className="text-2xl font-bold mt-0.5 tabular-nums">
               {formatCurrency(Number(order.totalAmount))}
             </div>
           </div>
 
           {/* Payment Method */}
           <div className="space-y-1">
-            <label className="text-[11px] font-mono uppercase text-zinc-500 font-semibold block">
+            <label className="text-xs uppercase text-zinc-500 font-semibold block">
               Metode Pembayaran
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -425,7 +425,7 @@ export const ServiceDetail: React.FC = () => {
           {/* Cash Tendered */}
           {paymentMethod === 'CASH' && (
             <div className="space-y-2 pt-1 border-t border-zinc-100">
-              <label className="text-[11px] font-mono uppercase text-zinc-500 font-semibold block">
+              <label className="text-xs uppercase text-zinc-500 font-semibold block">
                 Uang Diterima (Rp)
               </label>
               <input
@@ -433,12 +433,12 @@ export const ServiceDetail: React.FC = () => {
                 min={Number(order.totalAmount)}
                 value={amountPaid}
                 onChange={(e) => setAmountPaid(Number(e.target.value) || 0)}
-                className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-base font-mono font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white tabular-nums"
+                className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-lg font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white tabular-nums"
               />
 
               <div className="p-2.5 bg-zinc-50 rounded-lg border border-zinc-200 flex justify-between items-center text-xs">
                 <span className="font-medium text-zinc-600">Uang Kembalian:</span>
-                <span className="font-mono font-bold text-zinc-900 tabular-nums">
+                <span className="font-bold text-zinc-900 tabular-nums">
                   {formatCurrency(changeAmount)}
                 </span>
               </div>

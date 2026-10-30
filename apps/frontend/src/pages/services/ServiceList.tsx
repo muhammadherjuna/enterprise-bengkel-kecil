@@ -55,7 +55,7 @@ export const ServiceList: React.FC = () => {
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
               Daftar Order Servis
             </h1>
-            <span className="font-mono text-xs text-zinc-400">/ WORK ORDERS</span>
+            <span className="text-xs uppercase tracking-wider text-zinc-400 font-medium">/ WORK ORDERS</span>
           </div>
           <p className="text-xs text-zinc-500 mt-0.5">
             Manajemen antrean motor, penugasan mekanik, dan pelacakan pekerjaan bengkel.
@@ -112,7 +112,7 @@ export const ServiceList: React.FC = () => {
       {/* High-Density Work Orders Table */}
       <div className="bg-white rounded-xl border border-zinc-200/90 shadow-card overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center text-zinc-400 text-xs font-mono">
+          <div className="p-12 text-center text-zinc-400 text-xs">
             Memuat data servis...
           </div>
         ) : orders.length === 0 ? (
@@ -123,7 +123,7 @@ export const ServiceList: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-xs text-left">
               <thead>
-                <tr className="bg-zinc-50/70 border-b border-zinc-200/80 text-[11px] font-mono text-zinc-500 uppercase tracking-wider">
+                <tr className="bg-zinc-50/70 border-b border-zinc-200/80 text-xs font-semibold text-zinc-500 uppercase tracking-wider">
                   <th className="py-2.5 px-4 font-medium">No. Order & Tgl</th>
                   <th className="py-2.5 px-4 font-medium">Kendaraan / Plat</th>
                   <th className="py-2.5 px-4 font-medium">Pelanggan & Keluhan</th>
@@ -141,7 +141,7 @@ export const ServiceList: React.FC = () => {
                       <span className="font-mono font-bold text-zinc-900 block leading-tight">
                         {order.orderNumber}
                       </span>
-                      <span className="text-[10px] font-mono text-zinc-400">
+                      <span className="text-[10px] text-zinc-400">
                         {new Date(order.date).toLocaleDateString('id-ID')}
                       </span>
                     </td>
@@ -180,7 +180,7 @@ export const ServiceList: React.FC = () => {
                       <StatusBadge status={order.paymentStatus} type="payment" />
                     </td>
 
-                    <td className="py-3 px-4 text-right font-mono font-bold text-zinc-900 tabular-nums">
+                    <td className="py-3 px-4 text-right font-semibold text-zinc-900 tabular-nums">
                       {formatCurrency(Number(order.totalAmount))}
                     </td>
 
