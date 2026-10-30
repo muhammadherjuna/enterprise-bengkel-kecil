@@ -6,6 +6,7 @@ import { useToast } from '../../context/ToastContext';
 import { ReceiptModal } from '../../components/ReceiptModal';
 import { PlateBadge } from '../../components/PlateBadge';
 import { StatusBadge } from '../../components/StatusBadge';
+import { Modal } from '../../components/Modal';
 import {
   ArrowLeft,
   Wrench,
@@ -379,142 +380,140 @@ export const ServiceDetail: React.FC = () => {
       </div>
 
       {/* Payment Processing Modal */}
-      {showPaymentModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-modal space-y-4 border border-zinc-200">
-            <h3 className="text-sm font-bold text-zinc-900 tracking-tight">
-              Pelunasan Kasir — {order.orderNumber}
-            </h3>
-
-            <div className="p-3 bg-zinc-900 rounded-lg text-white text-center">
-              <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest block">
-                Total Tagihan
-              </span>
-              <div className="text-2xl font-mono font-bold mt-0.5 tabular-nums">
-                {formatCurrency(Number(order.totalAmount))}
-              </div>
-            </div>
-
-            {/* Payment Method */}
-            <div className="space-y-1">
-              <label className="text-[11px] font-mono uppercase text-zinc-500 font-semibold block">
-                Metode Pembayaran
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {(['CASH', 'TRANSFER', 'QRIS_MANUAL'] as const).map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => {
-                      setPaymentMethod(m);
-                      if (m !== 'CASH') setAmountPaid(Number(order.totalAmount));
-                    }}
-                    className={`py-2 px-1 text-center rounded-lg text-xs font-semibold border transition ${
-                      paymentMethod === m
-                        ? 'bg-zinc-900 border-zinc-900 text-white shadow-subtle'
-                        : 'bg-zinc-50 border-zinc-200 text-zinc-700'
-                    }`}
-                  >
-                    {m === 'CASH' ? 'Tunai' : m === 'TRANSFER' ? 'Transfer' : 'QRIS Manual'}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Cash Tendered */}
-            {paymentMethod === 'CASH' && (
-              <div className="space-y-2 pt-1 border-t border-zinc-100">
-                <label className="text-[11px] font-mono uppercase text-zinc-500 font-semibold block">
-                  Uang Diterima (Rp)
-                </label>
-                <input
-                  type="number"
-                  min={Number(order.totalAmount)}
-                  value={amountPaid}
-                  onChange={(e) => setAmountPaid(Number(e.target.value) || 0)}
-                  className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-base font-mono font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white tabular-nums"
-                />
-
-                <div className="p-2.5 bg-zinc-50 rounded-lg border border-zinc-200 flex justify-between items-center text-xs">
-                  <span className="font-medium text-zinc-600">Uang Kembalian:</span>
-                  <span className="font-mono font-bold text-zinc-900 tabular-nums">
-                    {formatCurrency(changeAmount)}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            <div className="flex gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowPaymentModal(false)}
-                className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs transition"
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                onClick={handleProcessPayment}
-                disabled={actionLoading || amountPaid < Number(order.totalAmount)}
-                className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle transition disabled:opacity-40"
-              >
-                {actionLoading ? 'Memproses...' : 'Konfirmasi Lunas'}
-              </button>
+      <Modal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        title={`Pelunasan Kasir — ${order.orderNumber}`}
+        subtitle="Konfirmasi pembayaran tagihan servis motor dan cetak bukti transaksi"
+      >
+        <div className="space-y-4">
+          <div className="p-3 bg-zinc-900 rounded-lg text-white text-center">
+            <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest block">
+              Total Tagihan
+            </span>
+            <div className="text-2xl font-mono font-bold mt-0.5 tabular-nums">
+              {formatCurrency(Number(order.totalAmount))}
             </div>
           </div>
+
+          {/* Payment Method */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-mono uppercase text-zinc-500 font-semibold block">
+              Metode Pembayaran
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {(['CASH', 'TRANSFER', 'QRIS_MANUAL'] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => {
+                    setPaymentMethod(m);
+                    if (m !== 'CASH') setAmountPaid(Number(order.totalAmount));
+                  }}
+                  className={`py-2 px-1 text-center rounded-lg text-xs font-semibold border transition ${
+                    paymentMethod === m
+                      ? 'bg-zinc-900 border-zinc-900 text-white shadow-subtle'
+                      : 'bg-zinc-50 border-zinc-200 text-zinc-700'
+                  }`}
+                >
+                  {m === 'CASH' ? 'Tunai' : m === 'TRANSFER' ? 'Transfer' : 'QRIS Manual'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Cash Tendered */}
+          {paymentMethod === 'CASH' && (
+            <div className="space-y-2 pt-1 border-t border-zinc-100">
+              <label className="text-[11px] font-mono uppercase text-zinc-500 font-semibold block">
+                Uang Diterima (Rp)
+              </label>
+              <input
+                type="number"
+                min={Number(order.totalAmount)}
+                value={amountPaid}
+                onChange={(e) => setAmountPaid(Number(e.target.value) || 0)}
+                className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-base font-mono font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white tabular-nums"
+              />
+
+              <div className="p-2.5 bg-zinc-50 rounded-lg border border-zinc-200 flex justify-between items-center text-xs">
+                <span className="font-medium text-zinc-600">Uang Kembalian:</span>
+                <span className="font-mono font-bold text-zinc-900 tabular-nums">
+                  {formatCurrency(changeAmount)}
+                </span>
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setShowPaymentModal(false)}
+              className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs transition"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              onClick={handleProcessPayment}
+              disabled={actionLoading || amountPaid < Number(order.totalAmount)}
+              className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle transition disabled:opacity-40"
+            >
+              {actionLoading ? 'Memproses...' : 'Konfirmasi Lunas'}
+            </button>
+          </div>
         </div>
-      )}
+      </Modal>
 
       {/* Cancellation Dialog (Owner Guarded AC-11) */}
-      {showCancelModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-modal space-y-3.5 border border-zinc-200">
-            <div className="flex items-center gap-2 text-rose-600">
-              <ShieldAlert className="w-5 h-5 flex-shrink-0" />
-              <h3 className="text-sm font-bold text-zinc-900">Batalkan Order Servis</h3>
-            </div>
-            <p className="text-xs text-zinc-600 leading-relaxed">
-              Order servis akan dibatalkan. Suku cadang yang telah dipakai akan otomatis dikembalikan ke inventori via mutasi balik (AC-11).
-              {order.paymentStatus === 'PAID' && (
-                <strong className="block text-rose-600 mt-1 font-semibold">
-                  Transaksi telah lunas: Hanya Owner yang berwenang membatalkan transaksi lunas.
-                </strong>
-              )}
-            </p>
+      <Modal
+        isOpen={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        title="Batalkan Order Servis"
+        subtitle="Pembatalan order dan pengembalian suku cadang ke inventori (AC-11)"
+      >
+        <div className="space-y-3.5">
+          <p className="text-xs text-zinc-600 leading-relaxed">
+            Order servis akan dibatalkan. Suku cadang yang telah dipakai akan otomatis dikembalikan ke inventori via mutasi balik.
+            {order.paymentStatus === 'PAID' && (
+              <strong className="block text-rose-600 mt-1 font-semibold">
+                Transaksi telah lunas: Hanya Owner yang berwenang membatalkan transaksi lunas.
+              </strong>
+            )}
+          </p>
 
-            <div>
-              <label className="text-[11px] font-mono uppercase text-zinc-600 block mb-1 font-semibold">
-                Alasan Pembatalan:
-              </label>
-              <textarea
-                rows={3}
-                value={cancelReason}
-                onChange={(e) => setCancelReason(e.target.value)}
-                placeholder="misal: Pelanggan tidak setuju estimasi biaya tambahan"
-                className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500 focus:bg-white"
-              />
-            </div>
+          <div>
+            <label className="text-[11px] font-mono uppercase text-zinc-600 block mb-1 font-semibold">
+              Alasan Pembatalan:
+            </label>
+            <textarea
+              rows={3}
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder="misal: Pelanggan tidak setuju estimasi biaya tambahan"
+              className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500 focus:bg-white"
+            />
+          </div>
 
-            <div className="flex gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowCancelModal(false)}
-                className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs transition"
-              >
-                Kembali
-              </button>
-              <button
-                type="button"
-                onClick={handleCancelOrder}
-                disabled={actionLoading || !cancelReason.trim()}
-                className="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg text-xs shadow-subtle transition disabled:opacity-40"
-              >
-                {actionLoading ? 'Membatalkan...' : 'Konfirmasi Batal'}
-              </button>
-            </div>
+          <div className="flex gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setShowCancelModal(false)}
+              className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs transition"
+            >
+              Kembali
+            </button>
+            <button
+              type="button"
+              onClick={handleCancelOrder}
+              disabled={actionLoading || !cancelReason.trim()}
+              className="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg text-xs shadow-subtle transition disabled:opacity-40"
+            >
+              {actionLoading ? 'Membatalkan...' : 'Konfirmasi Batal'}
+            </button>
           </div>
         </div>
-      )}
+      </Modal>
 
       {/* Printable Receipt Modal */}
       <ReceiptModal

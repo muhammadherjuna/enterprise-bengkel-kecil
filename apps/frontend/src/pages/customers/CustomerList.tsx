@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../../api/client';
 import { useToast } from '../../context/ToastContext';
 import { PlateBadge } from '../../components/PlateBadge';
+import { Modal } from '../../components/Modal';
 import {
   Users,
   Search,
@@ -312,235 +313,219 @@ export const CustomerList: React.FC = () => {
       )}
 
       {/* Vehicle Service Maintenance History Modal (AC-18) */}
-      {showHistoryModal && selectedVehicle && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full p-5 shadow-modal space-y-3.5 border border-zinc-200 max-h-[85vh] flex flex-col">
-            <div className="flex justify-between items-start pb-2.5 border-b border-zinc-100">
-              <div>
-                <div className="flex items-center gap-2">
-                  <PlateBadge plate={selectedVehicle.plateNumber} size="md" />
-                  <span className="font-bold text-zinc-900 text-sm">
-                    {selectedVehicle.brand} {selectedVehicle.model}
-                  </span>
-                </div>
-                <p className="text-xs text-zinc-500 mt-1 font-mono">
-                  Rekam Medis Perawatan Motor (AC-18) • Pemilik: {selectedVehicle.customer?.name || 'Pelanggan Umum'}
-                </p>
+      {selectedVehicle && (
+        <Modal
+          isOpen={showHistoryModal}
+          onClose={() => setShowHistoryModal(false)}
+          title={`Rekam Medis Perawatan Motor — ${selectedVehicle.brand} ${selectedVehicle.model}`}
+          subtitle={`Plat: ${selectedVehicle.plateNumber} • Pemilik: ${selectedVehicle.customer?.name || 'Pelanggan Umum'}`}
+          maxWidth="max-w-2xl"
+        >
+          <div className="overflow-y-auto max-h-[60vh] space-y-3 pr-1">
+            {historyLoading ? (
+              <div className="p-8 text-center text-zinc-400 text-xs font-mono">
+                Memuat rekam servis kendaraan...
               </div>
-              <button
-                onClick={() => setShowHistoryModal(false)}
-                className="p-1 hover:bg-zinc-100 rounded text-zinc-400 hover:text-zinc-700"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="overflow-y-auto flex-1 space-y-3 pr-1">
-              {historyLoading ? (
-                <div className="p-8 text-center text-zinc-400 text-xs font-mono">
-                  Memuat rekam servis kendaraan...
-                </div>
-              ) : vehicleHistory.length === 0 ? (
-                <div className="p-8 text-center text-zinc-400 text-xs">
-                  Belum ada catatan riwayat perawatan servis untuk kendaraan ini.
-                </div>
-              ) : (
-                vehicleHistory.map((h) => (
-                  <div key={h.id} className="p-3.5 bg-zinc-50 rounded-lg border border-zinc-200 text-xs space-y-2">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-zinc-900">{h.orderNumber}</span>
-                        <span className="font-mono text-[10px] text-zinc-400">
-                          {new Date(h.date).toLocaleDateString('id-ID')}
-                        </span>
-                      </div>
-                      <span className="font-mono font-bold text-zinc-900 tabular-nums">
-                        {formatCurrency(Number(h.totalAmount))}
+            ) : vehicleHistory.length === 0 ? (
+              <div className="p-8 text-center text-zinc-400 text-xs">
+                Belum ada catatan riwayat perawatan servis untuk kendaraan ini.
+              </div>
+            ) : (
+              vehicleHistory.map((h) => (
+                <div key={h.id} className="p-3.5 bg-zinc-50 rounded-lg border border-zinc-200 text-xs space-y-2">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-bold text-zinc-900">{h.orderNumber}</span>
+                      <span className="font-mono text-[10px] text-zinc-400">
+                        {new Date(h.date).toLocaleDateString('id-ID')}
                       </span>
                     </div>
+                    <span className="font-mono font-bold text-zinc-900 tabular-nums">
+                      {formatCurrency(Number(h.totalAmount))}
+                    </span>
+                  </div>
 
-                    <div className="flex gap-4 text-zinc-600 text-[11px] font-mono">
-                      <span>Odo: <strong className="text-zinc-900">{h.mileage ? `${h.mileage.toLocaleString('id-ID')} km` : '-'}</strong></span>
-                      <span>Mekanik: <strong className="text-zinc-900">{h.mechanic?.name || '-'}</strong></span>
-                    </div>
+                  <div className="flex gap-4 text-zinc-600 text-[11px] font-mono">
+                    <span>Odo: <strong className="text-zinc-900">{h.mileage ? `${h.mileage.toLocaleString('id-ID')} km` : '-'}</strong></span>
+                    <span>Mekanik: <strong className="text-zinc-900">{h.mechanic?.name || '-'}</strong></span>
+                  </div>
 
-                    {h.complaints && (
-                      <p className="text-zinc-600 italic text-[11px]">Keluhan: "{h.complaints}"</p>
-                    )}
+                  {h.complaints && (
+                    <p className="text-zinc-600 italic text-[11px]">Keluhan: "{h.complaints}"</p>
+                  )}
 
-                    {/* Items */}
-                    <div className="pt-2 border-t border-zinc-200">
-                      <span className="font-semibold text-zinc-700 block text-[11px] font-mono uppercase mb-1">
-                        Pekerjaan Jasa & Suku Cadang:
-                      </span>
-                      <div className="grid grid-cols-2 gap-1 text-[11px] text-zinc-600">
-                        {h.items?.map((it: any) => (
-                          <div key={it.id} className="flex justify-between pr-2">
-                            <span className="truncate pr-1">• {it.name} ({it.quantity}x)</span>
-                            <span className="font-mono tabular-nums text-zinc-800">{formatCurrency(Number(it.subtotal))}</span>
-                          </div>
-                        ))}
-                      </div>
+                  {/* Items */}
+                  <div className="pt-2 border-t border-zinc-200">
+                    <span className="font-semibold text-zinc-700 block text-[11px] font-mono uppercase mb-1">
+                      Pekerjaan Jasa & Suku Cadang:
+                    </span>
+                    <div className="grid grid-cols-2 gap-1 text-[11px] text-zinc-600">
+                      {h.items?.map((it: any) => (
+                        <div key={it.id} className="flex justify-between pr-2">
+                          <span className="truncate pr-1">• {it.name} ({it.quantity}x)</span>
+                          <span className="font-mono tabular-nums text-zinc-800">{formatCurrency(Number(it.subtotal))}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                ))
-              )}
-            </div>
+                </div>
+              ))
+            )}
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Create Customer Modal */}
-      {showCustomerModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-modal space-y-3.5 border border-zinc-200">
-            <h3 className="text-sm font-bold text-zinc-900 tracking-tight">Daftarkan Pelanggan Baru</h3>
-            <form onSubmit={handleCreateCustomer} className="space-y-3">
-              <div>
-                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                  Nama Lengkap
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Nama pelanggan"
-                  value={custName}
-                  onChange={(e) => setCustName(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
-                />
-              </div>
-              <div>
-                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                  Nomor Telepon / WhatsApp
-                </label>
-                <input
-                  type="text"
-                  placeholder="0812-XXXX-XXXX"
-                  value={custPhone}
-                  onChange={(e) => setCustPhone(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono focus:outline-none focus:border-zinc-500"
-                />
-              </div>
-              <div>
-                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                  Alamat Singkat
-                </label>
-                <input
-                  type="text"
-                  placeholder="Alamat pelanggan"
-                  value={custAddress}
-                  onChange={(e) => setCustAddress(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
-                />
-              </div>
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowCustomerModal(false)}
-                  className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={actionLoading}
-                  className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle"
-                >
-                  Simpan Pelanggan
-                </button>
-              </div>
-            </form>
+      <Modal
+        isOpen={showCustomerModal}
+        onClose={() => setShowCustomerModal(false)}
+        title="Daftarkan Pelanggan Baru"
+        subtitle="Tambahkan data kontak pelanggan untuk riwayat servis kendaraan"
+      >
+        <form onSubmit={handleCreateCustomer} className="space-y-3">
+          <div>
+            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              Nama Lengkap
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="Nama pelanggan"
+              value={custName}
+              onChange={(e) => setCustName(e.target.value)}
+              className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
+            />
           </div>
-        </div>
-      )}
+          <div>
+            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              Nomor Telepon / WhatsApp
+            </label>
+            <input
+              type="text"
+              placeholder="0812-XXXX-XXXX"
+              value={custPhone}
+              onChange={(e) => setCustPhone(e.target.value)}
+              className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono focus:outline-none focus:border-zinc-500"
+            />
+          </div>
+          <div>
+            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              Alamat Singkat
+            </label>
+            <input
+              type="text"
+              placeholder="Alamat pelanggan"
+              value={custAddress}
+              onChange={(e) => setCustAddress(e.target.value)}
+              className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
+            />
+          </div>
+          <div className="flex gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setShowCustomerModal(false)}
+              className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={actionLoading}
+              className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle"
+            >
+              Simpan Pelanggan
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Create Vehicle Modal */}
-      {showVehicleModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-modal space-y-3.5 border border-zinc-200">
-            <h3 className="text-sm font-bold text-zinc-900 tracking-tight">Registrasi Kendaraan Motor</h3>
-            <form onSubmit={handleCreateVehicle} className="space-y-3">
-              <div>
-                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                  Nomor Polisi (Plat)
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="B 1234 ABC"
-                  value={vehPlate}
-                  onChange={(e) => setVehPlate(e.target.value.toUpperCase())}
-                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono font-bold uppercase focus:outline-none focus:border-zinc-500"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                    Merek
-                  </label>
-                  <select
-                    value={vehBrand}
-                    onChange={(e) => setVehBrand(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs outline-none"
-                  >
-                    <option value="Honda">Honda</option>
-                    <option value="Yamaha">Yamaha</option>
-                    <option value="Suzuki">Suzuki</option>
-                    <option value="Kawasaki">Kawasaki</option>
-                    <option value="Lainnya">Lainnya</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                    Model / Tipe
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Beat ESP 110"
-                    value={vehModel}
-                    onChange={(e) => setVehModel(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                  Hubungkan ke Pemilik
-                </label>
-                <select
-                  value={vehCustomerId}
-                  onChange={(e) => setVehCustomerId(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs outline-none"
-                >
-                  <option value="">-- Pelanggan Umum (Tanpa Akun) --</option>
-                  {customers.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name} {c.phone ? `(${c.phone})` : ''}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowVehicleModal(false)}
-                  className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={actionLoading}
-                  className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle"
-                >
-                  Simpan Motor
-                </button>
-              </div>
-            </form>
+      <Modal
+        isOpen={showVehicleModal}
+        onClose={() => setShowVehicleModal(false)}
+        title="Registrasi Kendaraan Motor"
+        subtitle="Daftarkan plat nomor dan tipe motor ke database bengkel"
+      >
+        <form onSubmit={handleCreateVehicle} className="space-y-3">
+          <div>
+            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              Nomor Polisi (Plat)
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="B 1234 ABC"
+              value={vehPlate}
+              onChange={(e) => setVehPlate(e.target.value.toUpperCase())}
+              className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono font-bold uppercase focus:outline-none focus:border-zinc-500"
+            />
           </div>
-        </div>
-      )}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                Merek
+              </label>
+              <select
+                value={vehBrand}
+                onChange={(e) => setVehBrand(e.target.value)}
+                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs outline-none"
+              >
+                <option value="Honda">Honda</option>
+                <option value="Yamaha">Yamaha</option>
+                <option value="Suzuki">Suzuki</option>
+                <option value="Kawasaki">Kawasaki</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                Model / Tipe
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="Beat ESP 110"
+                value={vehModel}
+                onChange={(e) => setVehModel(e.target.value)}
+                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              Hubungkan ke Pemilik
+            </label>
+            <select
+              value={vehCustomerId}
+              onChange={(e) => setVehCustomerId(e.target.value)}
+              className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs outline-none"
+            >
+              <option value="">-- Pelanggan Umum (Tanpa Akun) --</option>
+              {customers.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} {c.phone ? `(${c.phone})` : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setShowVehicleModal(false)}
+              className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={actionLoading}
+              className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle"
+            >
+              Simpan Motor
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

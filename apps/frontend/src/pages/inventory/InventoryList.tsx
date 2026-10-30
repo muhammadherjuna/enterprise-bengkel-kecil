@@ -3,6 +3,7 @@ import { apiFetch } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useSearchParams } from 'react-router-dom';
+import { Modal } from '../../components/Modal';
 import {
   Package,
   Plus,
@@ -321,288 +322,266 @@ export const InventoryList: React.FC = () => {
       </div>
 
       {/* Stock Adjustment Modal */}
-      {showAdjustModal && selectedProduct && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-modal space-y-4 border border-zinc-200">
-            <div>
-              <h3 className="text-sm font-bold text-zinc-900 tracking-tight">
-                Penyesuaian Fisik (Stock Opname)
-              </h3>
-              <p className="text-xs text-zinc-500 mt-0.5">
-                Produk: <strong className="text-zinc-900">{selectedProduct.name}</strong> ({selectedProduct.sku})
-              </p>
+      {selectedProduct && (
+        <Modal
+          isOpen={showAdjustModal}
+          onClose={() => setShowAdjustModal(false)}
+          title="Penyesuaian Fisik (Stock Opname)"
+          subtitle={`Produk: ${selectedProduct.name} (${selectedProduct.sku})`}
+        >
+          <form onSubmit={handleSaveAdjustment} className="space-y-3.5">
+            <div className="grid grid-cols-2 gap-3 p-3 bg-zinc-50 rounded-lg border border-zinc-200 text-xs">
+              <div>
+                <span className="text-zinc-500 block text-[11px] font-mono">Stok Sistem:</span>
+                <span className="font-mono font-bold text-zinc-900">
+                  {selectedProduct.stock} {selectedProduct.unit}
+                </span>
+              </div>
+              <div>
+                <span className="text-zinc-500 block text-[11px] font-mono">Selisih Stok:</span>
+                <span
+                  className={`font-mono font-bold ${
+                    newStockCount - selectedProduct.stock >= 0 ? 'text-emerald-600' : 'text-rose-600'
+                  }`}
+                >
+                  {newStockCount - selectedProduct.stock > 0 ? '+' : ''}
+                  {newStockCount - selectedProduct.stock} {selectedProduct.unit}
+                </span>
+              </div>
             </div>
 
-            <form onSubmit={handleSaveAdjustment} className="space-y-3.5">
-              <div className="grid grid-cols-2 gap-3 p-3 bg-zinc-50 rounded-lg border border-zinc-200 text-xs">
-                <div>
-                  <span className="text-zinc-500 block text-[11px] font-mono">Stok Sistem:</span>
-                  <span className="font-mono font-bold text-zinc-900">
-                    {selectedProduct.stock} {selectedProduct.unit}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-zinc-500 block text-[11px] font-mono">Selisih Stok:</span>
-                  <span
-                    className={`font-mono font-bold ${
-                      newStockCount - selectedProduct.stock >= 0 ? 'text-emerald-600' : 'text-rose-600'
-                    }`}
-                  >
-                    {newStockCount - selectedProduct.stock > 0 ? '+' : ''}
-                    {newStockCount - selectedProduct.stock} {selectedProduct.unit}
-                  </span>
-                </div>
-              </div>
+            <div>
+              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                Stok Fisik Baru (Hasil Hitung Lapangan):
+              </label>
+              <input
+                type="number"
+                min="0"
+                required
+                value={newStockCount}
+                onChange={(e) => setNewStockCount(parseInt(e.target.value) || 0)}
+                className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-base font-mono font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white"
+              />
+            </div>
 
-              <div>
-                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                  Stok Fisik Baru (Hasil Hitung Lapangan):
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  required
-                  value={newStockCount}
-                  onChange={(e) => setNewStockCount(parseInt(e.target.value) || 0)}
-                  className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-base font-mono font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white"
-                />
-              </div>
+            <div>
+              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                Alasan Penyesuaian:
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="misal: Selisih stock opname akhir bulan"
+                value={adjustReason}
+                onChange={(e) => setAdjustReason(e.target.value)}
+                className="w-full px-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500 focus:bg-white"
+              />
+            </div>
 
-              <div>
-                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                  Alasan Penyesuaian:
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="misal: Selisih stock opname akhir bulan"
-                  value={adjustReason}
-                  onChange={(e) => setAdjustReason(e.target.value)}
-                  className="w-full px-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500 focus:bg-white"
-                />
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowAdjustModal(false)}
-                  className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs transition"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={actionLoading}
-                  className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle transition disabled:opacity-40"
-                >
-                  {actionLoading ? 'Menyimpan...' : 'Simpan Opname'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowAdjustModal(false)}
+                className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs transition"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                disabled={actionLoading}
+                className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle transition disabled:opacity-40"
+              >
+                {actionLoading ? 'Menyimpan...' : 'Simpan Opname'}
+              </button>
+            </div>
+          </form>
+        </Modal>
       )}
 
       {/* Stock Movements Ledger Modal */}
-      {showMovementsModal && selectedProduct && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-lg w-full p-5 shadow-modal space-y-3.5 border border-zinc-200 max-h-[85vh] flex flex-col">
-            <div className="flex justify-between items-start pb-2 border-b border-zinc-100">
-              <div>
-                <h3 className="text-sm font-bold text-zinc-900 tracking-tight">
-                  Buku Ledger Mutasi Suku Cadang
-                </h3>
-                <span className="text-xs text-zinc-500 font-mono">
-                  {selectedProduct.sku} • {selectedProduct.name}
-                </span>
-              </div>
-              <button
-                onClick={() => setShowMovementsModal(false)}
-                className="p-1 hover:bg-zinc-100 rounded text-zinc-400 hover:text-zinc-700"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="overflow-y-auto flex-1 divide-y divide-zinc-100 text-xs">
-              {productMovements.length === 0 ? (
-                <div className="py-8 text-center text-zinc-400">Belum ada mutasi tercatat.</div>
-              ) : (
-                productMovements.map((m) => (
-                  <div key={m.id} className="py-2.5 flex justify-between items-center gap-2">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase ${
-                            m.quantity > 0
-                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                              : 'bg-rose-50 text-rose-800 border-rose-200'
-                          }`}
-                        >
-                          {m.type}
-                        </span>
-                        <span className="font-mono font-bold text-zinc-900">
-                          {m.quantity > 0 ? `+${m.quantity}` : m.quantity} {selectedProduct.unit}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-zinc-500 mt-0.5">{m.reason || '-'}</p>
-                      <span className="text-[10px] font-mono text-zinc-400">
-                        {new Date(m.createdAt).toLocaleString('id-ID')} • User: {m.user?.name || '-'}
+      {selectedProduct && (
+        <Modal
+          isOpen={showMovementsModal}
+          onClose={() => setShowMovementsModal(false)}
+          title="Buku Ledger Mutasi Suku Cadang"
+          subtitle={`${selectedProduct.sku} • ${selectedProduct.name}`}
+          maxWidth="max-w-lg"
+        >
+          <div className="overflow-y-auto max-h-[60vh] divide-y divide-zinc-100 text-xs pr-1">
+            {productMovements.length === 0 ? (
+              <div className="py-8 text-center text-zinc-400">Belum ada mutasi tercatat.</div>
+            ) : (
+              productMovements.map((m) => (
+                <div key={m.id} className="py-2.5 flex justify-between items-center gap-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase ${
+                          m.quantity > 0
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                            : 'bg-rose-50 text-rose-800 border-rose-200'
+                        }`}
+                      >
+                        {m.type}
+                      </span>
+                      <span className="font-mono font-bold text-zinc-900">
+                        {m.quantity > 0 ? `+${m.quantity}` : m.quantity} {selectedProduct.unit}
                       </span>
                     </div>
-
-                    <div className="text-right">
-                      <span className="text-zinc-400 block text-[10px] font-mono">Saldo Sisa</span>
-                      <span className="font-mono font-bold text-zinc-900 text-xs tabular-nums">
-                        {m.balanceAfter} {selectedProduct.unit}
-                      </span>
-                    </div>
+                    <p className="text-[11px] text-zinc-500 mt-0.5">{m.reason || '-'}</p>
+                    <span className="text-[10px] font-mono text-zinc-400">
+                      {new Date(m.createdAt).toLocaleString('id-ID')} • User: {m.user?.name || '-'}
+                    </span>
                   </div>
-                ))
-              )}
-            </div>
+
+                  <div className="text-right">
+                    <span className="text-zinc-400 block text-[10px] font-mono">Saldo Sisa</span>
+                    <span className="font-mono font-bold text-zinc-900 text-xs tabular-nums">
+                      {m.balanceAfter} {selectedProduct.unit}
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Create Product Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-modal space-y-3.5 border border-zinc-200">
-            <h3 className="text-sm font-bold text-zinc-900 tracking-tight">
-              Tambah Sparepart ke Katalog
-            </h3>
-
-            <form onSubmit={handleCreateProduct} className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                    Kode SKU
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="OLI-MPX1"
-                    value={newSku}
-                    onChange={(e) => setNewSku(e.target.value.toUpperCase())}
-                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono uppercase font-bold focus:outline-none focus:border-zinc-500"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                    Kategori
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Oli Mesin"
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                  Nama Sparepart
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="misal: Oli AHM MPX 1 0.8L"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                    Harga Beli HPP (Rp)
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    required
-                    value={newCostPrice}
-                    onChange={(e) => setNewCostPrice(Number(e.target.value) || 0)}
-                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono focus:outline-none focus:border-zinc-500 tabular-nums"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                    Harga Jual Eceran (Rp)
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    required
-                    value={newSellPrice}
-                    onChange={(e) => setNewSellPrice(Number(e.target.value) || 0)}
-                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono font-bold focus:outline-none focus:border-zinc-500 tabular-nums"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                    Stok Awal
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={newInitialStock}
-                    onChange={(e) => setNewInitialStock(Number(e.target.value) || 0)}
-                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                    Satuan
-                  </label>
-                  <input
-                    type="text"
-                    value={newUnit}
-                    onChange={(e) => setNewUnit(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                    Min Stok
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={newMinStock}
-                    onChange={(e) => setNewMinStock(Number(e.target.value) || 0)}
-                    className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs transition"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={actionLoading}
-                  className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle transition disabled:opacity-40"
-                >
-                  {actionLoading ? 'Menyimpan...' : 'Simpan Produk'}
-                </button>
-              </div>
-            </form>
+      <Modal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title="Tambah Sparepart ke Katalog"
+        subtitle="Daftarkan master item suku cadang baru ke dalam inventori bengkel"
+      >
+        <form onSubmit={handleCreateProduct} className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                Kode SKU
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="OLI-MPX1"
+                value={newSku}
+                onChange={(e) => setNewSku(e.target.value.toUpperCase())}
+                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono uppercase font-bold focus:outline-none focus:border-zinc-500"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                Kategori
+              </label>
+              <input
+                type="text"
+                placeholder="Oli Mesin"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
+              />
+            </div>
           </div>
-        </div>
-      )}
+
+          <div>
+            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              Nama Sparepart
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="misal: Oli AHM MPX 1 0.8L"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                Harga Beli HPP (Rp)
+              </label>
+              <input
+                type="number"
+                min="0"
+                required
+                value={newCostPrice}
+                onChange={(e) => setNewCostPrice(Number(e.target.value) || 0)}
+                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono focus:outline-none focus:border-zinc-500 tabular-nums"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                Harga Jual Eceran (Rp)
+              </label>
+              <input
+                type="number"
+                min="0"
+                required
+                value={newSellPrice}
+                onChange={(e) => setNewSellPrice(Number(e.target.value) || 0)}
+                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono font-bold focus:outline-none focus:border-zinc-500 tabular-nums"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                Stok Awal
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={newInitialStock}
+                onChange={(e) => setNewInitialStock(Number(e.target.value) || 0)}
+                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                Satuan
+              </label>
+              <input
+                type="text"
+                value={newUnit}
+                onChange={(e) => setNewUnit(e.target.value)}
+                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+                Min Stok
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={newMinStock}
+                onChange={(e) => setNewMinStock(Number(e.target.value) || 0)}
+                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(false)}
+              className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs transition"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={actionLoading}
+              className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle transition disabled:opacity-40"
+            >
+              {actionLoading ? 'Menyimpan...' : 'Simpan Produk'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

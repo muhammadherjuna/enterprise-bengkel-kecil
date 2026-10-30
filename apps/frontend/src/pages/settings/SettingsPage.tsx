@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { Modal } from '../../components/Modal';
 import {
   Building2,
   Wrench,
@@ -506,214 +507,190 @@ export const SettingsPage: React.FC = () => {
       )}
 
       {/* Add Service Modal */}
-      {showAddService && (
-        <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-modal space-y-4 border border-zinc-200 animate-in fade-in duration-150">
-            <div className="flex justify-between items-center border-b border-zinc-100 pb-3">
-              <h3 className="text-sm font-bold text-zinc-900">Tambah Jasa Baru</h3>
-              <button
-                onClick={() => setShowAddService(false)}
-                className="text-zinc-400 hover:text-zinc-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <form onSubmit={handleAddService} className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">Kode Jasa</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="misal: SRV-08"
-                  value={srvCode}
-                  onChange={(e) => setSrvCode(e.target.value.toUpperCase())}
-                  className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs uppercase font-mono font-semibold text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">Nama Jasa</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="misal: Gurah Mesin / Carbon Cleaner"
-                  value={srvName}
-                  onChange={(e) => setSrvName(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">Kategori</label>
-                <input
-                  type="text"
-                  value={srvCategory}
-                  onChange={(e) => setSrvCategory(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">Tarif Jasa (Rp)</label>
-                <input
-                  type="number"
-                  min="0"
-                  required
-                  value={srvPrice}
-                  onChange={(e) => setSrvPrice(Number(e.target.value) || 0)}
-                  className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-sm font-semibold tabular-nums text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
-                />
-              </div>
-              <div className="flex gap-2 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setShowAddService(false)}
-                  className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs transition"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs transition shadow-sm"
-                >
-                  Simpan Jasa
-                </button>
-              </div>
-            </form>
+      <Modal
+        isOpen={showAddService}
+        onClose={() => setShowAddService(false)}
+        title="Tambah Jasa Baru"
+        subtitle="Daftarkan jenis pekerjaan servis dan tarif ke sistem"
+      >
+        <form onSubmit={handleAddService} className="space-y-3">
+          <div>
+            <label className="block text-xs font-semibold text-zinc-700 mb-1">Kode Jasa</label>
+            <input
+              type="text"
+              required
+              placeholder="misal: SRV-08"
+              value={srvCode}
+              onChange={(e) => setSrvCode(e.target.value.toUpperCase())}
+              className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs uppercase font-mono font-semibold text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
+            />
           </div>
-        </div>
-      )}
+          <div>
+            <label className="block text-xs font-semibold text-zinc-700 mb-1">Nama Jasa</label>
+            <input
+              type="text"
+              required
+              placeholder="misal: Gurah Mesin / Carbon Cleaner"
+              value={srvName}
+              onChange={(e) => setSrvName(e.target.value)}
+              className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-zinc-700 mb-1">Kategori</label>
+            <input
+              type="text"
+              value={srvCategory}
+              onChange={(e) => setSrvCategory(e.target.value)}
+              className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-zinc-700 mb-1">Tarif Jasa (Rp)</label>
+            <input
+              type="number"
+              min="0"
+              required
+              value={srvPrice}
+              onChange={(e) => setSrvPrice(Number(e.target.value) || 0)}
+              className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-sm font-semibold tabular-nums text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
+            />
+          </div>
+          <div className="flex gap-2 pt-3">
+            <button
+              type="button"
+              onClick={() => setShowAddService(false)}
+              className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs transition"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs transition shadow-sm"
+            >
+              Simpan Jasa
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Add Mechanic Modal */}
-      {showAddMech && (
-        <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-modal space-y-4 border border-zinc-200 animate-in fade-in duration-150">
-            <div className="flex justify-between items-center border-b border-zinc-100 pb-3">
-              <h3 className="text-sm font-bold text-zinc-900">Tambah Mekanik</h3>
-              <button
-                onClick={() => setShowAddMech(false)}
-                className="text-zinc-400 hover:text-zinc-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <form onSubmit={handleAddMechanic} className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">Nama Mekanik</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Nama lengkap mekanik"
-                  value={mechName}
-                  onChange={(e) => setMechName(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">Nomor Telepon</label>
-                <input
-                  type="text"
-                  placeholder="0812-3456-7890"
-                  value={mechPhone}
-                  onChange={(e) => setMechPhone(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs font-mono text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
-                />
-              </div>
-              <div className="flex gap-2 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setShowAddMech(false)}
-                  className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs transition"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs transition shadow-sm"
-                >
-                  Simpan Mekanik
-                </button>
-              </div>
-            </form>
+      <Modal
+        isOpen={showAddMech}
+        onClose={() => setShowAddMech(false)}
+        title="Tambah Mekanik"
+        subtitle="Registrasi data profil montir bengkel"
+      >
+        <form onSubmit={handleAddMechanic} className="space-y-3">
+          <div>
+            <label className="block text-xs font-semibold text-zinc-700 mb-1">Nama Mekanik</label>
+            <input
+              type="text"
+              required
+              placeholder="Nama lengkap mekanik"
+              value={mechName}
+              onChange={(e) => setMechName(e.target.value)}
+              className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
+            />
           </div>
-        </div>
-      )}
+          <div>
+            <label className="block text-xs font-semibold text-zinc-700 mb-1">Nomor Telepon</label>
+            <input
+              type="text"
+              placeholder="0812-3456-7890"
+              value={mechPhone}
+              onChange={(e) => setMechPhone(e.target.value)}
+              className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs font-mono text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
+            />
+          </div>
+          <div className="flex gap-2 pt-3">
+            <button
+              type="button"
+              onClick={() => setShowAddMech(false)}
+              className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs transition"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs transition shadow-sm"
+            >
+              Simpan Mekanik
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Add User Modal */}
-      {showAddUser && (
-        <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-modal space-y-4 border border-zinc-200 animate-in fade-in duration-150">
-            <div className="flex justify-between items-center border-b border-zinc-100 pb-3">
-              <h3 className="text-sm font-bold text-zinc-900">Tambah Akun Pengguna</h3>
-              <button
-                onClick={() => setShowAddUser(false)}
-                className="text-zinc-400 hover:text-zinc-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <form onSubmit={handleAddUser} className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">Username</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="username unik (huruf kecil & angka)"
-                  value={newUsername}
-                  onChange={(e) => setNewUsername(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs font-mono text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">Nama Lengkap</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Nama staf bengkel"
-                  value={newUserName}
-                  onChange={(e) => setNewUserName(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">Password</label>
-                <input
-                  type="password"
-                  required
-                  placeholder="minimal 4 karakter"
-                  value={newUserPassword}
-                  onChange={(e) => setNewUserPassword(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">Peran (Role)</label>
-                <select
-                  value={newUserRole}
-                  onChange={(e) => setNewUserRole(e.target.value as any)}
-                  className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs outline-none font-medium text-zinc-900 focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
-                >
-                  <option value="KASIR">Kasir (Bisa transaksi & penerimaan kasir)</option>
-                  <option value="MEKANIK">Mekanik (Bisa catat servis & status)</option>
-                  <option value="OWNER">Owner (Akses penuh seluruh modul)</option>
-                </select>
-              </div>
-              <div className="flex gap-2 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setShowAddUser(false)}
-                  className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs transition"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs transition shadow-sm"
-                >
-                  Buat Akun
-                </button>
-              </div>
-            </form>
+      <Modal
+        isOpen={showAddUser}
+        onClose={() => setShowAddUser(false)}
+        title="Tambah Akun Pengguna"
+        subtitle="Pembuatan kredensial akses sistem BengkelOS"
+      >
+        <form onSubmit={handleAddUser} className="space-y-3">
+          <div>
+            <label className="block text-xs font-semibold text-zinc-700 mb-1">Username</label>
+            <input
+              type="text"
+              required
+              placeholder="username unik (huruf kecil & angka)"
+              value={newUsername}
+              onChange={(e) => setNewUsername(e.target.value)}
+              className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs font-mono text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
+            />
           </div>
-        </div>
-      )}
+          <div>
+            <label className="block text-xs font-semibold text-zinc-700 mb-1">Nama Lengkap</label>
+            <input
+              type="text"
+              required
+              placeholder="Nama staf bengkel"
+              value={newUserName}
+              onChange={(e) => setNewUserName(e.target.value)}
+              className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-zinc-700 mb-1">Password</label>
+            <input
+              type="password"
+              required
+              placeholder="minimal 4 karakter"
+              value={newUserPassword}
+              onChange={(e) => setNewUserPassword(e.target.value)}
+              className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-zinc-700 mb-1">Peran (Role)</label>
+            <select
+              value={newUserRole}
+              onChange={(e) => setNewUserRole(e.target.value as any)}
+              className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs outline-none font-medium text-zinc-900 focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
+            >
+              <option value="KASIR">Kasir (Bisa transaksi & penerimaan kasir)</option>
+              <option value="MEKANIK">Mekanik (Bisa catat servis & status)</option>
+              <option value="OWNER">Owner (Akses penuh seluruh modul)</option>
+            </select>
+          </div>
+          <div className="flex gap-2 pt-3">
+            <button
+              type="button"
+              onClick={() => setShowAddUser(false)}
+              className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs transition"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs transition shadow-sm"
+            >
+              Buat Akun
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

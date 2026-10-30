@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Printer } from 'lucide-react';
 
 interface ReceiptItem {
@@ -34,6 +35,18 @@ interface ReceiptModalProps {
 }
 
 export const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, receipt }) => {
+  useEffect(() => {
+    if (!isOpen) return;
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflow = prevHtml;
+    };
+  }, [isOpen]);
+
   if (!isOpen || !receipt) return null;
 
   const handlePrint = () => {
@@ -48,9 +61,19 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, rec
     }).format(amount);
   };
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl max-w-sm w-full shadow-modal overflow-hidden flex flex-col max-h-[90vh] border border-zinc-200 animate-in fade-in duration-150">
+  const modalContent = (
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 !m-0 z-50 overflow-y-auto bg-zinc-950/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="bg-white rounded-xl max-w-sm w-full shadow-modal overflow-hidden flex flex-col max-h-[90vh] border border-zinc-200 animate-in zoom-in-95 duration-150 my-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Modal Header */}
         <div className="flex justify-between items-center px-4 py-3 border-b border-zinc-200 bg-zinc-50/70">
           <h3 className="font-semibold text-zinc-900 text-xs tracking-tight">Struk Kasir Digital</h3>
@@ -65,6 +88,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, rec
             <button
               onClick={onClose}
               className="p-1 text-zinc-400 hover:text-zinc-700 rounded-md hover:bg-zinc-200/60 transition"
+              aria-label="Tutup"
             >
               <X className="w-4 h-4" />
             </button>
@@ -177,4 +201,6 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, rec
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { Modal } from '../../components/Modal';
 import {
   DollarSign,
   TrendingUp,
@@ -360,105 +361,105 @@ export const FinancePage: React.FC = () => {
       )}
 
       {/* Record Expense Modal */}
-      {showExpenseModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-5 shadow-modal space-y-3.5 border border-zinc-200">
-            <h3 className="text-sm font-bold text-zinc-900 tracking-tight">Catat Pengeluaran Operasional</h3>
-            <form onSubmit={handleCreateExpense} className="space-y-3">
-              <div>
-                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                  Kategori Biaya
-                </label>
-                <select
-                  value={expCategory}
-                  onChange={(e) => setExpCategory(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs outline-none"
-                >
-                  <option value="OPERASIONAL">Operasional Umum</option>
-                  <option value="LISTRIK_AIR">Listrik & Air Bengkel</option>
-                  <option value="KONSUMSI">Konsumsi Mekanik</option>
-                  <option value="ALAT_BENGKEL">Beli Perkakas / Tooling</option>
-                  <option value="SEWA_TEMPAT">Sewa Tempat</option>
-                  <option value="LAINNYA">Lain-lain</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                  Nominal Pengeluaran (Rp)
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  required
-                  placeholder="50000"
-                  value={expAmount}
-                  onChange={(e) => setExpAmount(Number(e.target.value) || 0)}
-                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono font-bold focus:outline-none focus:border-zinc-500 tabular-nums"
-                />
-              </div>
-
-              <div>
-                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                  Keterangan / Keperluan
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="misal: Beli sabun cuci tangan & oli pembersih rantai"
-                  value={expDesc}
-                  onChange={(e) => setExpDesc(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
-                />
-              </div>
-
-              <div>
-                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                  Penerima Dana (Opsional)
-                </label>
-                <input
-                  type="text"
-                  placeholder="Nama toko / penerima uang"
-                  value={expRecipient}
-                  onChange={(e) => setExpRecipient(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
-                />
-              </div>
-
-              <div>
-                <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
-                  Metode Pembayaran
-                </label>
-                <select
-                  value={expMethod}
-                  onChange={(e) => setExpMethod(e.target.value as any)}
-                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs outline-none"
-                >
-                  <option value="CASH">Tunai (Potong dari laci kas register)</option>
-                  <option value="TRANSFER">Transfer Bank Rekening</option>
-                </select>
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowExpenseModal(false)}
-                  className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={actionLoading}
-                  className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle"
-                >
-                  {actionLoading ? 'Menyimpan...' : 'Simpan Pengeluaran'}
-                </button>
-              </div>
-            </form>
+      <Modal
+        isOpen={showExpenseModal}
+        onClose={() => setShowExpenseModal(false)}
+        title="Catat Pengeluaran Operasional"
+        subtitle="Pencatatan kas keluar harian bengkel untuk pembukuan laba-rugi"
+      >
+        <form onSubmit={handleCreateExpense} className="space-y-3">
+          <div>
+            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              Kategori Biaya
+            </label>
+            <select
+              value={expCategory}
+              onChange={(e) => setExpCategory(e.target.value)}
+              className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs outline-none"
+            >
+              <option value="OPERASIONAL">Operasional Umum</option>
+              <option value="LISTRIK_AIR">Listrik & Air Bengkel</option>
+              <option value="KONSUMSI">Konsumsi Mekanik</option>
+              <option value="ALAT_BENGKEL">Beli Perkakas / Tooling</option>
+              <option value="SEWA_TEMPAT">Sewa Tempat</option>
+              <option value="LAINNYA">Lain-lain</option>
+            </select>
           </div>
-        </div>
-      )}
+
+          <div>
+            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              Nominal Pengeluaran (Rp)
+            </label>
+            <input
+              type="number"
+              min="1"
+              required
+              placeholder="50000"
+              value={expAmount}
+              onChange={(e) => setExpAmount(Number(e.target.value) || 0)}
+              className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono font-bold focus:outline-none focus:border-zinc-500 tabular-nums"
+            />
+          </div>
+
+          <div>
+            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              Keterangan / Keperluan
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="misal: Beli sabun cuci tangan & oli pembersih rantai"
+              value={expDesc}
+              onChange={(e) => setExpDesc(e.target.value)}
+              className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
+            />
+          </div>
+
+          <div>
+            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              Penerima Dana (Opsional)
+            </label>
+            <input
+              type="text"
+              placeholder="Nama toko / penerima uang"
+              value={expRecipient}
+              onChange={(e) => setExpRecipient(e.target.value)}
+              className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
+            />
+          </div>
+
+          <div>
+            <label className="text-[11px] font-mono uppercase text-zinc-600 font-semibold block mb-1">
+              Metode Pembayaran
+            </label>
+            <select
+              value={expMethod}
+              onChange={(e) => setExpMethod(e.target.value as any)}
+              className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs outline-none"
+            >
+              <option value="CASH">Tunai (Potong dari laci kas register)</option>
+              <option value="TRANSFER">Transfer Bank Rekening</option>
+            </select>
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setShowExpenseModal(false)}
+              className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={actionLoading}
+              className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle"
+            >
+              {actionLoading ? 'Menyimpan...' : 'Simpan Pengeluaran'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };
