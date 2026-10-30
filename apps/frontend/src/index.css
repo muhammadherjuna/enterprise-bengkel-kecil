@@ -6,6 +6,18 @@
   * {
     @apply border-zinc-200/80;
   }
+
+  /* Hilangkan spinner / panah atas-bawah pada semua input angka (Chrome, Safari, Edge, Firefox) */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
   
   html {
     @apply bg-zinc-50;
