@@ -5,11 +5,30 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    fontFamily: {
+      sans: [
+        '-apple-system',
+        'BlinkMacSystemFont',
+        '"Segoe UI"',
+        'Roboto',
+        '"Helvetica Neue"',
+        'Arial',
+        'sans-serif',
+        '"Apple Color Emoji"',
+        '"Segoe UI Emoji"',
+        '"Segoe UI Symbol"',
+      ],
+      mono: [
+        'ui-monospace',
+        'SFMono-Regular',
+        '"SF Mono"',
+        'Menlo',
+        'Consolas',
+        '"Liberation Mono"',
+        'monospace',
+      ],
+    },
     extend: {
-      fontFamily: {
-        sans: ['"Geist"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
-        mono: ['"Geist Mono"', '"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
-      },
       colors: {
         brand: {
           50: '#f0f4ff',

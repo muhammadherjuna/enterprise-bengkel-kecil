@@ -10,7 +10,6 @@
   html {
     @apply bg-zinc-50;
     overflow-x: hidden;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'tnum';
     text-rendering: optimizeLegibility;
   }
 
@@ -20,7 +19,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
-    letter-spacing: -0.011em;
   }
 
   /* Micro tracking for uppercase labels and tags */
@@ -68,7 +66,7 @@
     width: 72mm;
     margin: 0 auto;
     padding: 8px 12px;
-    font-family: 'Geist Mono', 'JetBrains Mono', monospace;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
     font-size: 11px;
     line-height: 1.35;
     color: #000 !important;
