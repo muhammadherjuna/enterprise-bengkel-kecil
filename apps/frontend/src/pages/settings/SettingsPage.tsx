@@ -53,7 +53,7 @@ export const SettingsPage: React.FC = () => {
   const [newUsername, setNewUsername] = useState('');
   const [newUserName, setNewUserName] = useState('');
   const [newUserPassword, setNewUserPassword] = useState('');
-  const [newUserRole, setNewUserRole] = useState<'OWNER' | 'KASIR' | 'MEKANIK'>('KASIR');
+  const [newUserRole, setNewUserRole] = useState<'OWNER' | 'KASIR'>('KASIR');
 
   // Audit Logs State
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
@@ -428,7 +428,7 @@ export const SettingsPage: React.FC = () => {
           <div className="px-5 py-4 border-b border-zinc-200 flex justify-between items-center bg-zinc-50/50">
             <div>
               <h3 className="font-semibold text-zinc-900 text-sm">Akun Pengguna Sistem</h3>
-              <p className="text-xs text-zinc-500">Otorisasi login untuk staf kasir, mekanik, dan pemilik</p>
+              <p className="text-xs text-zinc-500">Otorisasi login untuk staf kasir dan pemilik bengkel</p>
             </div>
             <button
               onClick={() => setShowAddUser(true)}
@@ -670,7 +670,6 @@ export const SettingsPage: React.FC = () => {
               className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs outline-none font-medium text-zinc-900 focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
             >
               <option value="KASIR">Kasir (Bisa transaksi & penerimaan kasir)</option>
-              <option value="MEKANIK">Mekanik (Bisa catat servis & status)</option>
               <option value="OWNER">Owner (Akses penuh seluruh modul)</option>
             </select>
           </div>

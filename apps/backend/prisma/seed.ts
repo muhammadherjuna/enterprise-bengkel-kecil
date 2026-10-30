@@ -22,7 +22,6 @@ async function main() {
   const passwordSalt = await bcrypt.genSalt(10);
   const ownerHash = await bcrypt.hash('owner123', passwordSalt);
   const kasirHash = await bcrypt.hash('kasir123', passwordSalt);
-  const mekanikHash = await bcrypt.hash('mekanik123', passwordSalt);
 
   await prisma.auditLog.deleteMany();
   await prisma.cashTransaction.deleteMany();
@@ -58,16 +57,7 @@ async function main() {
     },
   });
 
-  const mekanikUser = await prisma.user.create({
-    data: {
-      username: 'mekanik',
-      name: 'Bambang (Mekanik)',
-      passwordHash: mekanikHash,
-      roles: [Role.MEKANIK],
-    },
-  });
-
-  console.log('Users created: owner, kasir, mekanik');
+  console.log('Users created: owner, kasir');
 
   // 3. Mechanics
   const mechAgus = await prisma.mechanic.create({

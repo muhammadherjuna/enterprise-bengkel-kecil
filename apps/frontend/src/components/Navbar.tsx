@@ -59,7 +59,6 @@ export const Navbar: React.FC = () => {
     const styles: Record<string, string> = {
       OWNER: 'bg-zinc-900 text-zinc-100 border-zinc-700',
       KASIR: 'bg-blue-50 text-blue-800 border-blue-200',
-      MEKANIK: 'bg-amber-50 text-amber-800 border-amber-200',
     };
     return (
       <span

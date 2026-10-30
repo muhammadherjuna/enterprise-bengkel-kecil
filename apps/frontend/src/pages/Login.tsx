@@ -120,7 +120,7 @@ export const Login: React.FC = () => {
             <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block mb-2.5">
               Pilih Akun Demo Cepat (1-Klik)
             </span>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => handleQuickLogin('owner', 'owner123')}
@@ -143,18 +143,6 @@ export const Login: React.FC = () => {
                   <span className="w-1.5 h-1.5 rounded-full bg-zinc-500 group-hover:bg-emerald-400"></span>
                 </div>
                 <span className="text-[10px] font-mono text-zinc-500 block mt-0.5">kasir123</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('mekanik', 'mekanik123')}
-                className="p-2.5 rounded-lg border border-zinc-800 bg-zinc-950/50 hover:bg-zinc-800/60 hover:border-zinc-700 transition text-left group"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-zinc-200 group-hover:text-white">Mekanik</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-500 group-hover:bg-amber-400"></span>
-                </div>
-                <span className="text-[10px] font-mono text-zinc-500 block mt-0.5">mekanik123</span>
               </button>
             </div>
           </div>

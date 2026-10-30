@@ -1,28 +1,15 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { LayoutGrid, Wrench, ShoppingBag, Package, Menu, Users } from 'lucide-react';
+import { LayoutGrid, Wrench, ShoppingBag, Package, Menu } from 'lucide-react';
 
 export const BottomNav: React.FC = () => {
-  const { hasRole } = useAuth();
-  const isOwner = hasRole('OWNER');
-  const isMekanikOnly = hasRole('MEKANIK') && !isOwner && !hasRole('KASIR');
-
-  const navItems = isMekanikOnly
-    ? [
-        { to: '/', label: 'Stall Montir', icon: LayoutGrid },
-        { to: '/services', label: 'Antrean Servis', icon: Wrench },
-        { to: '/inventory', label: 'Sparepart', icon: Package },
-        { to: '/customers', label: 'Pelanggan', icon: Users },
-        { to: '/menu', label: 'Menu', icon: Menu },
-      ]
-    : [
-        { to: '/', label: 'Overview', icon: LayoutGrid },
-        { to: '/services', label: 'Servis', icon: Wrench },
-        { to: '/pos', label: 'POS Kasir', icon: ShoppingBag },
-        { to: '/inventory', label: 'Inventori', icon: Package },
-        { to: '/menu', label: 'Lainnya', icon: Menu },
-      ];
+  const navItems = [
+    { to: '/', label: 'Overview', icon: LayoutGrid },
+    { to: '/services', label: 'Servis', icon: Wrench },
+    { to: '/pos', label: 'POS Kasir', icon: ShoppingBag },
+    { to: '/inventory', label: 'Inventori', icon: Package },
+    { to: '/menu', label: 'Lainnya', icon: Menu },
+  ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-zinc-200/90 md:hidden flex justify-around items-center h-14 px-2 safe-area-bottom shadow-card">

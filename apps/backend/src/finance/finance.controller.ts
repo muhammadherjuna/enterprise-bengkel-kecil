@@ -42,7 +42,7 @@ class CreateExpenseDto {
 }
 
 @Controller('finance')
-@Roles(Role.OWNER, Role.KASIR) // AC-13: Blocks MEKANIK role with 403 Forbidden
+@Roles(Role.OWNER, Role.KASIR)
 export class FinanceController {
   constructor(private readonly financeService: FinanceService) {}
 

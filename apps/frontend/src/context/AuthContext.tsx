@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { apiFetch, setStoredToken, getStoredToken } from '../api/client';
 
-export type Role = 'OWNER' | 'KASIR' | 'MEKANIK';
+export type Role = 'OWNER' | 'KASIR';
 
 export interface User {
   id: string;

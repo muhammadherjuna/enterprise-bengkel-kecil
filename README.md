@@ -26,10 +26,10 @@
 - **Presisi Akuntansi Finansial**: Semua nominal harga, HPP, diskon, dan subtotal menggunakan tipe data `NUMERIC(18,2)` / `Decimal` untuk mengeliminasi potensi galat pembulatan *floating point*.
 - **Idempotency Protection**: Dilengkapi *anti double-click* dan token idempotensi pada proses checkout kasir untuk mencegah penagihan ganda (*AC-09*).
 
-### 2. 👥 Dashboard & Hak Akses Berdasarkan Jabatan (RBAC)
-- **Dashboard Mekanik**: Dirancang untuk terminal stall bengkel. Hanya menampilkan daftar pekerjaan servis yang sedang ditangani, antrean menunggu, dan peringatan suku cadang menipis. Data omzet uang dan saldo kas disembunyikan untuk menjaga privasi finansial (*AC-13*).
-- **Dashboard Kasir**: Menampilkan omzet uang masuk harian, posisi saldo kas fisik laci kasir, antrean servis yang siap dibayar, dan pintasan kilat ke kasir POS eceran.
-- **Dashboard Owner (Pemilik)**: Pandangan eksekutif menyeluruh dengan metrik omzet, laba kotor estimasi, status kasir aktif, serta spanduk peringatan inventori minimum.
+### 2. 👥 Alur Kasir-Sentris & Hak Akses Berdasarkan Jabatan (RBAC)
+- **Arsitektur Counter-Centric (Bebas Layar di Stall Mekanik)**: Di bengkel motor nyata, tangan mekanik kotor terkena oli dan gemuk sehingga memegang tablet/gawai di stall tidak higienis dan berisiko merusak perangkat. Sistem menerapkan alur kasir-sentris: mekanik mengecek motor dan melapor ke meja kasir, staf kasir yang mengambilkan suku cadang dan mencatat ke sistem. Mekanik dikelola sebagai entitas **Master Data Staf** (untuk pelacakan rekam medis motor dan komisi) tanpa memerlukan login terpisah.
+- **Dashboard Kasir (Front Desk & POS Register)**: Menampilkan omzet uang masuk harian, posisi saldo kas fisik laci kasir, antrean servis aktif yang siap dibayar, dan pintasan kilat ke kasir POS eceran.
+- **Dashboard Owner (Pemilik)**: Pandangan eksekutif menyeluruh dengan metrik total omzet harian, estimasi laba kotor (*gross profit*), posisi uang fisik laci kasir, status antrean servis, serta spanduk peringatan inventori minimum.
 
 ### 3. 🏍️ Rekam Medis Kendaraan & Pelanggan (AC-18)
 - Pelacakan riwayat perawatan motor berdasarkan nomor plat kendaraan.
@@ -70,13 +70,14 @@ enterprise-bengkel-kecil/
 
 ## 🔑 Akun Bawaan Pengujian (Seed Data)
 
-Database dilengkapi dengan akun default untuk verifikasi seluruh alur hak akses:
+Database dilengkapi dengan akun operator bawaan untuk verifikasi alur otorisasi:
 
 | Peran (Role) | Username | Password | Deskripsi Wewenang |
 | :--- | :--- | :--- | :--- |
-| **Owner (Pemilik)** | `owner` | `owner123` | Akses penuh: keuangan, inventori opname, pembatalan transaksi, audit log |
-| **Kasir** | `kasir` | `kasir123` | Buat servis, kasir POS eceran, pelunasan pembayaran, pencatatan beban kas kecil |
-| **Mekanik** | `mekanik` | `mekanik123` | Pembaruan status servis & penggantian part (Ditolak 403 pada modul kas/keuangan) |
+| **Owner (Pemilik)** | `owner` | `owner123` | Akses penuh: laporan margin laba kotor, manajemen stok opname, audit log, kelola user |
+| **Kasir** | `kasir` | `kasir123` | Buat servis, kasir POS eceran, pelunasan nota servis, pencatatan beban kas kecil operasional |
+
+> **Catatan Staf Mekanik**: Sesuai alur bengkel nyata, staf mekanik (*Agus Santoso*, *Budi Pratama*, *Hendra Wijaya*) dikelola sebagai **Master Data Mekanik** untuk atribusi pengerjaan servis dan rekam medis riwayat motor pelanggan tanpa perlu mengoperasikan terminal komputer di bengkel.
 
 ---
 
@@ -130,7 +131,7 @@ pnpm test:e2e
 
 | ID Kriteria | Skenario Validasi |
 | :--- | :--- |
-| **AC-01** | Autentikasi sesi valid berdasarkan peran (Owner, Kasir, Mekanik) |
+| **AC-01** | Autentikasi sesi valid berdasarkan peran operator (Owner & Kasir) |
 | **AC-02** | Penolakan login kredensial tidak valid tanpa membocorkan info sensitif |
 | **AC-03** | Pembuatan order servis walk-in tanpa data pelanggan & kendaraan |
 | **AC-04** | Validasi penolakan order servis kosong (tanpa jasa/barang) |
@@ -142,7 +143,7 @@ pnpm test:e2e
 | **AC-10** | Penjualan langsung POS retail menghasilkan nota & mutasi stok otomatis |
 | **AC-11** | Pembatalan transaksi mengembalikan stok (`CANCELLATION_RETURN`) & audit log |
 | **AC-12** | Metrik kartu KPI Dashboard mencerminkan data aktual database |
-| **AC-13** | Perlindungan RBAC: Mekanik diblokir (403 Forbidden) pada endpoint keuangan |
+| **AC-13** | Perlindungan RBAC: Kasir diblokir (403 Forbidden) pada modul Owner (laba kotor, audit log, kelola user) |
 | **AC-15** | Uji konkurensi: 2 kasir menjual unit barang terakhir secara simultan (bebas race condition) |
 | **AC-16** | Mekanisme pencadangan dan pemulihan database PostgreSQL (*Backup/Restore*) |
 | **AC-17** | Responsivitas antarmuka mobile/tablet tanpa horizontal overflow scroll |

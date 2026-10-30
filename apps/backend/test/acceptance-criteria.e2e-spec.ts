@@ -12,7 +12,6 @@ describe('BengkelOS MVP Acceptance Criteria Verification (AC-01 - AC-15)', () =>
 
   let ownerToken: string;
   let kasirToken: string;
-  let mekanikToken: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -60,16 +59,6 @@ describe('BengkelOS MVP Acceptance Criteria Verification (AC-01 - AC-15)', () =>
     expect(kasirRes.body.success).toBe(true);
     expect(kasirRes.body.data.user.roles).toContain('KASIR');
     kasirToken = kasirRes.body.data.token;
-
-    // 3. Mekanik Login
-    const mekanikRes = await request(app.getHttpServer())
-      .post('/api/auth/login')
-      .send({ username: 'mekanik', password: 'mekanik123' })
-      .expect(200);
-
-    expect(mekanikRes.body.success).toBe(true);
-    expect(mekanikRes.body.data.user.roles).toContain('MEKANIK');
-    mekanikToken = mekanikRes.body.data.token;
   });
 
   // AC-02: Invalid Login
@@ -457,30 +446,30 @@ describe('BengkelOS MVP Acceptance Criteria Verification (AC-01 - AC-15)', () =>
     expect(res.body.data).toHaveProperty('cashOnHand');
   });
 
-  // AC-13: Akses mekanik (Mekanik ditolak pada endpoint keuangan)
-  it('AC-13: Akses mekanik -> Endpoint keuangan ditolak dengan 403 Forbidden', async () => {
-    // 1. Mekanik tries to access cash ledger
-    await request(app.getHttpServer())
-      .get('/api/finance/cash-ledger')
-      .set('Authorization', `Bearer ${mekanikToken}`)
-      .expect(403);
-
-    // 2. Mekanik tries to access profit estimate
+  // AC-13: Proteksi Hak Akses (Kasir ditolak pada modul khusus Owner)
+  it('AC-13: Akses kasir -> Modul audit, pengguna, dan profit khusus Owner ditolak 403 Forbidden', async () => {
+    // 1. Kasir tries to access profit estimate (restricted to OWNER)
     await request(app.getHttpServer())
       .get('/api/finance/profit-estimate')
-      .set('Authorization', `Bearer ${mekanikToken}`)
+      .set('Authorization', `Bearer ${kasirToken}`)
       .expect(403);
 
-    // 3. Mekanik tries to access reports
+    // 2. Kasir tries to access audit logs (restricted to OWNER)
     await request(app.getHttpServer())
-      .get('/api/reports/daily')
-      .set('Authorization', `Bearer ${mekanikToken}`)
+      .get('/api/audit-logs')
+      .set('Authorization', `Bearer ${kasirToken}`)
       .expect(403);
 
-    // 4. Mekanik CAN access service orders list
+    // 3. Kasir tries to access users management (restricted to OWNER)
+    await request(app.getHttpServer())
+      .get('/api/users')
+      .set('Authorization', `Bearer ${kasirToken}`)
+      .expect(403);
+
+    // 4. Kasir CAN access operational service orders list
     await request(app.getHttpServer())
       .get('/api/service-orders')
-      .set('Authorization', `Bearer ${mekanikToken}`)
+      .set('Authorization', `Bearer ${kasirToken}`)
       .expect(200);
   });
 
