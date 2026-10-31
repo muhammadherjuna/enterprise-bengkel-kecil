@@ -302,7 +302,7 @@ export const ServiceDetail: React.FC = () => {
           <span className="font-semibold text-zinc-700 font-mono text-[11px] uppercase block mb-0.5">
             Keluhan Pengendara:
           </span>
-          <p className="text-zinc-800 italic">"{order.complaints}"</p>
+          <p className="text-zinc-800 italic whitespace-pre-wrap leading-relaxed">"{order.complaints}"</p>
         </div>
       )}
 

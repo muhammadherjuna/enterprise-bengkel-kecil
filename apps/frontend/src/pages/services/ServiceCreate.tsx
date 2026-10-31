@@ -291,15 +291,20 @@ export const ServiceCreate: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono text-zinc-600 uppercase mb-1">
-              Keluhan Pengendara
-            </label>
-            <input
-              type="text"
-              placeholder="misal: Rem depan bunyi mendecit, ganti oli mesin rutin"
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-[11px] font-mono text-zinc-600 uppercase">
+                Keluhan Pengendara
+              </label>
+              <span className="text-[10px] text-zinc-400">
+                Bisa tulis rincian / paragraf (Enter untuk baris baru)
+              </span>
+            </div>
+            <textarea
+              rows={3}
+              placeholder="Tuliskan keluhan atau gejala motor pelanggan, misal:&#10;• Tarikan gas tersendat / brebet saat rpm rendah&#10;• Rem belakang bunyi mendecit&#10;• Ganti oli mesin rutin"
               value={complaints}
               onChange={(e) => setComplaints(e.target.value)}
-              className="w-full px-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs placeholder:text-zinc-400 focus:outline-none focus:border-zinc-500 focus:bg-white transition"
+              className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-xs placeholder:text-zinc-400 focus:outline-none focus:border-zinc-500 focus:bg-white transition resize-y leading-relaxed"
             />
           </div>
         </div>
