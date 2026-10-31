@@ -103,12 +103,14 @@ export const CustomerList: React.FC = () => {
     e.preventDefault();
     setActionLoading(true);
     try {
+      // Bersihkan nomor telepon dari karakter non-digit selain simbol + diawal
+      const cleanedPhone = custPhone.trim().replace(/[^\d+]/g, '');
       await apiFetch('/customers', {
         method: 'POST',
         body: JSON.stringify({
-          name: custName,
-          phone: custPhone || undefined,
-          address: custAddress || undefined,
+          name: custName.trim(),
+          phone: cleanedPhone || undefined,
+          address: custAddress.trim() || undefined,
         }),
       });
       showToast('success', `Pelanggan "${custName}" berhasil didaftarkan`);
@@ -399,43 +401,50 @@ export const CustomerList: React.FC = () => {
         title="Daftarkan Pelanggan Baru"
         subtitle="Tambahkan data kontak pelanggan untuk riwayat servis kendaraan"
       >
-        <form onSubmit={handleCreateCustomer} className="space-y-3">
+        <form onSubmit={handleCreateCustomer} className="space-y-3.5">
           <div>
             <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
-              Nama Lengkap
+              Nama Lengkap Pelanggan
             </label>
             <input
               type="text"
               required
-              placeholder="Nama pelanggan"
+              placeholder="misal: Pak Joko Widodo / Bu Siti"
               value={custName}
               onChange={(e) => setCustName(e.target.value)}
               className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
             />
+            <p className="text-[11px] text-zinc-400 mt-1">Nama lengkap atau panggilan pemilik motor.</p>
           </div>
           <div>
             <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
               Nomor Telepon / WhatsApp
             </label>
             <input
-              type="text"
-              placeholder="0812-XXXX-XXXX"
+              type="tel"
+              placeholder="misal: 081234567890"
               value={custPhone}
-              onChange={(e) => setCustPhone(e.target.value)}
+              onChange={(e) => setCustPhone(e.target.value.replace(/[^\d\s\-+]/g, ''))}
               className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs tabular-nums focus:outline-none focus:border-zinc-500"
             />
+            <p className="text-[11px] text-zinc-500 mt-1">
+              Cukup ketik angka saja tanpa strip atau spasi. Bisa dihubungi via WA saat motor selesai diservis.
+            </p>
           </div>
           <div>
             <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
-              Alamat Singkat
+              Alamat / Domisili (Opsional)
             </label>
             <input
               type="text"
-              placeholder="Alamat pelanggan"
+              placeholder="misal: Jl. Tebet Barat No. 12 / Sekitar Kelurahan Palmerah"
               value={custAddress}
               onChange={(e) => setCustAddress(e.target.value)}
               className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
             />
+            <p className="text-[11px] text-zinc-500 mt-1">
+              Cukup tuliskan nama jalan, kelurahan, atau perumahan domisili (tidak wajib jika walk-in).
+            </p>
           </div>
           <div className="flex gap-2 pt-2">
             <button
@@ -463,24 +472,25 @@ export const CustomerList: React.FC = () => {
         title="Registrasi Kendaraan Motor"
         subtitle="Daftarkan plat nomor dan tipe motor ke database bengkel"
       >
-        <form onSubmit={handleCreateVehicle} className="space-y-3">
+        <form onSubmit={handleCreateVehicle} className="space-y-3.5">
           <div>
             <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
-              Nomor Polisi (Plat)
+              Nomor Polisi (Plat Nomor)
             </label>
             <input
               type="text"
               required
-              placeholder="B 1234 ABC"
+              placeholder="misal: B 1234 ABC"
               value={vehPlate}
               onChange={(e) => setVehPlate(e.target.value.toUpperCase())}
               className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono font-bold uppercase focus:outline-none focus:border-zinc-500"
             />
+            <p className="text-[11px] text-zinc-400 mt-1">Gunakan format plat nomor dengan spasi, contoh: B 1234 ABC.</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
-                Merek
+                Merek Motor
               </label>
               <select
                 value={vehBrand}
@@ -496,12 +506,12 @@ export const CustomerList: React.FC = () => {
             </div>
             <div>
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
-                Model / Tipe
+                Model / Tipe Motor
               </label>
               <input
                 type="text"
                 required
-                placeholder="Beat ESP 110"
+                placeholder="misal: Vario 150 / Beat Street"
                 value={vehModel}
                 onChange={(e) => setVehModel(e.target.value)}
                 className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
@@ -510,7 +520,7 @@ export const CustomerList: React.FC = () => {
           </div>
           <div>
             <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
-              Hubungkan ke Pemilik
+              Hubungkan ke Pemilik (Opsional)
             </label>
             <select
               value={vehCustomerId}
@@ -524,6 +534,7 @@ export const CustomerList: React.FC = () => {
                 </option>
               ))}
             </select>
+            <p className="text-[11px] text-zinc-400 mt-1">Pilih nama pelanggan jika sudah terdaftar, atau biarkan umum.</p>
           </div>
           <div className="flex gap-2 pt-2">
             <button
