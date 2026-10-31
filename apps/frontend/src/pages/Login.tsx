@@ -48,8 +48,8 @@ export const Login: React.FC = () => {
             <span className="font-bold text-base tracking-tight text-white block leading-none">
               BengkelOS
             </span>
-            <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest leading-none mt-1">
-              Workshop ERP • MVP v1.1
+            <span className="text-[10px] text-zinc-400 block leading-none mt-1">
+              Sistem Operasional & Kasir Bengkel
             </span>
           </div>
         </div>

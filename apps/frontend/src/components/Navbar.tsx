@@ -81,14 +81,9 @@ export const Navbar: React.FC = () => {
               <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center text-white shadow-subtle group-hover:bg-blue-600 transition-colors">
                 <Wrench className="w-4 h-4" />
               </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-sm tracking-tight text-zinc-900 leading-none">
-                  {workshopName}
-                </span>
-                <span className="text-[10px] font-medium text-zinc-400 leading-none mt-1 uppercase tracking-wider">
-                  v1.1 • ENTERPRISE
-                </span>
-              </div>
+              <span className="font-bold text-sm tracking-tight text-zinc-900">
+                {workshopName}
+              </span>
             </Link>
 
             {/* Desktop Navigation */}
