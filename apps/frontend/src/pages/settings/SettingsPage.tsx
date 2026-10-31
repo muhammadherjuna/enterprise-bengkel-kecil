@@ -3,6 +3,7 @@ import { apiFetch } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { Modal } from '../../components/Modal';
+import { CurrencyInput } from '../../components/CurrencyInput';
 import {
   Building2,
   Wrench,
@@ -546,17 +547,10 @@ export const SettingsPage: React.FC = () => {
           </div>
           <div>
             <label className="block text-xs font-semibold text-zinc-700 mb-1">Tarif Jasa (Rp)</label>
-            <input
-              type="number"
-              min="0"
+            <CurrencyInput
               required
-              placeholder="0"
               value={srvPrice}
-              onFocus={(e) => e.target.select()}
-              onChange={(e) => {
-                const val = e.target.value;
-                setSrvPrice(val === '' ? '' : Math.max(0, Number(val)));
-              }}
+              onChange={(val) => setSrvPrice(val)}
               className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-sm font-semibold tabular-nums text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
             />
           </div>

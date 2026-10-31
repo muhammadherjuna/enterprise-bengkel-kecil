@@ -7,6 +7,7 @@ import { ReceiptModal } from '../../components/ReceiptModal';
 import { PlateBadge } from '../../components/PlateBadge';
 import { StatusBadge } from '../../components/StatusBadge';
 import { Modal } from '../../components/Modal';
+import { CurrencyInput } from '../../components/CurrencyInput';
 import {
   ArrowLeft,
   Wrench,
@@ -428,16 +429,9 @@ export const ServiceDetail: React.FC = () => {
               <label className="text-xs uppercase text-zinc-500 font-semibold block">
                 Uang Diterima (Rp)
               </label>
-              <input
-                type="number"
-                min={Number(order.totalAmount)}
-                placeholder="0"
+              <CurrencyInput
                 value={amountPaid}
-                onFocus={(e) => e.target.select()}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setAmountPaid(val === '' ? '' : Math.max(0, Number(val)));
-                }}
+                onChange={(val) => setAmountPaid(val)}
                 className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-lg font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white tabular-nums"
               />
 

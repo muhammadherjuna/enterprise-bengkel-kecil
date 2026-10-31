@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { ReceiptModal } from '../../components/ReceiptModal';
 import { PlateBadge } from '../../components/PlateBadge';
+import { CurrencyInput } from '../../components/CurrencyInput';
 import {
   ShoppingBag,
   Plus,
@@ -592,17 +593,10 @@ export const PosPage: React.FC = () => {
               {/* Discount Input */}
               <div className="pt-2 border-t border-zinc-100 flex items-center justify-between text-xs text-zinc-600">
                 <span>Potongan / Diskon (Rp)</span>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="0"
+                <CurrencyInput
                   value={discount}
-                  onFocus={(e) => e.target.select()}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setDiscount(val === '' ? '' : Math.max(0, parseInt(val) || 0));
-                  }}
-                  className="w-24 px-2 py-1 bg-zinc-50 border border-zinc-200 rounded font-semibold text-right text-xs focus:outline-none focus:border-zinc-400 tabular-nums"
+                  onChange={(val) => setDiscount(val)}
+                  className="w-28 px-2 py-1 bg-zinc-50 border border-zinc-200 rounded font-semibold text-right text-xs focus:outline-none focus:border-zinc-400 tabular-nums"
                 />
               </div>
             </div>
@@ -678,16 +672,9 @@ export const PosPage: React.FC = () => {
               <label className="text-xs uppercase text-zinc-500 tracking-wider block font-semibold">
                 Nominal Uang Diterima (Rp)
               </label>
-              <input
-                type="number"
-                min={currentTotal}
-                placeholder="0"
+              <CurrencyInput
                 value={amountPaid}
-                onFocus={(e) => e.target.select()}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setAmountPaid(val === '' ? '' : Math.max(0, Number(val)));
-                }}
+                onChange={(val) => setAmountPaid(val)}
                 className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-lg font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white transition tabular-nums"
               />
 

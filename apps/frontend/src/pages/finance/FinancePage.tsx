@@ -3,6 +3,7 @@ import { apiFetch } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { Modal } from '../../components/Modal';
+import { CurrencyInput } from '../../components/CurrencyInput';
 import {
   Wallet,
   TrendingUp,
@@ -387,17 +388,11 @@ export const FinancePage: React.FC = () => {
             <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
               Nominal Pengeluaran (Rp)
             </label>
-            <input
-              type="number"
-              min="1"
+            <CurrencyInput
               required
-              placeholder="contoh: 50000"
+              placeholder="contoh: 50.000"
               value={expAmount}
-              onFocus={(e) => e.target.select()}
-              onChange={(e) => {
-                const val = e.target.value;
-                setExpAmount(val === '' ? '' : Math.max(0, Number(val)));
-              }}
+              onChange={(val) => setExpAmount(val)}
               className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-zinc-500 tabular-nums"
             />
           </div>

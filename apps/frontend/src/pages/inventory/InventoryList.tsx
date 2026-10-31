@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useSearchParams } from 'react-router-dom';
 import { Modal } from '../../components/Modal';
+import { CurrencyInput } from '../../components/CurrencyInput';
 import {
   Package,
   Plus,
@@ -351,17 +352,10 @@ export const InventoryList: React.FC = () => {
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Stok Fisik Baru (Hasil Hitung Lapangan):
               </label>
-              <input
-                type="number"
-                min="0"
+              <CurrencyInput
                 required
-                placeholder="0"
                 value={newStockCount}
-                onFocus={(e) => e.target.select()}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setNewStockCount(val === '' ? '' : Math.max(0, parseInt(val) || 0));
-                }}
+                onChange={(val) => setNewStockCount(val)}
                 className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-lg font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white tabular-nums"
               />
             </div>
@@ -504,17 +498,10 @@ export const InventoryList: React.FC = () => {
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Harga Beli HPP (Rp)
               </label>
-              <input
-                type="number"
-                min="0"
+              <CurrencyInput
                 required
-                placeholder="0"
                 value={newCostPrice}
-                onFocus={(e) => e.target.select()}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setNewCostPrice(val === '' ? '' : Math.max(0, Number(val)));
-                }}
+                onChange={(val) => setNewCostPrice(val)}
                 className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-zinc-500 tabular-nums"
               />
             </div>
@@ -522,17 +509,10 @@ export const InventoryList: React.FC = () => {
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Harga Jual Eceran (Rp)
               </label>
-              <input
-                type="number"
-                min="0"
+              <CurrencyInput
                 required
-                placeholder="0"
                 value={newSellPrice}
-                onFocus={(e) => e.target.select()}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setNewSellPrice(val === '' ? '' : Math.max(0, Number(val)));
-                }}
+                onChange={(val) => setNewSellPrice(val)}
                 className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-zinc-500 tabular-nums"
               />
             </div>
@@ -543,16 +523,9 @@ export const InventoryList: React.FC = () => {
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Stok Awal
               </label>
-              <input
-                type="number"
-                min="0"
-                placeholder="0"
+              <CurrencyInput
                 value={newInitialStock}
-                onFocus={(e) => e.target.select()}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setNewInitialStock(val === '' ? '' : Math.max(0, Number(val)));
-                }}
+                onChange={(val) => setNewInitialStock(val)}
                 className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-medium tabular-nums"
               />
             </div>
@@ -571,16 +544,9 @@ export const InventoryList: React.FC = () => {
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Min Stok
               </label>
-              <input
-                type="number"
-                min="0"
-                placeholder="0"
+              <CurrencyInput
                 value={newMinStock}
-                onFocus={(e) => e.target.select()}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setNewMinStock(val === '' ? '' : Math.max(0, Number(val)));
-                }}
+                onChange={(val) => setNewMinStock(val)}
                 className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-medium tabular-nums"
               />
             </div>
