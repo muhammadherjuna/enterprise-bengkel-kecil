@@ -43,7 +43,7 @@ export const PosPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [cart, setCart] = useState<CartItem[]>([]);
   const [customerName, setCustomerName] = useState('');
-  const [discount, setDiscount] = useState<number>(0);
+  const [discount, setDiscount] = useState<number | ''>(0);
 
   // Unpaid Services
   const [unpaidOrders, setUnpaidOrders] = useState<any[]>([]);
@@ -51,7 +51,7 @@ export const PosPage: React.FC = () => {
 
   // Payment Options
   const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'TRANSFER' | 'QRIS_MANUAL'>('CASH');
-  const [amountPaid, setAmountPaid] = useState<number>(0);
+  const [amountPaid, setAmountPaid] = useState<number | ''>(0);
 
   // State
   const [workshop, setWorkshop] = useState<any>(null);
@@ -159,19 +159,19 @@ export const PosPage: React.FC = () => {
   useEffect(() => {
     if (paymentMethod !== 'CASH') {
       setAmountPaid(currentTotal);
-    } else if (amountPaid < currentTotal) {
+    } else if (amountPaid === 0 || (typeof amountPaid === 'number' && amountPaid < currentTotal)) {
       setAmountPaid(currentTotal);
     }
   }, [currentTotal, paymentMethod]);
 
-  const changeAmount = paymentMethod === 'CASH' ? Math.max(0, amountPaid - currentTotal) : 0;
+  const changeAmount = paymentMethod === 'CASH' ? Math.max(0, Number(amountPaid || 0) - currentTotal) : 0;
 
   const handleCheckoutDirect = async () => {
     if (cart.length === 0) {
       showToast('error', 'Keranjang belanja masih kosong');
       return;
     }
-    if (paymentMethod === 'CASH' && amountPaid < cartTotal) {
+    if (paymentMethod === 'CASH' && Number(amountPaid || 0) < cartTotal) {
       showToast('error', 'Uang yang dibayarkan kurang dari total belanja');
       return;
     }
@@ -247,7 +247,7 @@ export const PosPage: React.FC = () => {
       showToast('error', 'Pilih salah satu order servis terlebih dahulu');
       return;
     }
-    if (paymentMethod === 'CASH' && amountPaid < Number(selectedOrder.totalAmount)) {
+    if (paymentMethod === 'CASH' && Number(amountPaid || 0) < Number(selectedOrder.totalAmount)) {
       showToast('error', 'Nominal uang bayar kurang dari total faktur');
       return;
     }
@@ -595,8 +595,13 @@ export const PosPage: React.FC = () => {
                 <input
                   type="number"
                   min="0"
+                  placeholder="0"
                   value={discount}
-                  onChange={(e) => setDiscount(Math.max(0, parseInt(e.target.value) || 0))}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setDiscount(val === '' ? '' : Math.max(0, parseInt(val) || 0));
+                  }}
                   className="w-24 px-2 py-1 bg-zinc-50 border border-zinc-200 rounded font-semibold text-right text-xs focus:outline-none focus:border-zinc-400 tabular-nums"
                 />
               </div>
@@ -676,8 +681,13 @@ export const PosPage: React.FC = () => {
               <input
                 type="number"
                 min={currentTotal}
+                placeholder="0"
                 value={amountPaid}
-                onChange={(e) => setAmountPaid(Number(e.target.value) || 0)}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setAmountPaid(val === '' ? '' : Math.max(0, Number(val)));
+                }}
                 className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-lg font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white transition tabular-nums"
               />
 
@@ -720,7 +730,7 @@ export const PosPage: React.FC = () => {
           {/* Checkout Action Button */}
           <button
             type="button"
-            disabled={loading || currentTotal <= 0 || (paymentMethod === 'CASH' && amountPaid < currentTotal)}
+            disabled={loading || currentTotal <= 0 || (paymentMethod === 'CASH' && Number(amountPaid || 0) < currentTotal)}
             onClick={activeTab === 'DIRECT' ? handleCheckoutDirect : handleCheckoutService}
             className="w-full py-2.5 px-4 bg-zinc-900 hover:bg-zinc-800 active:bg-zinc-950 text-white font-semibold text-xs tracking-wide rounded-lg shadow-subtle transition disabled:opacity-40 flex items-center justify-center gap-2"
           >

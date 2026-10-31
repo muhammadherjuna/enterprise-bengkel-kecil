@@ -38,7 +38,7 @@ export const FinancePage: React.FC = () => {
   // New Expense Modal
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [expCategory, setExpCategory] = useState('OPERASIONAL');
-  const [expAmount, setExpAmount] = useState<number>(0);
+  const [expAmount, setExpAmount] = useState<number | ''>('');
   const [expDesc, setExpDesc] = useState('');
   const [expRecipient, setExpRecipient] = useState('');
   const [expMethod, setExpMethod] = useState<'CASH' | 'TRANSFER'>('CASH');
@@ -73,7 +73,7 @@ export const FinancePage: React.FC = () => {
 
   const handleCreateExpense = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (expAmount <= 0) {
+    if (!expAmount || Number(expAmount) <= 0) {
       showToast('error', 'Nominal pengeluaran harus lebih dari 0');
       return;
     }
@@ -93,7 +93,7 @@ export const FinancePage: React.FC = () => {
 
       showToast('success', 'Pengeluaran kas operasional berhasil dicatat');
       setShowExpenseModal(false);
-      setExpAmount(0);
+      setExpAmount('');
       setExpDesc('');
       setExpRecipient('');
       await loadData();
@@ -391,9 +391,13 @@ export const FinancePage: React.FC = () => {
               type="number"
               min="1"
               required
-              placeholder="50000"
+              placeholder="contoh: 50000"
               value={expAmount}
-              onChange={(e) => setExpAmount(Number(e.target.value) || 0)}
+              onFocus={(e) => e.target.select()}
+              onChange={(e) => {
+                const val = e.target.value;
+                setExpAmount(val === '' ? '' : Math.max(0, Number(val)));
+              }}
               className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-zinc-500 tabular-nums"
             />
           </div>

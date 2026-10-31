@@ -38,7 +38,7 @@ export const SettingsPage: React.FC = () => {
   const [srvCode, setSrvCode] = useState('');
   const [srvName, setSrvName] = useState('');
   const [srvCategory, setSrvCategory] = useState('Servis Ringan');
-  const [srvPrice, setSrvPrice] = useState<number>(0);
+  const [srvPrice, setSrvPrice] = useState<number | ''>(0);
 
   // Mechanics State
   const [mechanicsList, setMechanicsList] = useState<any[]>([]);
@@ -121,7 +121,7 @@ export const SettingsPage: React.FC = () => {
           code: srvCode.trim().toUpperCase(),
           name: srvName.trim(),
           category: srvCategory,
-          price: Number(srvPrice),
+          price: Number(srvPrice || 0),
         }),
       });
       setShowAddService(false);
@@ -550,8 +550,13 @@ export const SettingsPage: React.FC = () => {
               type="number"
               min="0"
               required
+              placeholder="0"
               value={srvPrice}
-              onChange={(e) => setSrvPrice(Number(e.target.value) || 0)}
+              onFocus={(e) => e.target.select()}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSrvPrice(val === '' ? '' : Math.max(0, Number(val)));
+              }}
               className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-sm font-semibold tabular-nums text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
             />
           </div>

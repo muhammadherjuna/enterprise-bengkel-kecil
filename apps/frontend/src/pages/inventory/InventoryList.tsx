@@ -38,7 +38,7 @@ export const InventoryList: React.FC = () => {
   const [productMovements, setProductMovements] = useState<any[]>([]);
 
   // Adjustment Form
-  const [newStockCount, setNewStockCount] = useState<number>(0);
+  const [newStockCount, setNewStockCount] = useState<number | ''>(0);
   const [adjustReason, setAdjustReason] = useState('');
 
   // Create Product Form
@@ -46,10 +46,10 @@ export const InventoryList: React.FC = () => {
   const [newName, setNewName] = useState('');
   const [newCategory, setNewCategory] = useState('Sparepart');
   const [newUnit, setNewUnit] = useState('Pcs');
-  const [newCostPrice, setNewCostPrice] = useState<number>(0);
-  const [newSellPrice, setNewSellPrice] = useState<number>(0);
-  const [newInitialStock, setNewInitialStock] = useState<number>(0);
-  const [newMinStock, setNewMinStock] = useState<number>(5);
+  const [newCostPrice, setNewCostPrice] = useState<number | ''>(0);
+  const [newSellPrice, setNewSellPrice] = useState<number | ''>(0);
+  const [newInitialStock, setNewInitialStock] = useState<number | ''>(0);
+  const [newMinStock, setNewMinStock] = useState<number | ''>(5);
 
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -338,11 +338,11 @@ export const InventoryList: React.FC = () => {
                 <span className="text-zinc-500 block text-[11px]">Selisih Stok:</span>
                 <span
                   className={`font-semibold tabular-nums ${
-                    newStockCount - selectedProduct.stock >= 0 ? 'text-emerald-600' : 'text-rose-600'
+                    Number(newStockCount || 0) - selectedProduct.stock >= 0 ? 'text-emerald-600' : 'text-rose-600'
                   }`}
                 >
-                  {newStockCount - selectedProduct.stock > 0 ? '+' : ''}
-                  {newStockCount - selectedProduct.stock} {selectedProduct.unit}
+                  {Number(newStockCount || 0) - selectedProduct.stock > 0 ? '+' : ''}
+                  {Number(newStockCount || 0) - selectedProduct.stock} {selectedProduct.unit}
                 </span>
               </div>
             </div>
@@ -355,8 +355,13 @@ export const InventoryList: React.FC = () => {
                 type="number"
                 min="0"
                 required
+                placeholder="0"
                 value={newStockCount}
-                onChange={(e) => setNewStockCount(parseInt(e.target.value) || 0)}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setNewStockCount(val === '' ? '' : Math.max(0, parseInt(val) || 0));
+                }}
                 className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-lg font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white tabular-nums"
               />
             </div>
@@ -503,8 +508,13 @@ export const InventoryList: React.FC = () => {
                 type="number"
                 min="0"
                 required
+                placeholder="0"
                 value={newCostPrice}
-                onChange={(e) => setNewCostPrice(Number(e.target.value) || 0)}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setNewCostPrice(val === '' ? '' : Math.max(0, Number(val)));
+                }}
                 className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-zinc-500 tabular-nums"
               />
             </div>
@@ -516,8 +526,13 @@ export const InventoryList: React.FC = () => {
                 type="number"
                 min="0"
                 required
+                placeholder="0"
                 value={newSellPrice}
-                onChange={(e) => setNewSellPrice(Number(e.target.value) || 0)}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setNewSellPrice(val === '' ? '' : Math.max(0, Number(val)));
+                }}
                 className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-zinc-500 tabular-nums"
               />
             </div>
@@ -531,8 +546,13 @@ export const InventoryList: React.FC = () => {
               <input
                 type="number"
                 min="0"
+                placeholder="0"
                 value={newInitialStock}
-                onChange={(e) => setNewInitialStock(Number(e.target.value) || 0)}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setNewInitialStock(val === '' ? '' : Math.max(0, Number(val)));
+                }}
                 className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-medium tabular-nums"
               />
             </div>
@@ -554,8 +574,13 @@ export const InventoryList: React.FC = () => {
               <input
                 type="number"
                 min="0"
+                placeholder="0"
                 value={newMinStock}
-                onChange={(e) => setNewMinStock(Number(e.target.value) || 0)}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setNewMinStock(val === '' ? '' : Math.max(0, Number(val)));
+                }}
                 className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-medium tabular-nums"
               />
             </div>

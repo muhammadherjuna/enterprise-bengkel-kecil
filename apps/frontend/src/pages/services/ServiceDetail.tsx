@@ -34,7 +34,7 @@ export const ServiceDetail: React.FC = () => {
   // Payment Modal State
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'TRANSFER' | 'QRIS_MANUAL'>('CASH');
-  const [amountPaid, setAmountPaid] = useState<number>(0);
+  const [amountPaid, setAmountPaid] = useState<number | ''>(0);
 
   // Cancellation Modal State
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -154,7 +154,7 @@ export const ServiceDetail: React.FC = () => {
     );
   }
 
-  const changeAmount = paymentMethod === 'CASH' ? Math.max(0, amountPaid - Number(order.totalAmount)) : 0;
+  const changeAmount = paymentMethod === 'CASH' ? Math.max(0, Number(amountPaid || 0) - Number(order.totalAmount)) : 0;
 
   const receiptData = {
     workshopName: workshop?.name || 'Bengkel Motor',
@@ -431,8 +431,13 @@ export const ServiceDetail: React.FC = () => {
               <input
                 type="number"
                 min={Number(order.totalAmount)}
+                placeholder="0"
                 value={amountPaid}
-                onChange={(e) => setAmountPaid(Number(e.target.value) || 0)}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setAmountPaid(val === '' ? '' : Math.max(0, Number(val)));
+                }}
                 className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-lg font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white tabular-nums"
               />
 
@@ -456,7 +461,7 @@ export const ServiceDetail: React.FC = () => {
             <button
               type="button"
               onClick={handleProcessPayment}
-              disabled={actionLoading || amountPaid < Number(order.totalAmount)}
+              disabled={actionLoading || Number(amountPaid || 0) < Number(order.totalAmount)}
               className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle transition disabled:opacity-40"
             >
               {actionLoading ? 'Memproses...' : 'Konfirmasi Lunas'}

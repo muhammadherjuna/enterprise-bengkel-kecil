@@ -39,7 +39,7 @@ export const ServiceCreate: React.FC = () => {
   const [mechanicId, setMechanicId] = useState('');
   const [complaints, setComplaints] = useState('');
   const [notes, setNotes] = useState('');
-  const [discount, setDiscount] = useState<number>(0);
+  const [discount, setDiscount] = useState<number | ''>(0);
 
   const [items, setItems] = useState<SelectedItem[]>([]);
   const [status, setStatus] = useState<'PENDING' | 'IN_PROGRESS'>('IN_PROGRESS');
@@ -450,8 +450,13 @@ export const ServiceCreate: React.FC = () => {
               <input
                 type="number"
                 min="0"
+                placeholder="0"
                 value={discount}
-                onChange={(e) => setDiscount(Math.max(0, parseInt(e.target.value) || 0))}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setDiscount(val === '' ? '' : Math.max(0, parseInt(val) || 0));
+                }}
                 className="w-24 px-2 py-0.5 bg-white border border-zinc-300 rounded text-right font-mono font-semibold text-xs outline-none"
               />
             </div>
