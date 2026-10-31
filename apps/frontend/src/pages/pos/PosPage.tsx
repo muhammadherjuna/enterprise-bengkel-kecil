@@ -52,7 +52,7 @@ export const PosPage: React.FC = () => {
 
   // Payment Options
   const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'TRANSFER' | 'QRIS_MANUAL'>('CASH');
-  const [amountPaid, setAmountPaid] = useState<number | ''>(0);
+  const [amountPaid, setAmountPaid] = useState<number | ''>('');
 
   // State
   const [workshop, setWorkshop] = useState<any>(null);
@@ -156,11 +156,9 @@ export const PosPage: React.FC = () => {
   // Current Bill Target
   const currentTotal = activeTab === 'DIRECT' ? cartTotal : Number(selectedOrder?.totalAmount || 0);
 
-  // Sync default tendered amount
+  // Sync default tendered amount for non-cash
   useEffect(() => {
     if (paymentMethod !== 'CASH') {
-      setAmountPaid(currentTotal);
-    } else if (amountPaid === 0 || (typeof amountPaid === 'number' && amountPaid < currentTotal)) {
       setAmountPaid(currentTotal);
     }
   }, [currentTotal, paymentMethod]);
@@ -650,7 +648,14 @@ export const PosPage: React.FC = () => {
                 <button
                   key={m}
                   type="button"
-                  onClick={() => setPaymentMethod(m)}
+                  onClick={() => {
+                    setPaymentMethod(m);
+                    if (m !== 'CASH') {
+                      setAmountPaid(currentTotal);
+                    } else {
+                      setAmountPaid('');
+                    }
+                  }}
                   className={`py-2 px-1 text-center rounded-lg text-xs font-semibold border transition ${
                     paymentMethod === m
                       ? 'bg-zinc-900 border-zinc-900 text-white shadow-subtle'
@@ -666,10 +671,21 @@ export const PosPage: React.FC = () => {
           {/* Cash Tender Input & Change */}
           {paymentMethod === 'CASH' && (
             <div className="space-y-2 pt-1 border-t border-zinc-100">
-              <label className="text-xs uppercase text-zinc-500 tracking-wider block font-semibold">
-                Nominal Uang Diterima (Rp)
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs uppercase text-zinc-500 tracking-wider block font-semibold">
+                  Nominal Uang Diterima (Rp)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setAmountPaid(currentTotal)}
+                  className="text-[11px] font-semibold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 px-2 py-0.5 rounded transition"
+                  title="Klik jika pelanggan membayar dengan uang pas"
+                >
+                  Uang Pas
+                </button>
+              </div>
               <CurrencyInput
+                placeholder="Ketik uang tunai dari pelanggan..."
                 value={amountPaid}
                 onChange={(val) => setAmountPaid(val)}
                 className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-lg font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white transition tabular-nums"
@@ -677,21 +693,14 @@ export const PosPage: React.FC = () => {
 
               {/* Quick Cash Presets */}
               <div className="flex gap-1.5 flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => setAmountPaid(currentTotal)}
-                  className="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold rounded tabular-nums"
-                >
-                  Uang Pas
-                </button>
-                {[50000, 100000, 200000, 500000].map((amt) => {
+                {[20000, 50000, 100000, 150000, 200000, 500000].map((amt) => {
                   if (amt >= currentTotal) {
                     return (
                       <button
                         key={amt}
                         type="button"
                         onClick={() => setAmountPaid(amt)}
-                        className="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-medium rounded tabular-nums"
+                        className="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-medium rounded-md tabular-nums transition"
                       >
                         {formatCurrency(amt)}
                       </button>
@@ -704,7 +713,7 @@ export const PosPage: React.FC = () => {
               {/* Change Output */}
               <div className="p-2.5 bg-zinc-50 rounded-lg border border-zinc-200 flex justify-between items-center text-xs">
                 <span className="font-medium text-zinc-600">Uang Kembalian:</span>
-                <span className="font-bold text-zinc-900 tabular-nums">
+                <span className={`font-bold tabular-nums text-sm ${changeAmount > 0 ? 'text-emerald-700' : 'text-zinc-900'}`}>
                   {formatCurrency(changeAmount)}
                 </span>
               </div>
@@ -714,7 +723,11 @@ export const PosPage: React.FC = () => {
           {/* Checkout Action Button */}
           <button
             type="button"
-            disabled={loading || currentTotal <= 0 || (paymentMethod === 'CASH' && Number(amountPaid || 0) < currentTotal)}
+            disabled={
+              loading ||
+              currentTotal <= 0 ||
+              (paymentMethod === 'CASH' && (amountPaid === '' || Number(amountPaid) < currentTotal))
+            }
             onClick={activeTab === 'DIRECT' ? handleCheckoutDirect : handleCheckoutService}
             className="w-full py-2.5 px-4 bg-zinc-900 hover:bg-zinc-800 active:bg-zinc-950 text-white font-semibold text-xs tracking-wide rounded-lg shadow-subtle transition disabled:opacity-40 flex items-center justify-center gap-2"
           >

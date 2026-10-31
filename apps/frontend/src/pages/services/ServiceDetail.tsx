@@ -35,7 +35,7 @@ export const ServiceDetail: React.FC = () => {
   // Payment Modal State
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'TRANSFER' | 'QRIS_MANUAL'>('CASH');
-  const [amountPaid, setAmountPaid] = useState<number | ''>(0);
+  const [amountPaid, setAmountPaid] = useState<number | ''>('');
 
   // Cancellation Modal State
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -49,7 +49,7 @@ export const ServiceDetail: React.FC = () => {
       setLoading(true);
       const res = await apiFetch<any>(`/service-orders/${id}`);
       setOrder(res);
-      setAmountPaid(Number(res.totalAmount));
+      setAmountPaid('');
 
       const ws = await apiFetch<any>('/workshop').catch(() => null);
       setWorkshop(ws);
@@ -231,7 +231,11 @@ export const ServiceDetail: React.FC = () => {
 
           {order.paymentStatus === 'UNPAID' && order.status !== 'CANCELLED' && (
             <button
-              onClick={() => setShowPaymentModal(true)}
+              onClick={() => {
+                setPaymentMethod('CASH');
+                setAmountPaid('');
+                setShowPaymentModal(true);
+              }}
               className="px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg text-xs font-semibold shadow-subtle transition flex items-center gap-1.5"
             >
               <Banknote className="w-3.5 h-3.5" />
@@ -423,7 +427,11 @@ export const ServiceDetail: React.FC = () => {
                   type="button"
                   onClick={() => {
                     setPaymentMethod(m);
-                    if (m !== 'CASH') setAmountPaid(Number(order.totalAmount));
+                    if (m !== 'CASH') {
+                      setAmountPaid(Number(order.totalAmount));
+                    } else {
+                      setAmountPaid('');
+                    }
                   }}
                   className={`py-2 px-1 text-center rounded-lg text-xs font-semibold border transition ${
                     paymentMethod === m
@@ -440,18 +448,49 @@ export const ServiceDetail: React.FC = () => {
           {/* Cash Tendered */}
           {paymentMethod === 'CASH' && (
             <div className="space-y-2 pt-1 border-t border-zinc-100">
-              <label className="text-xs uppercase text-zinc-500 font-semibold block">
-                Uang Diterima (Rp)
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs uppercase text-zinc-500 font-semibold block">
+                  Uang Diterima (Rp)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setAmountPaid(Number(order.totalAmount))}
+                  className="text-[11px] font-semibold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 px-2 py-0.5 rounded transition"
+                  title="Klik jika pelanggan membayar dengan uang pas"
+                >
+                  Uang Pas
+                </button>
+              </div>
               <CurrencyInput
+                placeholder="Ketik uang tunai dari pelanggan..."
                 value={amountPaid}
                 onChange={(val) => setAmountPaid(val)}
                 className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-lg font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white tabular-nums"
+                autoFocus
               />
+
+              {/* Quick Cash Presets */}
+              <div className="flex gap-1.5 flex-wrap">
+                {[20000, 50000, 100000, 150000, 200000, 500000].map((amt) => {
+                  if (amt >= Number(order.totalAmount)) {
+                    return (
+                      <button
+                        key={amt}
+                        type="button"
+                        onClick={() => setAmountPaid(amt)}
+                        className="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-medium rounded-md tabular-nums transition"
+                      >
+                        {formatCurrency(amt)}
+                      </button>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
 
               <div className="p-2.5 bg-zinc-50 rounded-lg border border-zinc-200 flex justify-between items-center text-xs">
                 <span className="font-medium text-zinc-600">Uang Kembalian:</span>
-                <span className="font-bold text-zinc-900 tabular-nums">
+                <span className={`font-bold tabular-nums text-sm ${changeAmount > 0 ? 'text-emerald-700' : 'text-zinc-900'}`}>
                   {formatCurrency(changeAmount)}
                 </span>
               </div>
@@ -469,7 +508,10 @@ export const ServiceDetail: React.FC = () => {
             <button
               type="button"
               onClick={handleProcessPayment}
-              disabled={actionLoading || Number(amountPaid || 0) < Number(order.totalAmount)}
+              disabled={
+                actionLoading ||
+                (paymentMethod === 'CASH' && (amountPaid === '' || Number(amountPaid) < Number(order.totalAmount)))
+              }
               className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle transition disabled:opacity-40"
             >
               {actionLoading ? 'Memproses...' : 'Konfirmasi Lunas'}
