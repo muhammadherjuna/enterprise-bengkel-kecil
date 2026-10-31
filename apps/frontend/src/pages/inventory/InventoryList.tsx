@@ -172,12 +172,9 @@ export const InventoryList: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-zinc-200">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
-              Katalog Suku Cadang & Inventori
-            </h1>
-            <span className="text-xs uppercase tracking-wider text-zinc-400 font-medium">/ STOCK LEDGER</span>
-          </div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
+            Katalog Suku Cadang & Inventori
+          </h1>
           <p className="text-xs text-zinc-500 mt-0.5">
             Manajemen persediaan suku cadang, pelacakan mutasi barang keluar/masuk, dan stock opname fisik.
           </p>

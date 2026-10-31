@@ -51,12 +51,9 @@ export const ServiceList: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-zinc-200">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
-              Daftar Order Servis
-            </h1>
-            <span className="text-xs uppercase tracking-wider text-zinc-400 font-medium">/ WORK ORDERS</span>
-          </div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
+            Daftar Order Servis
+          </h1>
           <p className="text-xs text-zinc-500 mt-0.5">
             Manajemen antrean motor, penugasan mekanik, dan pelacakan pekerjaan bengkel.
           </p>
