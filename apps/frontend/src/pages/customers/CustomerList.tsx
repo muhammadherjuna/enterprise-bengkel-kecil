@@ -497,7 +497,7 @@ export const CustomerList: React.FC = () => {
               onChange={(e) => setVehCustomerId(e.target.value)}
               className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs outline-none"
             >
-              <option value="">-- Pelanggan Umum (Tanpa Akun) --</option>
+              <option value="">Pelanggan Umum (Tanpa Akun)</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name} {c.phone ? `(${c.phone})` : ''}

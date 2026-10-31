@@ -281,7 +281,7 @@ export const ServiceCreate: React.FC = () => {
                 onChange={(e) => setMechanicId(e.target.value)}
                 className="w-full px-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs text-zinc-800 outline-none focus:border-zinc-500"
               >
-                <option value="">-- Belum Ditentukan (Antrean Bebas) --</option>
+                <option value="">Belum Ditentukan (Antrean Bebas)</option>
                 {mechanicsList.map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.name}
@@ -325,17 +325,17 @@ export const ServiceCreate: React.FC = () => {
           {/* Quick Selectors Bar */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-zinc-50 p-3 rounded-lg border border-zinc-200/80">
             {/* Service selector */}
-            <div className="space-y-1">
-              <span className="text-[11px] font-mono text-zinc-600 uppercase block font-semibold">
+            <div className="space-y-1 min-w-0">
+              <span className="text-[11px] font-mono text-zinc-600 uppercase block font-semibold truncate">
                 + Tambah Jasa Servis:
               </span>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2 min-w-0">
                 <select
                   value={selectedServiceId}
                   onChange={(e) => setSelectedServiceId(e.target.value)}
-                  className="flex-1 px-2.5 py-1.5 bg-white border border-zinc-200 rounded-md text-xs outline-none"
+                  className="flex-1 min-w-0 px-2.5 py-1.5 bg-white border border-zinc-200 rounded-md text-xs outline-none truncate focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
                 >
-                  <option value="">-- Pilih Katalog Jasa --</option>
+                  <option value="">Pilih Katalog Jasa</option>
                   {servicesList.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.name} ({formatCurrency(Number(s.price))})
@@ -345,7 +345,7 @@ export const ServiceCreate: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleAddService}
-                  className="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-md text-xs font-semibold"
+                  className="shrink-0 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-md text-xs font-semibold shadow-subtle transition"
                 >
                   Tambah
                 </button>
@@ -353,17 +353,17 @@ export const ServiceCreate: React.FC = () => {
             </div>
 
             {/* Product selector */}
-            <div className="space-y-1">
-              <span className="text-[11px] font-mono text-zinc-600 uppercase block font-semibold">
+            <div className="space-y-1 min-w-0">
+              <span className="text-[11px] font-mono text-zinc-600 uppercase block font-semibold truncate">
                 + Tambah Sparepart / Oli:
               </span>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2 min-w-0">
                 <select
                   value={selectedProductId}
                   onChange={(e) => setSelectedProductId(e.target.value)}
-                  className="flex-1 px-2.5 py-1.5 bg-white border border-zinc-200 rounded-md text-xs outline-none"
+                  className="flex-1 min-w-0 px-2.5 py-1.5 bg-white border border-zinc-200 rounded-md text-xs outline-none truncate focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
                 >
-                  <option value="">-- Pilih Sparepart --</option>
+                  <option value="">Pilih Sparepart / Oli</option>
                   {productsList.map((p) => (
                     <option key={p.id} value={p.id} disabled={p.stock <= 0}>
                       {p.name} - {formatCurrency(Number(p.sellPrice))} (Stok: {p.stock} {p.unit})
@@ -373,7 +373,7 @@ export const ServiceCreate: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleAddProduct}
-                  className="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-md text-xs font-semibold"
+                  className="shrink-0 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-md text-xs font-semibold shadow-subtle transition"
                 >
                   Tambah
                 </button>
