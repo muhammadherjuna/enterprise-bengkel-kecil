@@ -17,6 +17,7 @@ import {
   X,
   ArrowUpDown,
   Tag,
+  Sparkles,
 } from 'lucide-react';
 
 // Standard Workshop Inventory Presets
@@ -179,6 +180,21 @@ export const InventoryList: React.FC = () => {
     setNewMinStock(5);
   };
 
+  const handleGenerateAutoCode = () => {
+    const cat = isCustomCategory ? customCategoryInput : newCategory;
+    let prefix = 'BRG';
+    const c = (cat || '').toLowerCase();
+    if (c.includes('oli')) prefix = 'OLI';
+    else if (c.includes('ban') || c.includes('roda')) prefix = 'BAN';
+    else if (c.includes('rem')) prefix = 'REM';
+    else if (c.includes('busi') || c.includes('pengapian')) prefix = 'BUSI';
+    else if (c.includes('transmisi') || c.includes('cvt')) prefix = 'CVT';
+    else if (c.includes('filter')) prefix = 'FLT';
+
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    setNewSku(`${prefix}-${randomSuffix}`);
+  };
+
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -260,7 +276,7 @@ export const InventoryList: React.FC = () => {
           <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-2.5" />
           <input
             type="text"
-            placeholder="Cari kode SKU atau nama suku cadang..."
+            placeholder="Cari kode barang atau nama suku cadang..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:bg-white transition"
@@ -311,7 +327,7 @@ export const InventoryList: React.FC = () => {
             <table className="w-full text-xs text-left">
               <thead>
                 <tr className="bg-zinc-50/70 border-b border-zinc-200 text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-                  <th className="py-2.5 px-4 font-medium">SKU / Nama Sparepart</th>
+                  <th className="py-2.5 px-4 font-medium">Kode & Nama Sparepart</th>
                   <th className="py-2.5 px-4 font-medium">Kategori</th>
                   <th className="py-2.5 px-4 font-medium text-right">Harga Beli (HPP)</th>
                   <th className="py-2.5 px-4 font-medium text-right">Harga Jual</th>
@@ -528,20 +544,34 @@ export const InventoryList: React.FC = () => {
         title="Tambah Sparepart ke Katalog"
         subtitle="Daftarkan master item suku cadang baru ke dalam inventori bengkel"
       >
-        <form onSubmit={handleCreateProduct} className="space-y-3">
+        <form onSubmit={handleCreateProduct} className="space-y-3.5">
           <div className="grid grid-cols-2 gap-3">
             <div className="min-w-0">
-              <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
-                Kode SKU
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs uppercase text-zinc-600 font-semibold block">
+                  Kode Barang / Part
+                </label>
+                <button
+                  type="button"
+                  onClick={handleGenerateAutoCode}
+                  className="inline-flex items-center gap-1 text-[11px] text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 px-2 py-0.5 rounded font-medium transition"
+                  title="Klik untuk membuat kode unik otomatis"
+                >
+                  <Sparkles className="w-3 h-3 text-amber-500" />
+                  <span>Otomatis</span>
+                </button>
+              </div>
               <input
                 type="text"
                 required
-                placeholder="OLI-MPX1"
+                placeholder="misal: 08232-2MB atau OLI-MPX1"
                 value={newSku}
                 onChange={(e) => setNewSku(e.target.value.toUpperCase())}
                 className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono uppercase font-semibold focus:outline-none focus:border-zinc-500"
               />
+              <p className="text-[10px] text-zinc-400 mt-1 leading-tight">
+                No. part kemasan / barcode, atau klik Otomatis.
+              </p>
             </div>
             <div className="min-w-0">
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
@@ -592,6 +622,9 @@ export const InventoryList: React.FC = () => {
                   </button>
                 </div>
               )}
+              <p className="text-[10px] text-zinc-400 mt-1 leading-tight">
+                Kelompok jenis sparepart di bengkel.
+              </p>
             </div>
           </div>
 
@@ -602,17 +635,20 @@ export const InventoryList: React.FC = () => {
             <input
               type="text"
               required
-              placeholder="misal: Oli AHM MPX 1 0.8L"
+              placeholder="misal: Oli AHM MPX 1 0.8L Bebek/Sport"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
             />
+            <p className="text-[10px] text-zinc-400 mt-1 leading-tight">
+              Nama lengkap yang akan dicetak di struk kasir dan nota pelanggan.
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="min-w-0">
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
-                Harga Beli HPP (Rp)
+                Harga Modal / Beli (Rp)
               </label>
               <CurrencyInput
                 required
@@ -620,10 +656,13 @@ export const InventoryList: React.FC = () => {
                 onChange={(val) => setNewCostPrice(val)}
                 className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-zinc-500 tabular-nums"
               />
+              <p className="text-[10px] text-zinc-400 mt-1 leading-tight">
+                Harga kulakan dari distributor/supplier.
+              </p>
             </div>
             <div className="min-w-0">
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
-                Harga Jual Eceran (Rp)
+                Harga Jual ke Pelanggan (Rp)
               </label>
               <CurrencyInput
                 required
@@ -631,19 +670,25 @@ export const InventoryList: React.FC = () => {
                 onChange={(val) => setNewSellPrice(val)}
                 className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-zinc-500 tabular-nums"
               />
+              <p className="text-[10px] text-zinc-400 mt-1 leading-tight">
+                Tarif harga yang ditagihkan ke konsumen.
+              </p>
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div className="min-w-0">
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
-                Stok Awal
+                Stok Awal di Rak
               </label>
               <CurrencyInput
                 value={newInitialStock}
                 onChange={(val) => setNewInitialStock(val)}
                 className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-medium tabular-nums"
               />
+              <p className="text-[10px] text-zinc-400 mt-1 leading-tight">
+                Jumlah fisik barang yang ada saat ini.
+              </p>
             </div>
             <div className="min-w-0">
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
@@ -694,16 +739,22 @@ export const InventoryList: React.FC = () => {
                   </button>
                 </div>
               )}
+              <p className="text-[10px] text-zinc-400 mt-1 leading-tight">
+                Pcs, Botol, Set, dll.
+              </p>
             </div>
             <div className="min-w-0">
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
-                Min Stok
+                Batas Min Stok
               </label>
               <CurrencyInput
                 value={newMinStock}
                 onChange={(val) => setNewMinStock(val)}
                 className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-medium tabular-nums"
               />
+              <p className="text-[10px] text-zinc-400 mt-1 leading-tight">
+                Alarm jika stok sisa ≤ nilai ini.
+              </p>
             </div>
           </div>
 
