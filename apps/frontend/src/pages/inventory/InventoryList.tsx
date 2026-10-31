@@ -111,8 +111,11 @@ export const InventoryList: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
-  }, [categoryFilter, lowStockFilter]);
+    const timer = setTimeout(() => {
+      fetchProducts();
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [search, categoryFilter, lowStockFilter]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -279,8 +282,18 @@ export const InventoryList: React.FC = () => {
             placeholder="Cari kode barang atau nama suku cadang..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:bg-white transition"
+            className="w-full pl-9 pr-9 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:bg-white transition"
           />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              className="absolute right-3 top-2 text-zinc-400 hover:text-zinc-600 p-0.5 rounded transition"
+              title="Hapus pencarian"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </form>
 
         <div className="flex flex-wrap items-center gap-2">

@@ -84,6 +84,7 @@ export class CustomersController {
           OR: [
             { name: { contains: search, mode: 'insensitive' as const } },
             { phone: { contains: search, mode: 'insensitive' as const } },
+            { vehicles: { some: { plateNumber: { contains: search, mode: 'insensitive' as const } } } },
           ],
         }
       : {};
@@ -155,6 +156,8 @@ export class VehiclesController {
       where.OR = [
         { plateNumber: { contains: search, mode: 'insensitive' } },
         { model: { contains: search, mode: 'insensitive' } },
+        { brand: { contains: search, mode: 'insensitive' } },
+        { customer: { name: { contains: search, mode: 'insensitive' } } },
       ];
     }
 

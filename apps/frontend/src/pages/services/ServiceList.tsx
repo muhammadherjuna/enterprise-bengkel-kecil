@@ -3,7 +3,7 @@ import { apiFetch } from '../../api/client';
 import { Link } from 'react-router-dom';
 import { PlateBadge } from '../../components/PlateBadge';
 import { StatusBadge } from '../../components/StatusBadge';
-import { Plus, Search, Filter, Wrench, ChevronRight } from 'lucide-react';
+import { Plus, Search, Filter, Wrench, ChevronRight, X } from 'lucide-react';
 
 export const ServiceList: React.FC = () => {
   const [orders, setOrders] = useState<any[]>([]);
@@ -30,8 +30,11 @@ export const ServiceList: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchOrders();
-  }, [statusFilter, paymentFilter]);
+    const timer = setTimeout(() => {
+      fetchOrders();
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [search, statusFilter, paymentFilter]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,8 +80,18 @@ export const ServiceList: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari plat nomor motor, kode order, atau nama pelanggan..."
-            className="w-full pl-9 pr-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:bg-white transition"
+            className="w-full pl-9 pr-9 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:bg-white transition"
           />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              className="absolute right-3 top-2 text-zinc-400 hover:text-zinc-600 p-0.5 rounded transition"
+              title="Hapus pencarian"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </form>
 
         <div className="flex items-center gap-2">

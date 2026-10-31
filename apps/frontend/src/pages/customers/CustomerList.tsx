@@ -23,6 +23,7 @@ export const CustomerList: React.FC = () => {
   const [customers, setCustomers] = useState<any[]>([]);
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
   // Tab: Customers or Vehicles
@@ -49,12 +50,21 @@ export const CustomerList: React.FC = () => {
 
   const [actionLoading, setActionLoading] = useState(false);
 
-  const loadData = async () => {
+  // Debounce search query 250ms for instant real-time searching without pressing Enter
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const loadData = async (query = debouncedSearch) => {
     try {
       setLoading(true);
+      const q = query.trim();
       const [cRes, vRes] = await Promise.all([
-        apiFetch<any[]>(`/customers${search ? `?search=${search}` : ''}`),
-        apiFetch<any[]>(`/vehicles${search ? `?search=${search}` : ''}`),
+        apiFetch<any[]>(`/customers${q ? `?search=${encodeURIComponent(q)}` : ''}`),
+        apiFetch<any[]>(`/vehicles${q ? `?search=${encodeURIComponent(q)}` : ''}`),
       ]);
       setCustomers(cRes || []);
       setVehicles(vRes || []);
@@ -66,12 +76,12 @@ export const CustomerList: React.FC = () => {
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    loadData(debouncedSearch);
+  }, [debouncedSearch]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    loadData();
+    loadData(search);
   };
 
   // AC-18: View Vehicle History
@@ -212,8 +222,18 @@ export const CustomerList: React.FC = () => {
             }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:bg-white transition"
+            className="w-full pl-9 pr-9 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:bg-white transition"
           />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              className="absolute right-3 top-2 text-zinc-400 hover:text-zinc-600 p-0.5 rounded transition"
+              title="Hapus pencarian"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </form>
       </div>
 
