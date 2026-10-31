@@ -392,6 +392,13 @@ export class ServiceOrdersService {
         }
       }
 
+      // If service is already COMPLETED, only OWNER is authorized to cancel (prevents cashier fraud & invalid inventory return)
+      if (order.status === ServiceOrderStatus.COMPLETED) {
+        if (!user.roles.includes(Role.OWNER)) {
+          throw new ForbiddenException('Pengerjaan servis sudah selesai. Kasir tidak berwenang membatalkan order yang telah rampung dikerjakan.');
+        }
+      }
+
       // Return spareparts to inventory if they were deducted (AC-11)
       if (order.partsDeducted) {
         for (const item of order.items) {

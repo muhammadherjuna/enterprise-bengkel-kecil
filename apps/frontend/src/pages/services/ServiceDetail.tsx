@@ -249,13 +249,27 @@ export const ServiceDetail: React.FC = () => {
             </button>
           )}
 
+          {/* Tombol Batalkan:
+              - Jika BELUM selesai (PENDING / IN_PROGRESS): Kasir & Owner bisa batalkan (karena pengerjaan fisik belum rampung & sparepart utuh belum terpakai).
+              - Jika SUDAH SELESAI (COMPLETED): Kasir TIDAK BISA batalkan (karena oli sudah dituang ke mesin & pengerjaan fisik tuntas). Hanya Owner yang berwenang jika ada kebutuhan void sengketa/kesalahan administratif.
+          */}
           {order.status !== 'CANCELLED' && (
-            <button
-              onClick={() => setShowCancelModal(true)}
-              className="px-3 py-1.5 text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-lg text-xs font-semibold transition"
-            >
-              Batalkan
-            </button>
+            order.status !== 'COMPLETED' ? (
+              <button
+                onClick={() => setShowCancelModal(true)}
+                className="px-3 py-1.5 text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-lg text-xs font-semibold transition"
+              >
+                Batalkan
+              </button>
+            ) : hasRole('OWNER') ? (
+              <button
+                onClick={() => setShowCancelModal(true)}
+                title="Khusus Owner: Pembatalan administratif order yang telah selesai"
+                className="px-3 py-1.5 text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-lg text-xs font-semibold transition"
+              >
+                Batalkan (Owner)
+              </button>
+            ) : null
           )}
         </div>
       </div>
@@ -469,17 +483,34 @@ export const ServiceDetail: React.FC = () => {
         isOpen={showCancelModal}
         onClose={() => setShowCancelModal(false)}
         title="Batalkan Order Servis"
-        subtitle="Pembatalan order dan pengembalian suku cadang ke inventori"
+        subtitle={
+          order.status === 'COMPLETED'
+            ? 'Pembatalan darurat administratif khusus Owner'
+            : 'Pembatalan order dan pengembalian suku cadang ke inventori'
+        }
       >
         <div className="space-y-3.5">
-          <p className="text-xs text-zinc-600 leading-relaxed">
-            Order servis akan dibatalkan. Suku cadang yang telah dipakai akan otomatis dikembalikan ke inventori via mutasi balik.
-            {order.paymentStatus === 'PAID' && (
-              <strong className="block text-rose-600 mt-1 font-semibold">
-                Transaksi telah lunas: Hanya Owner yang berwenang membatalkan transaksi lunas.
+          {order.status === 'COMPLETED' ? (
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-800 space-y-1">
+              <strong className="block font-semibold">
+                PERINGATAN: Pengerjaan servis motor ini sudah berstatus SELESAI.
               </strong>
-            )}
-          </p>
+              <p className="text-[11px] text-rose-700 leading-relaxed">
+                Secara fisik, oli dan suku cadang telah terpasang/dituang ke dalam mesin motor pelanggan.
+                Pembatalan ini hanya diizinkan untuk koreksi administratif khusus Owner dan akan dicatat lengkap pada audit log.
+              </p>
+            </div>
+          ) : (
+            <p className="text-xs text-zinc-600 leading-relaxed">
+              Order servis akan dibatalkan sebelum pengerjaan selesai. Suku cadang fisik yang belum terpakai akan dikembalikan ke inventori via mutasi balik.
+            </p>
+          )}
+
+          {order.paymentStatus === 'PAID' && (
+            <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+              <strong>Transaksi Telah Lunas:</strong> Pembatalan akan membalikkan catatan penerimaan kas dan hanya berwenang dilakukan oleh Owner.
+            </div>
+          )}
 
           <div>
             <label className="text-[11px] font-mono uppercase text-zinc-600 block mb-1 font-semibold">
