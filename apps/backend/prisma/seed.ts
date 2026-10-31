@@ -42,7 +42,7 @@ async function main() {
   const owner = await prisma.user.create({
     data: {
       username: 'owner',
-      name: 'Haji Supardi (Owner)',
+      name: 'Haji Supardi',
       passwordHash: ownerHash,
       roles: [Role.OWNER, Role.KASIR],
     },
@@ -51,7 +51,7 @@ async function main() {
   const kasir = await prisma.user.create({
     data: {
       username: 'kasir',
-      name: 'Siti Rahma (Kasir)',
+      name: 'Siti Rahma',
       passwordHash: kasirHash,
       roles: [Role.KASIR],
     },
