@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Printer } from 'lucide-react';
+import { X, Printer, Info } from 'lucide-react';
 
 interface ReceiptItem {
   name: string;
@@ -35,6 +35,8 @@ interface ReceiptModalProps {
 }
 
 export const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, receipt }) => {
+  const [paperSize, setPaperSize] = useState<'58mm' | '80mm'>('80mm');
+
   useEffect(() => {
     if (!isOpen) return;
     const prevBody = document.body.style.overflow;
@@ -76,14 +78,39 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, rec
       >
         {/* Modal Header */}
         <div className="flex justify-between items-center px-4 py-3 border-b border-zinc-200 bg-zinc-50/70">
-          <h3 className="font-semibold text-zinc-900 text-xs tracking-tight">Struk Kasir Digital</h3>
-          <div className="flex items-center gap-1.5">
+          <div>
+            <h3 className="font-semibold text-zinc-900 text-xs tracking-tight">Struk Kasir Digital</h3>
+            <p className="text-[10px] text-zinc-500">Format kertas thermal</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center bg-zinc-200/80 p-0.5 rounded-lg text-[11px] font-semibold">
+              <button
+                type="button"
+                onClick={() => setPaperSize('58mm')}
+                className={`px-2 py-0.5 rounded-md transition ${
+                  paperSize === '58mm' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'
+                }`}
+                title="Printer kasir mini / portable (58mm)"
+              >
+                58mm
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaperSize('80mm')}
+                className={`px-2 py-0.5 rounded-md transition ${
+                  paperSize === '80mm' ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-600 hover:text-zinc-900'
+                }`}
+                title="Printer kasir desktop standar (80mm)"
+              >
+                80mm
+              </button>
+            </div>
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-white rounded-md text-xs font-medium transition shadow-sm"
+              className="inline-flex items-center gap-1.5 px-3 py-1 bg-zinc-900 hover:bg-zinc-800 text-white rounded-md text-xs font-semibold transition shadow-sm"
             >
               <Printer className="w-3.5 h-3.5" />
-              <span>Cetak Thermal</span>
+              <span>Cetak ({paperSize})</span>
             </button>
             <button
               onClick={onClose}
@@ -96,7 +123,11 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, rec
         </div>
 
         {/* Receipt Content Printable Area */}
-        <div className="p-6 overflow-y-auto flex-1 font-mono text-[11px] text-zinc-800 leading-normal" id="printable-receipt">
+        <div
+          className="p-6 overflow-y-auto flex-1 font-mono text-[11px] text-zinc-800 leading-normal"
+          id="printable-receipt"
+          data-paper={paperSize}
+        >
           {/* Header Bengkel */}
           <div className="text-center pb-3 border-b border-dashed border-zinc-300">
             <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-900">{receipt.workshopName}</h2>
@@ -197,6 +228,14 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, rec
             <p className="font-medium text-zinc-700">{receipt.receiptFooter || 'Garansi pengerjaan 7 hari kerja. Terima kasih.'}</p>
             <p className="text-[9px] text-zinc-400">BengkelOS • Sistem Operasional Bengkel Terpadu</p>
           </div>
+        </div>
+
+        {/* Helper Note for Printer Setup */}
+        <div className="px-4 py-2.5 bg-zinc-50 border-t border-zinc-200 text-[11px] text-zinc-500 flex items-start gap-2">
+          <Info className="w-3.5 h-3.5 text-zinc-400 shrink-0 mt-0.5" />
+          <p className="leading-snug">
+            <strong>Petunjuk:</strong> Pada jendela cetak browser, pastikan <em>Destination</em> memilih printer kasir Anda (bukan <em>Save as PDF</em>) agar tombol otomatis bertuliskan <strong>"Print"</strong>. Kertas thermal asli akan tercetak pas sesuai ukuran roll.
+          </p>
         </div>
       </div>
     </div>
