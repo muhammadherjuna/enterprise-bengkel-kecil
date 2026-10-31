@@ -580,14 +580,14 @@ export const SettingsPage: React.FC = () => {
                 <option value="__CUSTOM__">+ Kategori Baru...</option>
               </select>
             ) : (
-              <div className="flex gap-1.5 items-center">
+              <div className="relative w-full min-w-0">
                 <input
                   type="text"
                   required
                   placeholder="Kategori jasa baru..."
                   value={customSrvCategory}
                   onChange={(e) => setCustomSrvCategory(e.target.value)}
-                  className="flex-1 px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
+                  className="w-full min-w-0 pl-3 pr-8 py-2 bg-white border border-zinc-300 rounded-lg text-xs text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 shadow-sm"
                   autoFocus
                 />
                 <button
@@ -595,10 +595,12 @@ export const SettingsPage: React.FC = () => {
                   onClick={() => {
                     setIsCustomSrvCategory(false);
                     setSrvCategory('Servis Ringan');
+                    setCustomSrvCategory('');
                   }}
-                  className="px-2.5 py-2 text-xs font-medium text-zinc-600 hover:text-zinc-900 bg-zinc-100 hover:bg-zinc-200 rounded-lg transition"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 p-0.5 rounded transition"
+                  title="Batal kategori baru"
                 >
-                  Batal
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             )}

@@ -530,7 +530,7 @@ export const InventoryList: React.FC = () => {
       >
         <form onSubmit={handleCreateProduct} className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <div>
+            <div className="min-w-0">
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Kode SKU
               </label>
@@ -543,7 +543,7 @@ export const InventoryList: React.FC = () => {
                 className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-mono uppercase font-semibold focus:outline-none focus:border-zinc-500"
               />
             </div>
-            <div>
+            <div className="min-w-0">
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Kategori
               </label>
@@ -568,14 +568,14 @@ export const InventoryList: React.FC = () => {
                   <option value="__CUSTOM__">+ Kategori Baru...</option>
                 </select>
               ) : (
-                <div className="flex gap-1.5 items-center">
+                <div className="relative w-full min-w-0">
                   <input
                     type="text"
                     required
                     placeholder="Nama kategori baru..."
                     value={customCategoryInput}
                     onChange={(e) => setCustomCategoryInput(e.target.value)}
-                    className="flex-1 px-2.5 py-1.5 bg-white border border-zinc-300 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
+                    className="w-full min-w-0 pl-2.5 pr-7 py-1.5 bg-white border border-zinc-300 rounded-lg text-xs focus:outline-none focus:border-zinc-500 shadow-sm"
                     autoFocus
                   />
                   <button
@@ -583,11 +583,12 @@ export const InventoryList: React.FC = () => {
                     onClick={() => {
                       setIsCustomCategory(false);
                       setNewCategory('Sparepart');
+                      setCustomCategoryInput('');
                     }}
-                    className="px-2 py-1.5 text-[11px] font-medium text-zinc-600 hover:text-zinc-900 bg-zinc-100 hover:bg-zinc-200 rounded-lg transition"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 p-0.5 rounded transition"
                     title="Batal kategori baru"
                   >
-                    Batal
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               )}
@@ -609,7 +610,7 @@ export const InventoryList: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div>
+            <div className="min-w-0">
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Harga Beli HPP (Rp)
               </label>
@@ -620,7 +621,7 @@ export const InventoryList: React.FC = () => {
                 className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-zinc-500 tabular-nums"
               />
             </div>
-            <div>
+            <div className="min-w-0">
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Harga Jual Eceran (Rp)
               </label>
@@ -634,7 +635,7 @@ export const InventoryList: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <div>
+            <div className="min-w-0">
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Stok Awal
               </label>
@@ -644,7 +645,7 @@ export const InventoryList: React.FC = () => {
                 className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs font-medium tabular-nums"
               />
             </div>
-            <div>
+            <div className="min-w-0">
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Satuan
               </label>
@@ -669,14 +670,14 @@ export const InventoryList: React.FC = () => {
                   <option value="__CUSTOM__">Lainnya...</option>
                 </select>
               ) : (
-                <div className="flex gap-1.5 items-center">
+                <div className="relative w-full min-w-0">
                   <input
                     type="text"
                     required
                     placeholder="Satuan baru..."
                     value={customUnitInput}
                     onChange={(e) => setCustomUnitInput(e.target.value)}
-                    className="flex-1 px-2.5 py-1.5 bg-white border border-zinc-300 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
+                    className="w-full min-w-0 pl-2.5 pr-7 py-1.5 bg-white border border-zinc-300 rounded-lg text-xs focus:outline-none focus:border-zinc-500 shadow-sm"
                     autoFocus
                   />
                   <button
@@ -684,16 +685,17 @@ export const InventoryList: React.FC = () => {
                     onClick={() => {
                       setIsCustomUnit(false);
                       setNewUnit('Pcs');
+                      setCustomUnitInput('');
                     }}
-                    className="px-2 py-1.5 text-[11px] font-medium text-zinc-600 hover:text-zinc-900 bg-zinc-100 hover:bg-zinc-200 rounded-lg transition"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 p-0.5 rounded transition"
                     title="Batal satuan baru"
                   >
-                    Batal
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               )}
             </div>
-            <div>
+            <div className="min-w-0">
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Min Stok
               </label>
