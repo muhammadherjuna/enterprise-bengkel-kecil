@@ -156,7 +156,7 @@ export const CustomerList: React.FC = () => {
             Pelanggan & Riwayat Kendaraan
           </h1>
           <p className="text-xs text-zinc-500 mt-0.5">
-            Pencatatan profil pemilik kendaraan dan riwayat rekam medis servis motor (AC-18).
+            Pencatatan profil pemilik kendaraan dan riwayat rekam medis servis motor.
           </p>
         </div>
 
@@ -236,7 +236,7 @@ export const CustomerList: React.FC = () => {
                     <th className="py-2.5 px-4 font-medium">Plat Nomor Kendaraan</th>
                     <th className="py-2.5 px-4 font-medium">Merek & Tipe</th>
                     <th className="py-2.5 px-4 font-medium">Pemilik Terdaftar</th>
-                    <th className="py-2.5 px-4 font-medium text-center">Rekam Medis (AC-18)</th>
+                    <th className="py-2.5 px-4 font-medium text-center">Rekam Medis</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">

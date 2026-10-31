@@ -469,7 +469,7 @@ export const ServiceDetail: React.FC = () => {
         isOpen={showCancelModal}
         onClose={() => setShowCancelModal(false)}
         title="Batalkan Order Servis"
-        subtitle="Pembatalan order dan pengembalian suku cadang ke inventori (AC-11)"
+        subtitle="Pembatalan order dan pengembalian suku cadang ke inventori"
       >
         <div className="space-y-3.5">
           <p className="text-xs text-zinc-600 leading-relaxed">

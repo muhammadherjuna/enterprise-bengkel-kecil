@@ -140,9 +140,9 @@ export const ServiceCreate: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // AC-04 validation: at least 1 item
+    // Validation: at least 1 item
     if (items.length === 0) {
-      showToast('error', 'Order servis harus memiliki minimal 1 jasa atau sparepart (AC-04)');
+      showToast('error', 'Order servis harus memiliki minimal 1 jasa atau sparepart');
       return;
     }
 
@@ -211,7 +211,7 @@ export const ServiceCreate: React.FC = () => {
             <div className="flex items-center gap-2">
               <Car className="w-4 h-4 text-zinc-700" />
               <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-900">
-                1. Identitas Kendaraan & Pelanggan (AC-03: Opsional)
+                1. Identitas Kendaraan & Pelanggan (Opsional)
               </h2>
             </div>
             <span className="text-[11px] font-mono text-zinc-400">Boleh dikosongkan untuk walk-in cepat</span>
@@ -316,7 +316,7 @@ export const ServiceCreate: React.FC = () => {
             <div className="flex items-center gap-2">
               <Wrench className="w-4 h-4 text-zinc-700" />
               <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-900">
-                2. Rincian Pekerjaan Jasa & Suku Cadang (AC-04: Min. 1 Item)
+                2. Rincian Pekerjaan Jasa & Suku Cadang (Min. 1 Item)
               </h2>
             </div>
             <span className="text-[11px] font-mono text-rose-600 font-semibold">* Wajib Diisi</span>

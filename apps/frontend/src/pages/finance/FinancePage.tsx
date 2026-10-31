@@ -162,7 +162,7 @@ export const FinancePage: React.FC = () => {
               tab === 'PROFIT' ? 'bg-white text-zinc-900 shadow-subtle' : 'text-zinc-600'
             }`}
           >
-            Laba Kotor Estimasi (FR-05)
+            Laba Kotor Estimasi
           </button>
         )}
       </div>
@@ -296,13 +296,13 @@ export const FinancePage: React.FC = () => {
       {/* Tab 3: Estimated Gross Profit Report (FR-05) */}
       {tab === 'PROFIT' && profitReport && (
         <div className="space-y-4">
-          {/* PRD Regulatory Note (FR-05) */}
+          {/* Regulatory Note */}
           <div className="p-3.5 bg-zinc-100 border border-zinc-200 rounded-xl text-xs text-zinc-700 leading-relaxed flex items-start gap-2.5">
             <Info className="w-4 h-4 text-zinc-500 flex-shrink-0 mt-0.5" />
             <div>
-              <strong className="text-zinc-900 block mb-0.5">Ketentuan Laporan PRD 1.1 (FR-05):</strong>
-              Perhitungan Laba Kotor Estimasi: <code>Pendapatan Bersih (Jasa + Suku Cadang) - HPP Suku Cadang berdasarkan snapshot biaya saat transaksi</code>.
-              Laporan ini <strong>tidak menggunakan label laba bersih</strong> karena sistem ERP MVP belum memperhitungkan amortisasi, depresiasi aset, dan double-entry ledger penuh.
+              <strong className="text-zinc-900 block mb-0.5">Informasi Perhitungan:</strong>
+              Perhitungan Laba Kotor Estimasi: <code>Pendapatan Bersih (Jasa + Suku Cadang) - HPP Suku Cadang berdasarkan modal saat transaksi</code>.
+              Laporan ini mencerminkan margin operasional kotor langsung dan belum memperhitungkan amortisasi, depresiasi aset, atau beban pajak tahunan.
             </div>
           </div>
 
