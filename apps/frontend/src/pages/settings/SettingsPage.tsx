@@ -20,6 +20,16 @@ import {
   FileCode2,
 } from 'lucide-react';
 
+const SERVICE_CATEGORIES = [
+  'Servis Ringan',
+  'Servis Berkala',
+  'Pengereman',
+  'Transmisi & CVT',
+  'Pengapian & Kelistrikan',
+  'Roda & Ban',
+  'Servis Berat / Overhaul',
+];
+
 export const SettingsPage: React.FC = () => {
   const { user, hasRole } = useAuth();
   const { showToast } = useToast();
@@ -39,6 +49,8 @@ export const SettingsPage: React.FC = () => {
   const [srvCode, setSrvCode] = useState('');
   const [srvName, setSrvName] = useState('');
   const [srvCategory, setSrvCategory] = useState('Servis Ringan');
+  const [isCustomSrvCategory, setIsCustomSrvCategory] = useState(false);
+  const [customSrvCategory, setCustomSrvCategory] = useState('');
   const [srvPrice, setSrvPrice] = useState<number | ''>(0);
 
   // Mechanics State
@@ -115,19 +127,28 @@ export const SettingsPage: React.FC = () => {
 
   const handleAddService = async (e: React.FormEvent) => {
     e.preventDefault();
+    const finalCategory = (isCustomSrvCategory ? customSrvCategory : srvCategory).trim();
+    if (!finalCategory) {
+      showToast('error', 'Kategori jasa wajib dipilih atau diisi');
+      return;
+    }
+
     try {
       await apiFetch('/services', {
         method: 'POST',
         body: JSON.stringify({
           code: srvCode.trim().toUpperCase(),
           name: srvName.trim(),
-          category: srvCategory,
+          category: finalCategory,
           price: Number(srvPrice || 0),
         }),
       });
       setShowAddService(false);
       setSrvCode('');
       setSrvName('');
+      setSrvCategory('Servis Ringan');
+      setIsCustomSrvCategory(false);
+      setCustomSrvCategory('');
       setSrvPrice(0);
       showToast('success', 'Jasa servis baru berhasil ditambahkan');
       await loadData();
@@ -538,12 +559,49 @@ export const SettingsPage: React.FC = () => {
           </div>
           <div>
             <label className="block text-xs font-semibold text-zinc-700 mb-1">Kategori</label>
-            <input
-              type="text"
-              value={srvCategory}
-              onChange={(e) => setSrvCategory(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
-            />
+            {!isCustomSrvCategory ? (
+              <select
+                value={srvCategory}
+                onChange={(e) => {
+                  if (e.target.value === '__CUSTOM__') {
+                    setIsCustomSrvCategory(true);
+                    setCustomSrvCategory('');
+                  } else {
+                    setSrvCategory(e.target.value);
+                  }
+                }}
+                className="w-full px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
+              >
+                {SERVICE_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+                <option value="__CUSTOM__">+ Kategori Baru...</option>
+              </select>
+            ) : (
+              <div className="flex gap-1.5 items-center">
+                <input
+                  type="text"
+                  required
+                  placeholder="Kategori jasa baru..."
+                  value={customSrvCategory}
+                  onChange={(e) => setCustomSrvCategory(e.target.value)}
+                  className="flex-1 px-3 py-2 bg-white border border-zinc-300 rounded-lg text-xs text-zinc-900 outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCustomSrvCategory(false);
+                    setSrvCategory('Servis Ringan');
+                  }}
+                  className="px-2.5 py-2 text-xs font-medium text-zinc-600 hover:text-zinc-900 bg-zinc-100 hover:bg-zinc-200 rounded-lg transition"
+                >
+                  Batal
+                </button>
+              </div>
+            )}
           </div>
           <div>
             <label className="block text-xs font-semibold text-zinc-700 mb-1">Tarif Jasa (Rp)</label>

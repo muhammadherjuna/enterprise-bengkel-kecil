@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { apiFetch } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -18,6 +18,31 @@ import {
   ArrowUpDown,
   Tag,
 } from 'lucide-react';
+
+// Standard Workshop Inventory Presets
+const STANDARD_CATEGORIES = [
+  'Sparepart',
+  'Oli Mesin',
+  'Oli Transmisi',
+  'Pengereman',
+  'Pengapian & Kelistrikan',
+  'Transmisi & CVT',
+  'Roda & Ban',
+  'Filter & Mesin',
+  'Aksesoris & Baut',
+];
+
+const STANDARD_UNITS = [
+  'Pcs',
+  'Botol',
+  'Set',
+  'Liter',
+  'Kaleng',
+  'Dus',
+  'Meter',
+  'Roll',
+  'Paket',
+];
 
 export const InventoryList: React.FC = () => {
   const { hasRole } = useAuth();
@@ -46,13 +71,26 @@ export const InventoryList: React.FC = () => {
   const [newSku, setNewSku] = useState('');
   const [newName, setNewName] = useState('');
   const [newCategory, setNewCategory] = useState('Sparepart');
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [customCategoryInput, setCustomCategoryInput] = useState('');
   const [newUnit, setNewUnit] = useState('Pcs');
+  const [isCustomUnit, setIsCustomUnit] = useState(false);
+  const [customUnitInput, setCustomUnitInput] = useState('');
   const [newCostPrice, setNewCostPrice] = useState<number | ''>(0);
   const [newSellPrice, setNewSellPrice] = useState<number | ''>(0);
   const [newInitialStock, setNewInitialStock] = useState<number | ''>(0);
   const [newMinStock, setNewMinStock] = useState<number | ''>(5);
 
   const [actionLoading, setActionLoading] = useState(false);
+
+  // Available unique categories from preset + loaded products
+  const availableCategories = useMemo(() => {
+    const set = new Set(STANDARD_CATEGORIES);
+    products.forEach((p) => {
+      if (p.category && p.category.trim()) set.add(p.category.trim());
+    });
+    return Array.from(set);
+  }, [products]);
 
   const fetchProducts = async () => {
     try {
@@ -126,8 +164,36 @@ export const InventoryList: React.FC = () => {
     }
   };
 
+  const resetCreateForm = () => {
+    setNewSku('');
+    setNewName('');
+    setNewCategory('Sparepart');
+    setIsCustomCategory(false);
+    setCustomCategoryInput('');
+    setNewUnit('Pcs');
+    setIsCustomUnit(false);
+    setCustomUnitInput('');
+    setNewCostPrice(0);
+    setNewSellPrice(0);
+    setNewInitialStock(0);
+    setNewMinStock(5);
+  };
+
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const finalCategory = (isCustomCategory ? customCategoryInput : newCategory).trim();
+    const finalUnit = (isCustomUnit ? customUnitInput : newUnit).trim();
+
+    if (!finalCategory) {
+      showToast('error', 'Kategori suku cadang wajib dipilih atau diisi');
+      return;
+    }
+    if (!finalUnit) {
+      showToast('error', 'Satuan suku cadang wajib dipilih atau diisi');
+      return;
+    }
+
     setActionLoading(true);
 
     try {
@@ -136,8 +202,8 @@ export const InventoryList: React.FC = () => {
         body: JSON.stringify({
           sku: newSku.trim().toUpperCase(),
           name: newName.trim(),
-          category: newCategory,
-          unit: newUnit,
+          category: finalCategory,
+          unit: finalUnit,
           costPrice: Number(newCostPrice),
           sellPrice: Number(newSellPrice),
           initialStock: Number(newInitialStock),
@@ -147,11 +213,7 @@ export const InventoryList: React.FC = () => {
 
       showToast('success', `Suku cadang "${newName}" berhasil ditambahkan ke katalog`);
       setShowCreateModal(false);
-      setNewSku('');
-      setNewName('');
-      setNewCostPrice(0);
-      setNewSellPrice(0);
-      setNewInitialStock(0);
+      resetCreateForm();
       await fetchProducts();
     } catch (err: any) {
       showToast('error', err.message || 'Gagal membuat produk');
@@ -205,7 +267,20 @@ export const InventoryList: React.FC = () => {
           />
         </form>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs text-zinc-700 font-medium outline-none focus:border-zinc-400 focus:bg-white transition"
+          >
+            <option value="">Semua Kategori</option>
+            {availableCategories.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+
           <button
             type="button"
             onClick={() => setLowStockFilter(!lowStockFilter)}
@@ -446,7 +521,10 @@ export const InventoryList: React.FC = () => {
       {/* Create Product Modal */}
       <Modal
         isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
+        onClose={() => {
+          setShowCreateModal(false);
+          resetCreateForm();
+        }}
         title="Tambah Sparepart ke Katalog"
         subtitle="Daftarkan master item suku cadang baru ke dalam inventori bengkel"
       >
@@ -469,13 +547,50 @@ export const InventoryList: React.FC = () => {
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Kategori
               </label>
-              <input
-                type="text"
-                placeholder="Oli Mesin"
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
-              />
+              {!isCustomCategory ? (
+                <select
+                  value={newCategory}
+                  onChange={(e) => {
+                    if (e.target.value === '__CUSTOM__') {
+                      setIsCustomCategory(true);
+                      setCustomCategoryInput('');
+                    } else {
+                      setNewCategory(e.target.value);
+                    }
+                  }}
+                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
+                >
+                  {availableCategories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                  <option value="__CUSTOM__">+ Kategori Baru...</option>
+                </select>
+              ) : (
+                <div className="flex gap-1.5 items-center">
+                  <input
+                    type="text"
+                    required
+                    placeholder="Nama kategori baru..."
+                    value={customCategoryInput}
+                    onChange={(e) => setCustomCategoryInput(e.target.value)}
+                    className="flex-1 px-2.5 py-1.5 bg-white border border-zinc-300 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCustomCategory(false);
+                      setNewCategory('Sparepart');
+                    }}
+                    className="px-2 py-1.5 text-[11px] font-medium text-zinc-600 hover:text-zinc-900 bg-zinc-100 hover:bg-zinc-200 rounded-lg transition"
+                    title="Batal kategori baru"
+                  >
+                    Batal
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -533,12 +648,50 @@ export const InventoryList: React.FC = () => {
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
                 Satuan
               </label>
-              <input
-                type="text"
-                value={newUnit}
-                onChange={(e) => setNewUnit(e.target.value)}
-                className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs"
-              />
+              {!isCustomUnit ? (
+                <select
+                  value={newUnit}
+                  onChange={(e) => {
+                    if (e.target.value === '__CUSTOM__') {
+                      setIsCustomUnit(true);
+                      setCustomUnitInput('');
+                    } else {
+                      setNewUnit(e.target.value);
+                    }
+                  }}
+                  className="w-full px-2.5 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
+                >
+                  {STANDARD_UNITS.map((u) => (
+                    <option key={u} value={u}>
+                      {u}
+                    </option>
+                  ))}
+                  <option value="__CUSTOM__">Lainnya...</option>
+                </select>
+              ) : (
+                <div className="flex gap-1.5 items-center">
+                  <input
+                    type="text"
+                    required
+                    placeholder="Satuan baru..."
+                    value={customUnitInput}
+                    onChange={(e) => setCustomUnitInput(e.target.value)}
+                    className="flex-1 px-2.5 py-1.5 bg-white border border-zinc-300 rounded-lg text-xs focus:outline-none focus:border-zinc-500"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCustomUnit(false);
+                      setNewUnit('Pcs');
+                    }}
+                    className="px-2 py-1.5 text-[11px] font-medium text-zinc-600 hover:text-zinc-900 bg-zinc-100 hover:bg-zinc-200 rounded-lg transition"
+                    title="Batal satuan baru"
+                  >
+                    Batal
+                  </button>
+                </div>
+              )}
             </div>
             <div>
               <label className="text-xs uppercase text-zinc-600 font-semibold block mb-1">
@@ -555,7 +708,10 @@ export const InventoryList: React.FC = () => {
           <div className="flex gap-2 pt-2">
             <button
               type="button"
-              onClick={() => setShowCreateModal(false)}
+              onClick={() => {
+                setShowCreateModal(false);
+                resetCreateForm();
+              }}
               className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold rounded-lg text-xs transition"
             >
               Batal
