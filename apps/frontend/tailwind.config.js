@@ -31,17 +31,17 @@ export default {
     extend: {
       colors: {
         brand: {
-          50: '#f0f4ff',
-          100: '#dbe4fe',
-          200: '#bfd0fe',
-          300: '#93b1fd',
-          400: '#608afa',
-          500: '#3b66f5',
-          600: '#254ceb',
-          700: '#1d38d8',
-          800: '#1e30af',
-          900: '#1e2d8a',
-          950: '#171d54',
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb', // Primary Cobalt Accent
+          700: '#1d4ed8', // Hover CTA Accent
+          800: '#1e40af', // Deep Automotive Accent
+          900: '#1e3a8a', // Midnight Brand Navy
+          950: '#0f172a', // Executive Slate Dark
         },
       },
       boxShadow: {
