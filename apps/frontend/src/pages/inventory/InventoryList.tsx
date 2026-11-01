@@ -5,6 +5,8 @@ import { useToast } from '../../context/ToastContext';
 import { useSearchParams } from 'react-router-dom';
 import { Modal } from '../../components/Modal';
 import { CurrencyInput } from '../../components/CurrencyInput';
+import { ExcelImportModal } from '../../components/ExcelImportModal';
+import * as XLSX from 'xlsx';
 import {
   Package,
   Plus,
@@ -18,6 +20,8 @@ import {
   ArrowUpDown,
   Tag,
   Sparkles,
+  Download,
+  FileSpreadsheet,
 } from 'lucide-react';
 
 // Standard Workshop Inventory Presets
@@ -81,6 +85,7 @@ export const InventoryList: React.FC = () => {
   const [newSellPrice, setNewSellPrice] = useState<number | ''>(0);
   const [newInitialStock, setNewInitialStock] = useState<number | ''>(0);
   const [newMinStock, setNewMinStock] = useState<number | ''>(5);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -249,6 +254,34 @@ export const InventoryList: React.FC = () => {
     }).format(val || 0);
   };
 
+  const handleExportExcel = () => {
+    if (!products || products.length === 0) {
+      showToast('error', 'Tidak ada data produk untuk diekspor');
+      return;
+    }
+
+    const exportRows = products.map((p, idx) => ({
+      'NO': idx + 1,
+      'KODE SKU': p.sku,
+      'BARCODE': p.barcode || '-',
+      'NAMA SPAREPART': p.name,
+      'KATEGORI': p.category,
+      'SATUAN': p.unit,
+      'HARGA BELI (HPP)': Number(p.costPrice),
+      'HARGA JUAL': Number(p.sellPrice),
+      'STOK FISIK': p.stock,
+      'MIN STOK': p.minStock,
+      'STATUS': p.stock <= 0 ? 'HABIS' : p.stock <= p.minStock ? 'MENIPIS' : 'AMAN',
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportRows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Katalog Sparepart');
+    const today = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(wb, `Katalog_Inventori_BengkelOS_${today}.xlsx`);
+    showToast('success', `Berhasil mengekspor ${products.length} suku cadang ke Excel`);
+  };
+
   return (
     <div className="space-y-4 pb-12">
       {/* Top Header */}
@@ -263,13 +296,34 @@ export const InventoryList: React.FC = () => {
         </div>
 
         {hasRole('OWNER') || hasRole('KASIR') ? (
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-2 px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold rounded-lg shadow-subtle transition"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Tambah Sparepart</span>
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={handleExportExcel}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-700 text-xs font-semibold rounded-lg shadow-subtle transition"
+              title="Unduh seluruh data katalog suku cadang ke file Excel"
+            >
+              <Download className="w-3.5 h-3.5 text-zinc-500" />
+              <span>Ekspor Excel</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowImportModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg shadow-subtle transition"
+              title="Import suku cadang & stok dari file Excel / CSV (Smart Column Mapping)"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Import Excel</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold rounded-lg shadow-subtle transition"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Tambah Sparepart</span>
+            </button>
+          </div>
         ) : null}
       </div>
 
@@ -792,6 +846,13 @@ export const InventoryList: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Excel Smart Column Mapping Import Modal */}
+      <ExcelImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onSuccess={fetchProducts}
+      />
     </div>
   );
 };

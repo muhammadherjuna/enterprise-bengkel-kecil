@@ -114,6 +114,49 @@ class AdjustStockDto {
   reason: string;
 }
 
+class BulkImportItemDto {
+  @IsOptional()
+  @IsString()
+  sku?: string;
+
+  @IsOptional()
+  @IsString()
+  barcode?: string;
+
+  @IsNotEmpty({ message: 'Nama produk wajib diisi' })
+  @IsString()
+  name: string;
+
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @IsOptional()
+  @IsString()
+  unit?: string;
+
+  @IsOptional()
+  @IsNumber()
+  costPrice?: number;
+
+  @IsOptional()
+  @IsNumber()
+  sellPrice?: number;
+
+  @IsOptional()
+  @IsInt()
+  initialStock?: number;
+
+  @IsOptional()
+  @IsInt()
+  minStock?: number;
+}
+
+class BulkImportDto {
+  items: BulkImportItemDto[];
+  updateExisting?: boolean;
+}
+
 @Controller('products')
 export class ProductsController {
   constructor(
@@ -133,6 +176,29 @@ export class ProductsController {
       lowStockOnly: lowStockOnly === 'true',
     });
     return { success: true, data: products };
+  }
+
+  @Post('bulk-import')
+  @Roles(Role.OWNER, Role.KASIR)
+  async bulkImport(@Body() dto: BulkImportDto, @CurrentUser('id') userId: string) {
+    if (!dto.items || !Array.isArray(dto.items) || dto.items.length === 0) {
+      throw new BadRequestException('Daftar produk tidak boleh kosong');
+    }
+
+    if (dto.items.length > 2000) {
+      throw new BadRequestException('Maksimal import 2000 baris per file');
+    }
+
+    const result = await this.productsService.bulkImport(
+      dto.items,
+      dto.updateExisting ?? false,
+      userId,
+    );
+    return {
+      success: true,
+      message: `Berhasil memproses import: ${result.createdCount} produk baru ditambahkan, ${result.updatedCount} diperbarui, ${result.skippedCount} dilewati`,
+      data: result,
+    };
   }
 
   @Get(':id')

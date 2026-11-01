@@ -218,4 +218,152 @@ export class ProductsService {
       return updated;
     });
   }
+
+  async bulkImport(
+    items: Array<{
+      sku?: string;
+      barcode?: string;
+      name: string;
+      category?: string;
+      unit?: string;
+      costPrice?: number;
+      sellPrice?: number;
+      initialStock?: number;
+      minStock?: number;
+    }>,
+    updateExisting: boolean,
+    userId: string,
+  ) {
+    let createdCount = 0;
+    let updatedCount = 0;
+    let skippedCount = 0;
+
+    await this.prisma.$transaction(async (tx) => {
+      // Fetch all existing SKUs in one query for fast lookup
+      const existingProducts = await tx.product.findMany({
+        select: { id: true, sku: true, stock: true },
+      });
+      const existingMap = new Map<string, { id: string; stock: number }>();
+      existingProducts.forEach((p) => existingMap.set(p.sku.toUpperCase(), p));
+
+      let autoSkuIndex = existingProducts.length + 1;
+
+      for (const item of items) {
+        if (!item.name || !item.name.trim()) {
+          skippedCount++;
+          continue;
+        }
+
+        const name = item.name.trim();
+        let sku = item.sku?.trim().toUpperCase();
+        if (!sku) {
+          sku = `PRD-${String(autoSkuIndex).padStart(4, '0')}`;
+          while (existingMap.has(sku)) {
+            autoSkuIndex++;
+            sku = `PRD-${String(autoSkuIndex).padStart(4, '0')}`;
+          }
+          autoSkuIndex++;
+        }
+
+        const costPrice = Math.max(0, Number(item.costPrice) || 0);
+        const sellPrice = Math.max(0, Number(item.sellPrice) || 0);
+        const initialStock = Math.max(0, Math.floor(Number(item.initialStock) || 0));
+        const minStock = Math.max(0, Math.floor(Number(item.minStock) || 5));
+        const category = item.category?.trim() || 'Sparepart';
+        const unit = item.unit?.trim() || 'Pcs';
+        const barcode = item.barcode?.trim() || undefined;
+
+        const existing = existingMap.get(sku);
+
+        if (existing) {
+          if (updateExisting) {
+            await tx.product.update({
+              where: { id: existing.id },
+              data: {
+                name,
+                category,
+                unit,
+                costPrice,
+                sellPrice,
+                minStock,
+                barcode: barcode || undefined,
+              },
+            });
+
+            if (initialStock > 0 && initialStock !== existing.stock) {
+              const diff = initialStock - existing.stock;
+              await tx.product.update({
+                where: { id: existing.id },
+                data: { stock: initialStock },
+              });
+              await tx.stockMovement.create({
+                data: {
+                  productId: existing.id,
+                  type: StockMovementType.ADJUSTMENT,
+                  quantity: diff,
+                  balanceBefore: existing.stock,
+                  balanceAfter: initialStock,
+                  reason: 'Penyesuaian stok via Import Excel',
+                  referenceType: 'EXCEL_IMPORT',
+                  userId,
+                },
+              });
+            }
+
+            updatedCount++;
+          } else {
+            skippedCount++;
+          }
+        } else {
+          const created = await tx.product.create({
+            data: {
+              sku,
+              barcode,
+              name,
+              category,
+              unit,
+              costPrice,
+              sellPrice,
+              stock: initialStock,
+              minStock,
+            },
+          });
+
+          if (initialStock > 0) {
+            await tx.stockMovement.create({
+              data: {
+                productId: created.id,
+                type: StockMovementType.INITIAL,
+                quantity: initialStock,
+                balanceBefore: 0,
+                balanceAfter: initialStock,
+                reason: 'Stok awal via Import Excel',
+                referenceType: 'EXCEL_IMPORT',
+                userId,
+              },
+            });
+          }
+
+          existingMap.set(sku, { id: created.id, stock: initialStock });
+          createdCount++;
+        }
+      }
+
+      await tx.auditLog.create({
+        data: {
+          userId,
+          action: 'BULK_IMPORT_PRODUCTS',
+          entityType: 'PRODUCT',
+          details: {
+            totalRows: items.length,
+            createdCount,
+            updatedCount,
+            skippedCount,
+          },
+        },
+      });
+    });
+
+    return { createdCount, updatedCount, skippedCount };
+  }
 }
