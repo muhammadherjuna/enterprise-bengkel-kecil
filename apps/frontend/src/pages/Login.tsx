@@ -35,34 +35,35 @@ export const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col justify-between p-6 sm:p-10 relative overflow-hidden font-sans">
-      {/* Background Subtle Grid Texture */}
+      {/* Background Subtle Grid Texture & Automotive Blue Ambient Glow */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#27272a15_1px,transparent_1px),linear-gradient(to_bottom,#27272a15_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none"></div>
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-blue-600/12 blur-[130px] rounded-full pointer-events-none"></div>
 
       {/* Top Brand Bar */}
       <header className="relative z-10 flex items-center justify-between max-w-5xl mx-auto w-full">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white shadow-subtle">
-            <Wrench className="w-4 h-4 text-zinc-100" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 border border-blue-500/30 flex items-center justify-center text-white shadow-md shadow-blue-500/25">
+            <Wrench className="w-5 h-5 text-white" />
           </div>
           <div>
             <span className="font-bold text-base tracking-tight text-white block leading-none">
               BengkelOS
             </span>
-            <span className="text-[10px] text-zinc-400 block leading-none mt-1">
-              Sistem Operasional & Kasir Bengkel
+            <span className="text-[10px] text-blue-400 font-medium block leading-none mt-1">
+              Automotive Enterprise System
             </span>
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-zinc-500 border border-zinc-800/80 px-3 py-1 rounded-full bg-zinc-900/60 backdrop-blur-xs">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+        <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-zinc-400 border border-zinc-800/80 px-3 py-1 rounded-full bg-zinc-900/60 backdrop-blur-xs">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <span>Online-First Engine Active</span>
         </div>
       </header>
 
       {/* Central Login Card */}
       <main className="relative z-10 max-w-md mx-auto w-full my-auto py-8">
-        <div className="bg-zinc-900/90 border border-zinc-800/80 rounded-2xl p-6 sm:p-8 shadow-modal backdrop-blur-md">
+        <div className="bg-zinc-900/90 border border-zinc-800/90 rounded-2xl p-6 sm:p-8 shadow-modal backdrop-blur-md">
           <div className="mb-6">
             <h1 className="text-xl font-bold tracking-tight text-white">
               Masuk ke Konsol Operasional
@@ -84,7 +85,7 @@ export const Login: React.FC = () => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="misal: owner / kasir"
-                className="w-full px-3.5 py-2.5 bg-zinc-950/80 border border-zinc-800 rounded-lg text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition font-mono"
+                className="w-full px-3.5 py-2.5 bg-zinc-950/80 border border-zinc-800 rounded-lg text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition font-mono"
               />
             </div>
 
@@ -101,14 +102,14 @@ export const Login: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-3.5 py-2.5 bg-zinc-950/80 border border-zinc-800 rounded-lg text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition font-mono"
+                className="w-full px-3.5 py-2.5 bg-zinc-950/80 border border-zinc-800 rounded-lg text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition font-mono"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-2.5 px-4 bg-white hover:bg-zinc-200 active:bg-zinc-300 text-zinc-950 rounded-lg font-semibold text-xs tracking-wide shadow-subtle transition flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full mt-2 py-3 px-4 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 active:scale-[0.99] text-white rounded-xl font-bold text-xs tracking-wide shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <span>{loading ? 'Memverifikasi Sesi...' : 'Masuk ke Sistem'}</span>
               <ArrowRight className="w-3.5 h-3.5" />

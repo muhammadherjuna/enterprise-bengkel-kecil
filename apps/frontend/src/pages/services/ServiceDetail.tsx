@@ -236,7 +236,7 @@ export const ServiceDetail: React.FC = () => {
                 setAmountPaid('');
                 setShowPaymentModal(true);
               }}
-              className="px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg text-xs font-semibold shadow-subtle transition flex items-center gap-1.5"
+              className="px-4 py-2 bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-800 hover:from-emerald-700 hover:to-teal-900 text-white rounded-lg text-xs font-semibold shadow-sm shadow-emerald-500/25 active:scale-[0.98] transition flex items-center gap-1.5"
             >
               <Banknote className="w-3.5 h-3.5" />
               <span>Bayar Kasir</span>
@@ -246,9 +246,9 @@ export const ServiceDetail: React.FC = () => {
           {order.paymentStatus === 'PAID' && (
             <button
               onClick={() => setShowReceiptModal(true)}
-              className="px-3 py-1.5 bg-white border border-zinc-300 hover:bg-zinc-50 text-zinc-800 rounded-lg text-xs font-semibold shadow-subtle transition flex items-center gap-1.5"
+              className="px-3.5 py-1.5 bg-white border border-blue-200 hover:bg-blue-50 text-blue-700 rounded-lg text-xs font-semibold shadow-subtle transition flex items-center gap-1.5"
             >
-              <Printer className="w-3.5 h-3.5 text-zinc-600" />
+              <Printer className="w-3.5 h-3.5 text-blue-600" />
               <span>Cetak Struk</span>
             </button>
           )}
@@ -406,11 +406,11 @@ export const ServiceDetail: React.FC = () => {
         subtitle="Konfirmasi pembayaran tagihan servis motor dan cetak bukti transaksi"
       >
         <div className="space-y-4">
-          <div className="p-3 bg-zinc-900 rounded-lg text-white text-center">
-            <span className="text-xs uppercase text-zinc-400 font-semibold tracking-wider block">
+          <div className="p-3.5 bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 rounded-xl text-white text-center border border-blue-900/60 shadow-sm">
+            <span className="text-[11px] uppercase text-blue-300 font-semibold tracking-wider block">
               Total Tagihan
             </span>
-            <div className="text-2xl font-bold mt-0.5 tabular-nums">
+            <div className="text-2xl font-bold font-mono text-white mt-0.5 tabular-nums">
               {formatCurrency(Number(order.totalAmount))}
             </div>
           </div>
@@ -512,7 +512,7 @@ export const ServiceDetail: React.FC = () => {
                 actionLoading ||
                 (paymentMethod === 'CASH' && (amountPaid === '' || Number(amountPaid) < Number(order.totalAmount)))
               }
-              className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold rounded-lg text-xs shadow-subtle transition disabled:opacity-40"
+              className="flex-1 py-2.5 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-bold rounded-lg text-xs shadow-md shadow-blue-500/25 transition disabled:opacity-40"
             >
               {actionLoading ? 'Memproses...' : 'Konfirmasi Lunas'}
             </button>

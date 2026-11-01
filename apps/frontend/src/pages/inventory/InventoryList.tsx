@@ -318,7 +318,7 @@ export const InventoryList: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowCreateModal(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold rounded-lg shadow-subtle transition"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white text-xs font-semibold rounded-lg shadow-sm shadow-blue-500/25 active:scale-[0.98] transition"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Tambah Sparepart</span>

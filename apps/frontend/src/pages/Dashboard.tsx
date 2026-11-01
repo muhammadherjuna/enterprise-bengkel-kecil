@@ -279,18 +279,18 @@ export const Dashboard: React.FC = () => {
         {/* Primary Action Buttons */}
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <Link
-            to="/services/new"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold rounded-lg shadow-subtle transition"
+            to="/pos"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white text-xs font-semibold rounded-lg shadow-sm shadow-blue-500/25 active:scale-[0.98] transition"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Servis Baru</span>
+            <ShoppingBag className="w-3.5 h-3.5" />
+            <span>Buka Kasir POS</span>
           </Link>
           <Link
-            to="/pos"
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-white hover:bg-zinc-50 text-zinc-800 text-xs font-semibold rounded-lg border border-zinc-200 shadow-subtle transition"
+            to="/services/new"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-blue-50/70 text-blue-700 hover:text-blue-800 text-xs font-semibold rounded-lg border border-blue-200/80 shadow-subtle active:scale-[0.98] transition"
           >
-            <ShoppingBag className="w-3.5 h-3.5 text-zinc-600" />
-            <span>Buka Kasir POS</span>
+            <Plus className="w-3.5 h-3.5" />
+            <span>+ Intake Servis Baru</span>
           </Link>
         </div>
       </div>
@@ -298,13 +298,13 @@ export const Dashboard: React.FC = () => {
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Omzet Hari Ini */}
-        <div className="bg-white p-4 sm:p-5 rounded-xl border border-zinc-200/90 shadow-card flex flex-col justify-between">
+        <div className="bg-white p-4 sm:p-5 rounded-xl border border-zinc-200/90 border-t-2 border-t-emerald-500 shadow-card flex flex-col justify-between hover:shadow-md transition">
           <div className="flex items-center justify-between text-zinc-500 mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
               Omzet Hari Ini
             </span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
-              <Banknote className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center justify-center">
+              <Banknote className="w-4 h-4" />
             </div>
           </div>
           <div>
@@ -321,13 +321,13 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Servis Aktif */}
-        <div className="bg-white p-4 sm:p-5 rounded-xl border border-zinc-200/90 shadow-card flex flex-col justify-between">
+        <div className="bg-white p-4 sm:p-5 rounded-xl border border-zinc-200/90 border-t-2 border-t-blue-600 shadow-card flex flex-col justify-between hover:shadow-md transition">
           <div className="flex items-center justify-between text-zinc-500 mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
               Servis Aktif
             </span>
-            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
-              <Wrench className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center">
+              <Wrench className="w-4 h-4" />
             </div>
           </div>
           <div>
@@ -345,13 +345,13 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Saldo Laci Kasir */}
-        <div className="bg-white p-4 sm:p-5 rounded-xl border border-zinc-200/90 shadow-card flex flex-col justify-between">
+        <div className="bg-white p-4 sm:p-5 rounded-xl border border-zinc-200/90 border-t-2 border-t-indigo-600 shadow-card flex flex-col justify-between hover:shadow-md transition">
           <div className="flex items-center justify-between text-zinc-500 mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
               Saldo Laci Kasir
             </span>
-            <div className="w-7 h-7 rounded-lg bg-zinc-100 text-zinc-700 flex items-center justify-center">
-              <Wallet className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100 flex items-center justify-center">
+              <Wallet className="w-4 h-4" />
             </div>
           </div>
           <div>

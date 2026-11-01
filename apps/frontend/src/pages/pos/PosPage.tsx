@@ -324,12 +324,12 @@ export const PosPage: React.FC = () => {
         </div>
 
         {/* Tab Segmented Control */}
-        <div className="inline-flex bg-zinc-100 p-1 rounded-lg border border-zinc-200/80 w-full sm:w-auto">
+        <div className="inline-flex bg-zinc-100 p-1 rounded-xl border border-zinc-200/80 w-full sm:w-auto">
           <button
             onClick={() => setActiveTab('DIRECT')}
-            className={`flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-semibold rounded-md transition-all ${
+            className={`flex-1 sm:flex-initial px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${
               activeTab === 'DIRECT'
-                ? 'bg-white text-zinc-900 shadow-subtle'
+                ? 'bg-white text-blue-700 shadow-xs border border-blue-200/60 font-bold'
                 : 'text-zinc-600 hover:text-zinc-900'
             }`}
           >
@@ -337,9 +337,9 @@ export const PosPage: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('SERVICE')}
-            className={`flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center justify-center gap-1.5 ${
+            className={`flex-1 sm:flex-initial px-4 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
               activeTab === 'SERVICE'
-                ? 'bg-white text-zinc-900 shadow-subtle'
+                ? 'bg-white text-blue-700 shadow-xs border border-blue-200/60 font-bold'
                 : 'text-zinc-600 hover:text-zinc-900'
             }`}
           >
@@ -626,16 +626,18 @@ export const PosPage: React.FC = () => {
           )}
 
           {/* Grand Total Display */}
-          <div className="p-3.5 bg-zinc-900 rounded-lg text-white flex justify-between items-center shadow-subtle">
+          <div className="p-4 bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 rounded-xl text-white flex justify-between items-center shadow-md border border-blue-900/60">
             <div>
-              <span className="text-xs uppercase text-zinc-400 block font-semibold tracking-wider">
+              <span className="text-[11px] font-semibold text-blue-300 uppercase tracking-wider block">
                 Total Pembayaran
               </span>
-              <span className="text-2xl font-bold tracking-tight tabular-nums">
+              <span className="text-2xl font-bold tracking-tight tabular-nums font-mono text-white">
                 {formatCurrency(currentTotal)}
               </span>
             </div>
-            <span className="text-xs uppercase text-zinc-400 font-semibold tracking-wider">NET TOTAL</span>
+            <span className="text-[10px] font-bold uppercase text-blue-300 bg-blue-900/60 px-2.5 py-1 rounded-md border border-blue-700/60 tracking-wider">
+              NET TOTAL
+            </span>
           </div>
 
           {/* Payment Method Selector */}
@@ -658,7 +660,7 @@ export const PosPage: React.FC = () => {
                   }}
                   className={`py-2 px-1 text-center rounded-lg text-xs font-semibold border transition ${
                     paymentMethod === m
-                      ? 'bg-zinc-900 border-zinc-900 text-white shadow-subtle'
+                      ? 'bg-blue-600 border-blue-600 text-white shadow-xs font-bold'
                       : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:bg-zinc-100'
                   }`}
                 >
@@ -678,7 +680,7 @@ export const PosPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setAmountPaid(currentTotal)}
-                  className="text-[11px] font-semibold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 px-2 py-0.5 rounded transition"
+                  className="text-[11px] font-semibold text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded transition border border-blue-200/60"
                   title="Klik jika pelanggan membayar dengan uang pas"
                 >
                   Uang Pas
@@ -688,7 +690,7 @@ export const PosPage: React.FC = () => {
                 placeholder="Ketik uang tunai dari pelanggan..."
                 value={amountPaid}
                 onChange={(val) => setAmountPaid(val)}
-                className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-lg font-bold text-zinc-900 focus:outline-none focus:border-zinc-500 focus:bg-white transition tabular-nums"
+                className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-lg font-bold text-zinc-900 focus:outline-none focus:border-blue-500 focus:bg-white transition tabular-nums"
               />
 
               {/* Quick Cash Presets */}
@@ -700,7 +702,7 @@ export const PosPage: React.FC = () => {
                         key={amt}
                         type="button"
                         onClick={() => setAmountPaid(amt)}
-                        className="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-medium rounded-md tabular-nums transition"
+                        className="px-2.5 py-1 bg-zinc-100 hover:bg-blue-50 hover:text-blue-700 text-zinc-700 text-xs font-medium rounded-md tabular-nums transition border border-transparent hover:border-blue-200"
                       >
                         {formatCurrency(amt)}
                       </button>
@@ -729,7 +731,7 @@ export const PosPage: React.FC = () => {
               (paymentMethod === 'CASH' && (amountPaid === '' || Number(amountPaid) < currentTotal))
             }
             onClick={activeTab === 'DIRECT' ? handleCheckoutDirect : handleCheckoutService}
-            className="w-full py-2.5 px-4 bg-zinc-900 hover:bg-zinc-800 active:bg-zinc-950 text-white font-semibold text-xs tracking-wide rounded-lg shadow-subtle transition disabled:opacity-40 flex items-center justify-center gap-2"
+            className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 disabled:from-zinc-200 disabled:to-zinc-300 disabled:text-zinc-400 text-white font-bold text-xs sm:text-sm tracking-wide rounded-xl shadow-md shadow-blue-500/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2"
           >
             <CheckCircle className="w-4 h-4" />
             <span>{loading ? 'Memproses Transaksi...' : 'Konfirmasi Bayar & Cetak Nota'}</span>

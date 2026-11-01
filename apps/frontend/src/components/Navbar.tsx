@@ -63,12 +63,12 @@ export const Navbar: React.FC = () => {
     if (!roles || roles.length === 0) return null;
     const primary = roles[0];
     const styles: Record<string, string> = {
-      OWNER: 'bg-zinc-900 text-zinc-100 border-zinc-700',
-      KASIR: 'bg-blue-50 text-blue-800 border-blue-200',
+      OWNER: 'bg-blue-950 text-blue-200 border-blue-800 shadow-xs',
+      KASIR: 'bg-emerald-50 text-emerald-800 border-emerald-200',
     };
     return (
       <span
-        className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border uppercase tracking-wider whitespace-nowrap ${
+        className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border uppercase tracking-wider whitespace-nowrap ${
           styles[primary] || 'bg-zinc-100 text-zinc-700'
         }`}
       >
@@ -78,18 +78,23 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-zinc-200/80">
+    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-zinc-200/90 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex justify-between items-center h-14">
           {/* Brand */}
           <div className="flex items-center gap-6 shrink-0">
             <Link to="/" className="flex items-center gap-2.5 group shrink-0">
-              <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center text-white shadow-subtle group-hover:bg-blue-600 transition-colors">
-                <Wrench className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 flex items-center justify-center text-white shadow-sm shadow-blue-500/30 group-hover:scale-105 transition-all">
+                <Wrench className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-sm tracking-tight text-zinc-900 whitespace-nowrap">
-                {workshopName}
-              </span>
+              <div>
+                <span className="font-bold text-sm tracking-tight text-zinc-900 block leading-tight whitespace-nowrap">
+                  {workshopName}
+                </span>
+                <span className="text-[10px] text-blue-600 font-medium block leading-none">
+                  Workshop ERP Pro
+                </span>
+              </div>
             </Link>
 
             {/* Desktop Navigation */}
@@ -103,10 +108,10 @@ export const Navbar: React.FC = () => {
                   <Link
                     key={link.to}
                     to={link.to}
-                    className={`px-3 py-1.5 rounded-md text-xs font-semibold whitespace-nowrap transition-all ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
                       isActive
-                        ? 'bg-zinc-100 text-zinc-900 shadow-subtle'
-                        : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'
+                        ? 'bg-blue-50 text-blue-700 shadow-xs border border-blue-200/80 font-bold'
+                        : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/70'
                     }`}
                   >
                     {link.label}
@@ -118,14 +123,14 @@ export const Navbar: React.FC = () => {
 
           {/* Right Controls: Clock & User Session */}
           <div className="flex items-center gap-3 shrink-0">
-            <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 bg-zinc-50 rounded-md border text-xs text-zinc-600 shrink-0">
+            <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 bg-zinc-50 rounded-lg border border-zinc-200/80 text-xs text-zinc-600 shrink-0">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               <span className="tabular-nums font-medium whitespace-nowrap">{currentTime} WIB</span>
             </div>
 
             <div className="flex items-center gap-2 pl-2 border-l border-zinc-200 shrink-0">
               <div className="flex items-center gap-2 shrink-0">
-                <div className="w-7 h-7 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-800 text-xs font-bold shrink-0">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200 flex items-center justify-center text-blue-800 text-xs font-bold shrink-0">
                   {userInitial}
                 </div>
                 <div className="hidden sm:block">
